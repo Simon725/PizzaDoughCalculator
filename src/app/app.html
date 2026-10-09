@@ -1,9 +1,92 @@
 <header class="hero">
-  <p class="eyebrow">Teig · Zeit · Feuer</p>
-  <h1>Pizzateig-Rechner</h1>
+  <div>
+    <p class="eyebrow">Teig · Zeit · Feuer</p>
+    <h1>Pizzateig-Rechner</h1>
+  </div>
+  <button type="button" class="reset-button" (click)="store.reset()">Zurücksetzen</button>
 </header>
 
 <main class="layout">
-  <section class="layout__inputs" aria-label="Eingaben"></section>
-  <section class="layout__results" aria-label="Ergebnis"></section>
+  <section class="layout__inputs" aria-label="Eingaben">
+    <section class="panel" aria-labelledby="panel-method">
+      <h2 class="panel__title" id="panel-method">Methode</h2>
+      <app-method-switch
+        [method]="doughInput().method"
+        (methodChange)="store.setMethod($event)"
+      />
+    </section>
+
+    @if (preDoughMethod(); as method) {
+      <section class="panel panel--pre-dough" aria-labelledby="panel-pre-dough">
+        <h2 class="panel__title" id="panel-pre-dough">Vorteig</h2>
+        <app-pre-dough-panel
+          [method]="method"
+          [settings]="doughInput().preDough"
+          (settingsChange)="store.updatePreDough($event)"
+        />
+      </section>
+    }
+
+    <section class="panel" aria-labelledby="panel-style">
+      <h2 class="panel__title" id="panel-style">Pizzastil</h2>
+      <app-style-picker [styleId]="doughInput().style" (styleIdChange)="store.setStyle($event)" />
+    </section>
+
+    <section class="panel" aria-labelledby="panel-balls">
+      <h2 class="panel__title" id="panel-balls">Teiglinge</h2>
+      <div class="panel__row">
+        <label class="panel__label" for="ball-count">Anzahl</label>
+        <app-number-stepper
+          inputId="ball-count"
+          label="Anzahl Teiglinge"
+          [value]="doughInput().ballCount"
+          [limit]="limits.ballCount"
+          (valueChange)="store.setBallCount($event)"
+        />
+      </div>
+      <app-range-field
+        label="Gewicht pro Teigling"
+        unit="g"
+        [value]="doughInput().ballWeightGrams"
+        [limit]="limits.ballWeightGrams"
+        (valueChange)="store.setBallWeight($event)"
+      />
+    </section>
+
+    <section class="panel" aria-labelledby="panel-dough">
+      <h2 class="panel__title" id="panel-dough">Teig</h2>
+      <app-range-field
+        label="Hydration"
+        unit="%"
+        [value]="doughInput().hydrationPercent"
+        [limit]="limits.hydrationPercent"
+        (valueChange)="store.setHydration($event)"
+      />
+      <app-yeast-toggle
+        [yeastType]="doughInput().yeastType"
+        (yeastTypeChange)="store.setYeastType($event)"
+      />
+    </section>
+
+    <section class="panel" aria-labelledby="panel-phases">
+      <h2 class="panel__title" id="panel-phases">Gare</h2>
+      <app-phase-editor
+        [phases]="doughInput().phases"
+        [totalHours]="store.totalPhaseHours()"
+        (addPhase)="store.addPhase($event)"
+        (removePhase)="store.removePhase($event)"
+        (updatePhase)="store.updatePhase($event.id, $event.patch)"
+        (movePhase)="store.movePhase($event.id, $event.direction)"
+      />
+    </section>
+  </section>
+
+  <section class="layout__results" aria-label="Ergebnis">
+    <section class="visual-slot" aria-hidden="true"></section>
+    <app-recipe-card
+      [doughInput]="doughInput()"
+      [result]="store.result()"
+      [totalHours]="store.totalPhaseHours()"
+    />
+  </section>
 </main>

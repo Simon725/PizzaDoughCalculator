@@ -1,0 +1,23 @@
+:host {
+  display: grid;
+  gap: 20px;
+}
+
+.pre-dough__intro {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.pre-dough__fermentation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+.pre-dough__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}

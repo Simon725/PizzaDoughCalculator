@@ -61,67 +61,6 @@ describe('App', () => {
     expect(compiled.querySelector('app-pre-dough-panel')).not.toBeNull();
   });
 
-  describe('pre-ferment temperature', () => {
-    async function renderWithMethod(method: string) {
-      const fixture = TestBed.createComponent(App);
-      await fixture.whenStable();
-      const compiled = fixture.nativeElement as HTMLElement;
-      compiled.querySelector<HTMLInputElement>(`input[value="${method}"]`)?.click();
-      await fixture.whenStable();
-      return { fixture, compiled };
-    }
-
-    function preFermentLabel(compiled: HTMLElement): string | undefined {
-      return compiled
-        .querySelector('label[for="water-temperature-pre-ferment"] span')
-        ?.textContent?.trim();
-    }
-
-    it('hides the field for the direct method', async () => {
-      const compiled = await render();
-
-      expect(compiled.querySelector('#water-temperature-pre-ferment')).toBeNull();
-    });
-
-    it('labels the field for poolish, biga and sourdough', async () => {
-      expect(preFermentLabel((await renderWithMethod('poolish')).compiled)).toBe(
-        'Vorteigtemperatur',
-      );
-      expect(preFermentLabel((await renderWithMethod('biga')).compiled)).toBe('Vorteigtemperatur');
-      expect(preFermentLabel((await renderWithMethod('sourdough')).compiled)).toBe(
-        'Startertemperatur',
-      );
-    });
-
-    it('follows the room temperature until it is edited and can be reset', async () => {
-      const { fixture, compiled } = await renderWithMethod('poolish');
-      const store = TestBed.inject(DoughStore);
-      const preFermentField = () =>
-        compiled.querySelector<HTMLInputElement>('#water-temperature-pre-ferment');
-      const resetButton = () =>
-        compiled.querySelector<HTMLButtonElement>('.water-temperature__reset');
-
-      store.updateWaterTemperature({ roomC: 19 });
-      await fixture.whenStable();
-      expect(preFermentField()?.value).toBe('19');
-      expect(resetButton()).toBeNull();
-
-      preFermentField()!.value = '16';
-      preFermentField()!.dispatchEvent(new Event('change'));
-      await fixture.whenStable();
-      store.updateWaterTemperature({ roomC: 25 });
-      await fixture.whenStable();
-      expect(store.input().waterTemperature.preFermentC).toBe(16);
-      expect(preFermentField()?.value).toBe('16');
-
-      resetButton()?.click();
-      await fixture.whenStable();
-      expect(store.input().waterTemperature.preFermentC).toBeUndefined();
-      expect(preFermentField()?.value).toBe('25');
-      expect(resetButton()).toBeNull();
-    });
-  });
-
   it('switches the sourdough starter to a manual percent', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
@@ -329,33 +268,6 @@ describe('App', () => {
 
       expect(store.input().phases[0].temperatureC).toBe(23);
       expect(phaseTemperature().value).toBe('23');
-    });
-
-    it('accepts water temperature inputs in Fahrenheit', async () => {
-      const { fixture, compiled } = await renderFixture();
-      await selectUnitSystem(fixture, 'imperial');
-      const roomField = compiled.querySelector<HTMLInputElement>('#water-temperature-room');
-
-      await commitNumber(fixture, roomField!, '68');
-
-      expect(TestBed.inject(DoughStore).input().waterTemperature.roomC).toBe(20);
-      expect(compiled.querySelector('.water-temperature__result')?.textContent).toContain('°F');
-    });
-
-    it('accepts the pre-ferment temperature in Fahrenheit without drift', async () => {
-      const { fixture, compiled } = await renderFixture();
-      TestBed.inject(DoughStore).setMethod('biga');
-      await selectUnitSystem(fixture, 'imperial');
-      const preFermentField = compiled.querySelector<HTMLInputElement>(
-        '#water-temperature-pre-ferment',
-      );
-
-      expect(preFermentField?.value).toBe('72');
-
-      await commitNumber(fixture, preFermentField!, '61');
-
-      expect(TestBed.inject(DoughStore).input().waterTemperature.preFermentC).toBe(16.1);
-      expect(preFermentField?.value).toBe('61');
     });
   });
 });

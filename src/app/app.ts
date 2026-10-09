@@ -8,7 +8,6 @@ import { PreDoughPanel } from './inputs/pre-dough-panel';
 import { SourdoughPanel } from './inputs/sourdough-panel';
 import { ScheduleTemplates } from './inputs/schedule-templates';
 import { StylePicker } from './inputs/style-picker';
-import { WaterTemperaturePanel } from './inputs/water-temperature-panel';
 import { YeastToggle } from './inputs/yeast-toggle';
 import { RecipeCard } from './results/recipe-card';
 import { NumberStepper } from './shared/number-stepper';
@@ -45,7 +44,6 @@ import { PizzaVisual } from './visuals/pizza-visual';
     StylePicker,
     ThemeToggle,
     UnitSystemToggle,
-    WaterTemperaturePanel,
     YeastToggle,
   ],
   templateUrl: './app.html',

@@ -40,9 +40,6 @@
           <div class="recipe__row">
             <dt>
               {{ row.label }}
-              @if (row.temperature; as temperature) {
-                <span class="recipe__temperature">{{ temperature }}</span>
-              }
             </dt>
             <dd>
               <app-animated-number [value]="row.amount.value" [decimals]="row.amount.decimals" />
@@ -64,7 +61,21 @@
     <section class="recipe__schedule" aria-labelledby="recipe-section-schedule">
       <h3 id="recipe-section-schedule">{{ t().bakeSchedule.title }}</h3>
       @if (startHasPassed()) {
-        <p class="recipe__schedule-warning" role="alert">{{ t().bakeSchedule.startPassed }}</p>
+        <div class="recipe__schedule-warning" role="alert">
+          <p>{{ t().bakeSchedule.startPassed }}</p>
+          <div class="recipe__schedule-actions no-print">
+            @if (canShortenSchedule()) {
+              <button type="button" class="recipe__button" (click)="shortenSchedule.emit()">
+                {{ t().bakeSchedule.shortenToFit }}
+              </button>
+            }
+            @if (earliestBakeLabel(); as label) {
+              <button type="button" class="recipe__button" (click)="moveBakeTime.emit()">
+                {{ label }}
+              </button>
+            }
+          </div>
+        </div>
       }
       <ol class="recipe__steps">
         @for (step of scheduleSteps(); track step.id) {

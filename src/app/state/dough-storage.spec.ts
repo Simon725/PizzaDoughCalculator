@@ -1,5 +1,4 @@
 import { SOURDOUGH_DEFAULTS } from '../dough/pizza-styles';
-import { WATER_TEMPERATURE_DEFAULTS } from '../dough/water-temperature';
 import { createDefaultInput } from './dough-defaults';
 import {
   DOUGH_STORAGE_KEY,
@@ -8,7 +7,7 @@ import {
   saveDoughInput,
   withBakeScheduleDefaults,
   withSourdoughDefaults,
-  withWaterTemperatureDefaults,
+  withoutWaterTemperature,
 } from './dough-storage';
 
 function legacyInput(): Record<string, unknown> {
@@ -16,7 +15,6 @@ function legacyInput(): Record<string, unknown> {
     sourdough: _sourdough,
     oilPercent: _oil,
     sugarPercent: _sugar,
-    waterTemperature: _waterTemperature,
     bakeSchedule: _bakeSchedule,
     ...legacy
   } = createDefaultInput();
@@ -52,79 +50,25 @@ describe('dough storage', () => {
     expect(loaded?.sourdough).toEqual(SOURDOUGH_DEFAULTS);
     expect(loaded?.oilPercent).toBe(0);
     expect(loaded?.sugarPercent).toBe(0);
-    expect(loaded?.waterTemperature).toEqual(WATER_TEMPERATURE_DEFAULTS);
   });
 
-  it('loads input saved before the water temperature existed', () => {
-    const { waterTemperature: _waterTemperature, ...saved } = {
-      ...createDefaultInput(),
-      method: 'biga' as const,
-      ballCount: 6,
-    };
-    localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify(saved));
-
-    const loaded = loadDoughInput();
-
-    expect(loaded?.ballCount).toBe(6);
-    expect(loaded?.waterTemperature).toEqual(WATER_TEMPERATURE_DEFAULTS);
-  });
-
-  it('round-trips water temperature settings', () => {
-    const input = {
-      ...createDefaultInput(),
-      waterTemperature: { targetDoughC: 26, roomC: 18, flourC: 16, mixing: 'stand-mixer' as const },
-    };
-
-    saveDoughInput(input);
-
-    expect(loadDoughInput()).toEqual(input);
-  });
-
-  it('round-trips a set pre-ferment temperature', () => {
-    const input = {
-      ...createDefaultInput(),
-      method: 'poolish' as const,
-      waterTemperature: { ...WATER_TEMPERATURE_DEFAULTS, preFermentC: 12.5 },
-    };
-
-    saveDoughInput(input);
-
-    expect(loadDoughInput()).toEqual(input);
-  });
-
-  it('loads water temperature settings saved before the pre-ferment temperature existed', () => {
+  it('drops water temperature settings saved by older versions', () => {
+    const input = createDefaultInput();
     const saved = {
-      ...createDefaultInput(),
-      waterTemperature: { targetDoughC: 25, roomC: 19, flourC: 18, mixing: 'hand' },
+      ...input,
+      waterTemperature: { targetDoughC: 26, roomC: 18, flourC: 16, mixing: 'stand-mixer' },
     };
     localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify(saved));
 
-    const loaded = loadDoughInput();
-
-    expect(loaded?.waterTemperature).toEqual(saved.waterTemperature);
-    expect(loaded?.waterTemperature.preFermentC).toBeUndefined();
+    expect(loadDoughInput()).toEqual(input);
   });
 
-  it('adds water temperature defaults only when they are missing', () => {
-    const custom = { waterTemperature: { ...WATER_TEMPERATURE_DEFAULTS, roomC: 30 } };
-    const filled = withWaterTemperatureDefaults({}) as { waterTemperature: unknown };
+  it('removes the water temperature only when it is present', () => {
+    const input = { ballCount: 4 };
 
-    expect(withWaterTemperatureDefaults(custom)).toBe(custom);
-    expect(filled).toEqual({ waterTemperature: WATER_TEMPERATURE_DEFAULTS });
-    expect(filled.waterTemperature).not.toBe(WATER_TEMPERATURE_DEFAULTS);
-    expect(withWaterTemperatureDefaults(null)).toBeNull();
-  });
-
-  it.each([
-    ['not an object', 24],
-    ['below the target limit', { ...WATER_TEMPERATURE_DEFAULTS, targetDoughC: 10 }],
-    ['above the room limit', { ...WATER_TEMPERATURE_DEFAULTS, roomC: 50 }],
-    ['not a number', { ...WATER_TEMPERATURE_DEFAULTS, flourC: '22' }],
-    ['an unknown mixing type', { ...WATER_TEMPERATURE_DEFAULTS, mixing: 'spoon' }],
-    ['above the pre-ferment limit', { ...WATER_TEMPERATURE_DEFAULTS, preFermentC: 36 }],
-    ['a null pre-ferment', { ...WATER_TEMPERATURE_DEFAULTS, preFermentC: null }],
-  ])('rejects water temperature settings that are %s', (_label, waterTemperature) => {
-    expect(isDoughInput({ ...createDefaultInput(), waterTemperature })).toBe(false);
+    expect(withoutWaterTemperature(input)).toBe(input);
+    expect(withoutWaterTemperature({ ...input, waterTemperature: {} })).toEqual(input);
+    expect(withoutWaterTemperature(null)).toBeNull();
   });
 
   it('adds sourdough defaults only when they are missing', () => {

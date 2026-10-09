@@ -45,7 +45,7 @@ describe('unit fields', () => {
       max: 95,
       step: 1,
     });
-    expect(temperatureField(DOUGH_LIMITS.targetDoughTemperatureC, 'imperial').limit).toEqual({
+    expect(temperatureField({ min: 18, max: 30, step: 1 }, 'imperial').limit).toEqual({
       min: 65,
       max: 86,
       step: 1,

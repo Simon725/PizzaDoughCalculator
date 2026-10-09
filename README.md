@@ -13,18 +13,6 @@ With sourdough, a starter replaces the yeast. The starter amount (% of total flo
 - Manual override: the switch "Calculated / Manual" in the sourdough panel lets you set the starter % yourself (2–30 %, step 0.5). Switching to manual starts from the calculated value, snapped to the step; the calculated value stays visible as a hint.
 - In manual mode the schedule warnings for the starter amount (clamped, no fermentation time) are not shown. Mode and manual % are stored with the settings (`starterMode`, `manualStarterPercent`); older saved settings load in calculated mode.
 
-## Water temperature
-The water temperature for the main dough uses the desired dough temperature method (all values in °C):
-
-- Direct: water = 3 × target − room − flour − friction.
-- Poolish, biga, sourdough: water = 4 × target − room − flour − pre-ferment − friction.
-- Pre-ferment is the temperature of the poolish, biga or sourdough starter when it goes into the main dough (field "Pre-ferment temperature" / "Starter temperature", 0–35 °C, shown only for these methods).
-- Until it is edited, the pre-ferment temperature follows the room temperature. An edited value stays independent; "Same as room temperature" makes it follow the room again. It is stored as an optional `preFermentC`, so older saved settings still load.
-- The fermentation temperature of the poolish/biga (e.g. 4 °C in the fridge) is not used: take the pre-ferment out in time or enter its actual temperature.
-- Friction rise while mixing: by hand 2 °C, stand mixer 12 °C (`WATER_TEMPERATURE_MODEL` in `src/app/dough/water-temperature.ts`).
-- The result is clamped to 0–45 °C. Below 0 °C the app suggests ice water, above 45 °C a lower target temperature.
-- Example: direct, target 24 °C, room 22 °C, flour 22 °C, stand mixer → 3 × 24 − 22 − 22 − 12 = 16 °C.
-
 ## Bake schedule
 Optionally, the schedule is planned backwards from a bake date and time (default: tomorrow at 19:00):
 
@@ -32,7 +20,12 @@ Optionally, the schedule is planned backwards from a bake date and time (default
 - Poolish and biga start their pre-ferment time before mixing. Feeding a sourdough starter is not planned.
 - Every clock time shows weekday, date and 24-hour time (German `Fr 10.10. 13:00`, English `Fri 10/10 13:00`), so schedules longer than a week stay unambiguous. This applies to the timeline, the recipe step list, the copied recipe text and print. The parts are built with `Intl.DateTimeFormat.formatToParts` in the app locale, so the output is the same in Node and browsers.
 - Durations are real elapsed hours (millisecond arithmetic), so across a daylight saving change the wall-clock times shift by one hour (e.g. 24 h before Sun 19:00 after the October change is Sat 20:00).
-- The bake time is stored as an ISO string with the on/off flag. A stored bake time in the past is kept as is; the recipe then warns that the first step has passed.
+- The bake time is stored as an ISO string with the on/off flag.
+- The step list shows every phase, including phase 1, which starts when the dough is mixed.
+- If the first step is already in the past, the recipe warns and offers two fixes:
+  - "Shorten fermentation, start now": keeps the bake time and shortens the pre-ferment and all phases by the same factor so the plan starts now. Yeast or calculated starter is recalculated from the shorter times (a manual starter % stays as set). Hours use 0.5 h steps; the total is rounded down so the plan never starts in the past, and a phase is never rounded to 0 h. Not offered when the bake time itself has passed.
+  - "Bake later": keeps the recipe and moves the bake time to now + total fermentation time, rounded up to the next quarter hour.
+- "Now" is read when the app loads and on each change, not on a timer.
 
 ## Units
 Metric or imperial is a separate setting (header toggle, saved in the browser), independent of the language:

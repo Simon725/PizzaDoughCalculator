@@ -21,7 +21,6 @@ export type RecipeSectionId = 'pre-dough' | 'starter' | 'main-dough' | 'total';
 export interface RecipeRow {
   label: string;
   amount: DisplayAmount;
-  temperature?: string;
 }
 
 export interface RecipeSection {
@@ -75,12 +74,7 @@ function yeastSections(
       id: 'main-dough',
       title: t.recipe.mainDough,
       note: '',
-      rows: buildRows(
-        result.mainDough,
-        yeastRow(result.mainDough, result.yeastType, t),
-        context,
-        result.waterTemperatureC,
-      ),
+      rows: buildRows(result.mainDough, yeastRow(result.mainDough, result.yeastType, t), context),
     },
     totalSection(result, yeastRow(result.totals, result.yeastType, t), context),
   );
@@ -110,12 +104,7 @@ function sourdoughSections(
       id: 'main-dough',
       title: t.recipe.mainDough,
       note: '',
-      rows: buildRows(
-        result.mainDough,
-        starterRow(starter, context),
-        context,
-        result.waterTemperatureC,
-      ),
+      rows: buildRows(result.mainDough, starterRow(starter, context), context),
     },
     totalSection(result, null, context),
   ];
@@ -139,40 +128,18 @@ function buildRows(
   amounts: IngredientAmounts,
   leaveningRow: RecipeRow | null,
   context: RecipeContext,
-  waterTemperatureC: number | null = null,
 ): RecipeRow[] {
   const leavening = leaveningRow ? [leaveningRow] : [];
-  return [
-    ...baseRows(amounts, waterTemperatureC, context),
-    ...leavening,
-    ...enrichmentRows(amounts, context.t),
-  ];
+  return [...baseRows(amounts, context), ...leavening, ...enrichmentRows(amounts, context.t)];
 }
 
-function baseRows(
-  amounts: IngredientAmounts,
-  waterTemperatureC: number | null,
-  context: RecipeContext,
-): RecipeRow[] {
+function baseRows(amounts: IngredientAmounts, context: RecipeContext): RecipeRow[] {
   const { t, unitSystem } = context;
   return [
     { label: t.recipe.flour, amount: weightAmount(amounts.flour, unitSystem) },
-    waterRow(amounts, waterTemperatureC, context),
+    { label: t.recipe.water, amount: weightAmount(amounts.water, unitSystem) },
     { label: t.recipe.salt, amount: gramAmount(amounts.salt) },
   ];
-}
-
-function waterRow(
-  amounts: IngredientAmounts,
-  waterTemperatureC: number | null,
-  context: RecipeContext,
-): RecipeRow {
-  const { t, unitSystem } = context;
-  const row: RecipeRow = { label: t.recipe.water, amount: weightAmount(amounts.water, unitSystem) };
-  if (waterTemperatureC === null) {
-    return row;
-  }
-  return { ...row, temperature: formatTemperature(waterTemperatureC, unitSystem, t.locale) };
 }
 
 function yeastRow(amounts: IngredientAmounts, yeastType: YeastType, t: Translations): RecipeRow {

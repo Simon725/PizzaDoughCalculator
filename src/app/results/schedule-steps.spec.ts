@@ -11,7 +11,7 @@ const PHASES = [
 ];
 
 describe('buildScheduleSteps', () => {
-  it('lists pre-dough, mixing, later phases and baking in German', () => {
+  it('lists pre-dough, mixing, all phases and baking in German', () => {
     const preDough = {
       ...PRE_DOUGH_DEFAULTS.poolish,
       fermentation: { id: 'pre-dough', hours: 16, temperatureC: 18 },
@@ -25,6 +25,7 @@ describe('buildScheduleSteps', () => {
     expect(lines).toEqual([
       'Do 08.10. 21:00 – Poolish ansetzen',
       'Fr 09.10. 13:00 – Teig kneten',
+      'Fr 09.10. 13:00 – Phase 1 beginnt (2 h bei 22 °C)',
       'Fr 09.10. 15:00 – Phase 2 beginnt (24 h bei 4 °C)',
       'Sa 10.10. 15:00 – Phase 3 beginnt (4 h bei 22 °C)',
       'Sa 10.10. 19:00 – Backen',
@@ -41,7 +42,11 @@ describe('buildScheduleSteps', () => {
       formatScheduleStep,
     );
 
-    expect(lines).toEqual(['Sat 10/10 17:00 – Mix dough', 'Sat 10/10 19:00 – Bake']);
+    expect(lines).toEqual([
+      'Sat 10/10 17:00 – Mix dough',
+      'Sat 10/10 17:00 – Start phase 1 (2 h at 22 °C)',
+      'Sat 10/10 19:00 – Bake',
+    ]);
   });
 
   it('names biga in the English pre-dough step', () => {
@@ -67,5 +72,22 @@ describe('buildScheduleSteps', () => {
 
     expect(labels).toContain('Phase 2 beginnt (24 h bei 39 °F)');
     expect(labels).toContain('Phase 3 beginnt (4 h bei 72 °F)');
+  });
+
+  it('lists a short first phase', () => {
+    const plan = planBakeSchedule(
+      {
+        method: 'direct',
+        preDough: PRE_DOUGH_DEFAULTS.poolish,
+        phases: [{ id: 'warm', hours: 0.5, temperatureC: 24 }, ...PHASES.slice(1)],
+      },
+      BAKE_AT,
+    );
+
+    const labels = buildScheduleSteps('direct', plan, TRANSLATIONS.en, 'metric').map(
+      (step) => step.label,
+    );
+
+    expect(labels).toContain('Start phase 1 (0.5 h at 24 °C)');
   });
 });

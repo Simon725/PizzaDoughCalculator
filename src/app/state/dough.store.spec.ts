@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { PIZZA_STYLES, PRE_DOUGH_DEFAULTS, SOURDOUGH_DEFAULTS } from '../dough/pizza-styles';
-import { WATER_TEMPERATURE_DEFAULTS } from '../dough/water-temperature';
 import { DOUGH_STORAGE_KEY } from './dough-storage';
 import { DoughStore } from './dough.store';
 
@@ -229,113 +228,6 @@ describe('DoughStore', () => {
     });
   });
 
-  describe('water temperature', () => {
-    it('starts with the default water temperature settings', () => {
-      const store = createStore();
-
-      expect(store.input().waterTemperature).toEqual(WATER_TEMPERATURE_DEFAULTS);
-      expect(store.result().waterTemperatureC).toBe(26);
-    });
-
-    it('updates settings and recomputes the water temperature', () => {
-      const store = createStore();
-
-      store.updateWaterTemperature({ mixing: 'stand-mixer' });
-      expect(store.result().waterTemperatureC).toBe(16);
-
-      store.updateWaterTemperature({ targetDoughC: 25, roomC: 20, flourC: 19 });
-      expect(store.input().waterTemperature).toEqual({
-        targetDoughC: 25,
-        roomC: 20,
-        flourC: 19,
-        mixing: 'stand-mixer',
-      });
-      expect(store.result().waterTemperatureC).toBe(3 * 25 - 20 - 19 - 12);
-    });
-
-    it('clamps the temperatures and rounds them to 0.1 °C', () => {
-      const store = createStore();
-
-      store.updateWaterTemperature({ targetDoughC: 40, roomC: 2, flourC: 21.666 });
-
-      expect(store.input().waterTemperature).toEqual({
-        ...WATER_TEMPERATURE_DEFAULTS,
-        targetDoughC: 30,
-        roomC: 10,
-        flourC: 21.7,
-      });
-    });
-
-    it('restores the defaults on reset', () => {
-      const store = createStore();
-      store.updateWaterTemperature({ roomC: 30, mixing: 'stand-mixer' });
-
-      store.reset();
-
-      expect(store.input().waterTemperature).toEqual(WATER_TEMPERATURE_DEFAULTS);
-    });
-
-    it('lets the pre-ferment temperature follow the room temperature by default', () => {
-      const store = createStore();
-      store.setMethod('poolish');
-
-      store.updateWaterTemperature({ roomC: 20 });
-
-      expect(store.input().waterTemperature.preFermentC).toBeUndefined();
-      expect(store.result().waterTemperatureC).toBe(4 * 24 - 20 - 22 - 20 - 2);
-    });
-
-    it('keeps a set pre-ferment temperature when the room temperature changes', () => {
-      const store = createStore();
-      store.setMethod('biga');
-
-      store.updateWaterTemperature({ preFermentC: 16 });
-      store.updateWaterTemperature({ roomC: 26 });
-
-      expect(store.input().waterTemperature.preFermentC).toBe(16);
-      expect(store.result().waterTemperatureC).toBe(4 * 24 - 26 - 22 - 16 - 2);
-    });
-
-    it('clamps the pre-ferment temperature and rounds it to 0.1 °C', () => {
-      const store = createStore();
-
-      store.updateWaterTemperature({ preFermentC: 40 });
-      expect(store.input().waterTemperature.preFermentC).toBe(35);
-
-      store.updateWaterTemperature({ preFermentC: 4.444 });
-      expect(store.input().waterTemperature.preFermentC).toBe(4.4);
-    });
-
-    it('resets the pre-ferment temperature to follow the room temperature', () => {
-      const store = createStore();
-      store.updateWaterTemperature({ preFermentC: 16, mixing: 'stand-mixer' });
-
-      store.resetPreFermentTemperature();
-
-      expect(store.input().waterTemperature).toEqual({
-        ...WATER_TEMPERATURE_DEFAULTS,
-        mixing: 'stand-mixer',
-      });
-      expect('preFermentC' in store.input().waterTemperature).toBe(false);
-    });
-
-    it('persists the pre-ferment temperature', () => {
-      const store = createStore();
-      store.updateWaterTemperature({ preFermentC: 12 });
-      TestBed.tick();
-
-      expect(recreateStore().input().waterTemperature.preFermentC).toBe(12);
-    });
-
-    it('persists the water temperature settings', () => {
-      const store = createStore();
-      store.updateWaterTemperature({ flourC: 15 });
-      TestBed.tick();
-
-      expect(recreateStore().input().waterTemperature.flourC).toBe(15);
-    });
-  });
-
   describe('input clamping', () => {
     it('clamps values to their limits', () => {
       const store = createStore();
@@ -540,6 +432,43 @@ describe('DoughStore', () => {
       store.setBakeScheduleEnabled(true);
 
       expect(store.bakeStartHasPassed()).toBe(true);
+    });
+
+    it('shortens the phases so the plan starts now', () => {
+      const store = createStore();
+      store.setBakeTime(new Date(Date.now() + 15 * 3_600_000 + 60_000));
+      store.setBakeScheduleEnabled(true);
+      const yeastBefore = store.result().totals.yeast;
+
+      expect(store.bakeStartHasPassed()).toBe(true);
+      expect(store.canShortenSchedule()).toBe(true);
+
+      store.shortenScheduleToNow();
+
+      expect(store.input().phases.map((phase) => phase.hours)).toEqual([1, 12, 2]);
+      expect(store.bakeStartHasPassed()).toBe(false);
+      expect(store.result().totals.yeast).toBeGreaterThan(yeastBefore);
+    });
+
+    it('cannot shorten the phases when the bake time has passed', () => {
+      const store = createStore();
+      store.setBakeTime(new Date('2020-01-03T18:00:00.000Z'));
+      store.setBakeScheduleEnabled(true);
+
+      expect(store.canShortenSchedule()).toBe(false);
+    });
+
+    it('moves the bake time so the plan starts now', () => {
+      const store = createStore();
+      store.setBakeTime(new Date('2020-01-03T18:00:00.000Z'));
+      store.setBakeScheduleEnabled(true);
+      const phasesBefore = store.input().phases;
+
+      store.moveBakeTimeToEarliest();
+
+      expect(store.bakeStartHasPassed()).toBe(false);
+      expect(store.input().phases).toEqual(phasesBefore);
+      expect(store.input().bakeSchedule.bakeAt).toBe(store.earliestBakeAt().toISOString());
     });
 
     it('persists the bake schedule', () => {

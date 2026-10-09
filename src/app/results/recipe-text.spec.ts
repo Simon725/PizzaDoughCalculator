@@ -32,7 +32,6 @@ const RESULT: DoughResult = {
   referenceTemperatureC: 20,
   bowlLossGrams: 19.6,
   diameterCm: 29.4,
-  waterTemperatureC: 21.4,
   warnings: [],
 };
 
@@ -68,25 +67,8 @@ describe('formatRecipeText', () => {
     expect(text).toContain('  2. 24 h at 4 °C');
   });
 
-  it('shows the water temperature only in the main dough', () => {
-    const input = { ...createDefaultInput(), method: 'poolish' as const };
-
-    const text = formatRecipeText(input, RESULT, TRANSLATIONS.de, 'metric');
-    const [preDoughText, mainText] = text.split('Hauptteig');
-    const [mainDoughText, totalText] = mainText.split('Gesamt (');
-
-    expect(mainDoughText).toContain('  Wasser: 196 g (21 °C)');
-    expect(preDoughText).toContain('  Wasser: 184 g\n');
-    expect(totalText).toContain('  Wasser: 380 g\n');
-  });
-
-  it('omits the water temperature when there is none', () => {
-    const text = formatRecipeText(
-      createDefaultInput(),
-      { ...RESULT, waterTemperatureC: null },
-      TRANSLATIONS.en,
-      'metric',
-    );
+  it('renders the water without a temperature', () => {
+    const text = formatRecipeText(createDefaultInput(), RESULT, TRANSLATIONS.en, 'metric');
 
     expect(text).toContain('  Water: 196 g\n');
   });
@@ -125,7 +107,7 @@ describe('formatRecipeText', () => {
     expect(text).toContain('Pre-ferment (16 h at 64 °F)');
     expect(text).toContain('Total (35.6 oz dough)');
     expect(text).toContain('  Flour: 21.6 oz');
-    expect(mainText).toContain('  Water: 6.9 oz (71 °F)');
+    expect(mainText).toContain('  Water: 6.9 oz\n');
     expect(text).toContain('  Salt: 17 g');
     expect(text).toContain('  Yeast (fresh yeast): 1.2 g');
     expect(text).toContain('incl. 0.7 oz bowl loss (2 %)');
@@ -172,6 +154,7 @@ describe('formatRecipeText', () => {
       '',
       'Steps',
       '  Fri 10/09 13:00 – Mix dough',
+      '  Fri 10/09 13:00 – Start phase 1 (2 h at 22 °C)',
       '  Fri 10/09 15:00 – Start phase 2 (24 h at 4 °C)',
       '  Sat 10/10 15:00 – Start phase 3 (4 h at 22 °C)',
       '  Sat 10/10 19:00 – Bake',
@@ -216,7 +199,7 @@ describe('formatRecipeText', () => {
       expect(starterText).toContain('  Mehl: 62 g');
       expect(starterText).toContain('  Wasser: 62 g');
       expect(mainText).toContain('  Sauerteig-Starter: 124 g');
-      expect(mainText).toContain('  Wasser: 322 g (21 °C)');
+      expect(mainText).toContain('  Wasser: 322 g\n');
       expect(text).not.toContain('Hefe');
       expect(text).not.toContain('Vorteig');
     });

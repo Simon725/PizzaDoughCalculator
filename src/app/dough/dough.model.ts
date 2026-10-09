@@ -8,6 +8,8 @@ export type YeastType = 'fresh' | 'instant';
 
 export type MixingType = 'hand' | 'stand-mixer';
 
+export type StarterMode = 'calculated' | 'manual';
+
 export interface FermentationPhase {
   id: string;
   hours: number;
@@ -22,6 +24,8 @@ export interface PreDoughSettings {
 
 export interface SourdoughSettings {
   starterHydrationPercent: number;
+  starterMode: StarterMode;
+  manualStarterPercent: number;
 }
 
 export interface WaterTemperatureSettings {
@@ -81,6 +85,7 @@ export interface DoughWarning {
 export interface StarterResult {
   amounts: IngredientAmounts;
   inoculationPercent: number;
+  calculatedInoculationPercent: number;
   hydrationPercent: number;
 }
 

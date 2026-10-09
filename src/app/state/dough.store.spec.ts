@@ -163,6 +163,51 @@ describe('DoughStore', () => {
       expect(store.input().sourdough.starterHydrationPercent).toBe(50);
     });
 
+    it('starts the manual starter from the calculated percent', () => {
+      const store = createStore();
+      store.setMethod('sourdough');
+      const calculated = store.result().starter!.calculatedInoculationPercent;
+
+      store.updateSourdough({ starterMode: 'manual' });
+
+      expect(calculated).toBeCloseTo(9.7, 1);
+      expect(store.input().sourdough.starterMode).toBe('manual');
+      expect(store.input().sourdough.manualStarterPercent).toBe(9.5);
+      expect(store.result().starter?.inoculationPercent).toBe(9.5);
+      expect(store.result().starter?.calculatedInoculationPercent).toBe(calculated);
+    });
+
+    it('updates, snaps and clamps the manual starter percent', () => {
+      const store = createStore();
+      store.setMethod('sourdough');
+      store.updateSourdough({ starterMode: 'manual' });
+
+      store.updateSourdough({ manualStarterPercent: 12.3 });
+      expect(store.input().sourdough.manualStarterPercent).toBe(12.5);
+      expect(store.result().starter?.inoculationPercent).toBe(12.5);
+
+      store.updateSourdough({ manualStarterPercent: 50 });
+      expect(store.input().sourdough.manualStarterPercent).toBe(30);
+
+      store.updateSourdough({ manualStarterPercent: 0 });
+      expect(store.input().sourdough.manualStarterPercent).toBe(2);
+    });
+
+    it('uses the calculated value again in calculated mode and re-seeds on the next switch', () => {
+      const store = createStore();
+      store.setMethod('sourdough');
+      store.updateSourdough({ starterMode: 'manual' });
+      store.updateSourdough({ manualStarterPercent: 15 });
+      const calculated = store.result().starter!.calculatedInoculationPercent;
+
+      store.updateSourdough({ starterMode: 'calculated' });
+      expect(store.result().starter?.inoculationPercent).toBe(calculated);
+      expect(store.input().sourdough.manualStarterPercent).toBe(15);
+
+      store.updateSourdough({ starterMode: 'manual' });
+      expect(store.input().sourdough.manualStarterPercent).toBe(9.5);
+    });
+
     it('keeps the starter hydration across method changes', () => {
       const store = createStore();
       store.setMethod('sourdough');
@@ -594,6 +639,18 @@ describe('DoughStore', () => {
 
       expect(restored.method).toBe('sourdough');
       expect(restored.sourdough.starterHydrationPercent).toBe(80);
+    });
+
+    it('restores the manual starter mode and percent', () => {
+      const store = createStore();
+      store.setMethod('sourdough');
+      store.updateSourdough({ starterMode: 'manual', manualStarterPercent: 6.5 });
+      TestBed.tick();
+
+      const restored = recreateStore().input();
+
+      expect(restored.sourdough.starterMode).toBe('manual');
+      expect(restored.sourdough.manualStarterPercent).toBe(6.5);
     });
 
     it('fills missing sourdough settings of older saved input with the defaults', () => {

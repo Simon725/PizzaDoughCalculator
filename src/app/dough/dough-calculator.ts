@@ -5,6 +5,7 @@ import {
   DoughWarningCode,
   IngredientAmounts,
   PreDoughSettings,
+  SourdoughSettings,
   StarterResult,
   isPreDoughMethod,
 } from './dough.model';
@@ -14,6 +15,7 @@ import { PIZZA_STYLES, YEAST_TYPE_FACTORS } from './pizza-styles';
 import {
   SOURDOUGH_MODEL,
   StarterComposition,
+  StarterEstimate,
   equivalentHoursAt22C,
   starterComposition,
   starterPercentFor,
@@ -145,19 +147,16 @@ function yeastResult(input: DoughInput, doughGrams: number, common: CommonResult
 
 function sourdoughResult(input: DoughInput, doughGrams: number, common: CommonResult): DoughResult {
   const equivalentHours = equivalentHoursAt22C(input.phases);
-  const starterEstimate = starterPercentFor(equivalentHours);
+  const calculatedStarter = starterPercentFor(equivalentHours);
+  const inoculationPercent = inoculationPercentFor(input.sourdough, calculatedStarter);
   const hydrationPercent = input.sourdough.starterHydrationPercent;
   const split = starterSplit(
     doughGrams,
     doughFractions(input, 0),
-    starterComposition(starterEstimate.percent / 100, hydrationPercent),
+    starterComposition(inoculationPercent / 100, hydrationPercent),
   );
 
-  const warnings = clampWarnings(
-    totalHours(input.phases),
-    starterEstimate.clamp,
-    STARTER_CLAMP_WARNINGS,
-  );
+  const warnings = starterWarnings(input, calculatedStarter);
   if (split.mainWaterClamped) {
     warnings.push(warning('starter-water-too-high'));
   }
@@ -168,7 +167,8 @@ function sourdoughResult(input: DoughInput, doughGrams: number, common: CommonRe
     preDough: null,
     starter: {
       amounts: split.starter,
-      inoculationPercent: starterEstimate.percent,
+      inoculationPercent,
+      calculatedInoculationPercent: calculatedStarter.percent,
       hydrationPercent,
     },
     mainDough: split.mainDough,
@@ -177,6 +177,22 @@ function sourdoughResult(input: DoughInput, doughGrams: number, common: CommonRe
     referenceTemperatureC: SOURDOUGH_MODEL.referenceTemperatureC,
     warnings,
   };
+}
+
+function inoculationPercentFor(
+  settings: SourdoughSettings,
+  calculatedStarter: StarterEstimate,
+): number {
+  return settings.starterMode === 'manual'
+    ? settings.manualStarterPercent
+    : calculatedStarter.percent;
+}
+
+function starterWarnings(input: DoughInput, calculatedStarter: StarterEstimate): DoughWarning[] {
+  if (input.sourdough.starterMode === 'manual') {
+    return [];
+  }
+  return clampWarnings(totalHours(input.phases), calculatedStarter.clamp, STARTER_CLAMP_WARNINGS);
 }
 
 function doughFractions(input: DoughInput, yeastFraction: number): Fractions {
@@ -347,6 +363,7 @@ function isValidInput(input: DoughInput): boolean {
     isNonNegative(input.oilPercent) &&
     isNonNegative(input.sugarPercent) &&
     isNonNegative(input.sourdough.starterHydrationPercent) &&
+    isNonNegative(input.sourdough.manualStarterPercent) &&
     isValidWaterTemperatureSettings(input.waterTemperature) &&
     input.style in PIZZA_STYLES &&
     input.yeastType in YEAST_TYPE_FACTORS
@@ -391,5 +408,10 @@ function emptyResult(input: DoughInput): DoughResult {
 }
 
 function emptyStarter(hydrationPercent: number): StarterResult {
-  return { amounts: { ...EMPTY_AMOUNTS }, inoculationPercent: 0, hydrationPercent };
+  return {
+    amounts: { ...EMPTY_AMOUNTS },
+    inoculationPercent: 0,
+    calculatedInoculationPercent: 0,
+    hydrationPercent,
+  };
 }

@@ -55,6 +55,8 @@ export const PRE_DOUGH_DEFAULTS: Record<PreDoughMethod, PreDoughSettings> = {
 
 export const SOURDOUGH_DEFAULTS: SourdoughSettings = {
   starterHydrationPercent: 100,
+  starterMode: 'calculated',
+  manualStarterPercent: 10,
 };
 
 export const YEAST_TYPE_FACTORS = {

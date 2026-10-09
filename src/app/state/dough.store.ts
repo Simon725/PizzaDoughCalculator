@@ -1,15 +1,19 @@
-import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
-import { hasStartPassed, parseBakeTime, planBakeSchedule } from '../dough/bake-schedule';
+import { Injectable, computed, effect, signal } from '@angular/core';
+import {
+  earliestBakeTime,
+  hasStartPassed,
+  parseBakeTime,
+  planBakeSchedule,
+  shortenToFit,
+} from '../dough/bake-schedule';
 import { calculateDough } from '../dough/dough-calculator';
 import {
   DoughInput,
   DoughMethod,
   FermentationPhase,
-  MixingType,
   PizzaStyleId,
   SourdoughSettings,
   StarterMode,
-  WaterTemperatureSettings,
   YeastType,
   isPreDoughMethod,
 } from '../dough/dough.model';
@@ -37,17 +41,7 @@ export interface SourdoughPatch {
   manualStarterPercent?: number;
 }
 
-export interface WaterTemperaturePatch {
-  targetDoughC?: number;
-  roomC?: number;
-  flourC?: number;
-  preFermentC?: number;
-  mixing?: MixingType;
-}
-
 export type MoveDirection = -1 | 1;
-
-const CLOCK_INTERVAL_MS = 60_000;
 
 @Injectable({ providedIn: 'root' })
 export class DoughStore {
@@ -61,23 +55,27 @@ export class DoughStore {
 
   private readonly now = signal(new Date());
 
+  private readonly bakeAt = computed(() => {
+    const { bakeSchedule } = this.state();
+    return bakeSchedule.enabled ? parseBakeTime(bakeSchedule.bakeAt) : null;
+  });
   readonly bakePlan = computed(() => {
-    const input = this.state();
-    if (!input.bakeSchedule.enabled) {
-      return null;
-    }
-    const bakeAt = parseBakeTime(input.bakeSchedule.bakeAt);
-    return bakeAt ? planBakeSchedule(input, bakeAt) : null;
+    const bakeAt = this.bakeAt();
+    return bakeAt ? planBakeSchedule(this.state(), bakeAt) : null;
   });
   readonly bakeStartHasPassed = computed(() => {
     const plan = this.bakePlan();
     return plan !== null && hasStartPassed(plan, this.now());
   });
+  readonly earliestBakeAt = computed(() => earliestBakeTime(this.state(), this.now()));
+  private readonly shortenedTimes = computed(() => {
+    const bakeAt = this.bakeAt();
+    return bakeAt ? shortenToFit(this.state(), bakeAt, this.now()) : null;
+  });
+  readonly canShortenSchedule = computed(() => this.shortenedTimes() !== null);
 
   constructor() {
     effect(() => saveDoughInput(this.state()));
-    const clock = setInterval(() => this.now.set(new Date()), CLOCK_INTERVAL_MS);
-    inject(DestroyRef).onDestroy(() => clearInterval(clock));
   }
 
   setMethod(method: DoughMethod): void {
@@ -166,30 +164,6 @@ export class DoughStore {
     });
   }
 
-  updateWaterTemperature(patch: WaterTemperaturePatch): void {
-    const waterTemperature = this.state().waterTemperature;
-    this.patch({
-      waterTemperature: {
-        targetDoughC: clampToLimit(
-          patch.targetDoughC ?? waterTemperature.targetDoughC,
-          STORED_LIMITS.targetDoughTemperatureC,
-        ),
-        roomC: clampToLimit(patch.roomC ?? waterTemperature.roomC, STORED_LIMITS.roomTemperatureC),
-        flourC: clampToLimit(
-          patch.flourC ?? waterTemperature.flourC,
-          STORED_LIMITS.flourTemperatureC,
-        ),
-        mixing: patch.mixing ?? waterTemperature.mixing,
-        ...preFermentTemperaturePart(patch.preFermentC ?? waterTemperature.preFermentC),
-      },
-    });
-  }
-
-  resetPreFermentTemperature(): void {
-    const { preFermentC: _preFermentC, ...waterTemperature } = this.state().waterTemperature;
-    this.patch({ waterTemperature });
-  }
-
   setBakeScheduleEnabled(enabled: boolean): void {
     this.patch({ bakeSchedule: { ...this.state().bakeSchedule, enabled } });
   }
@@ -199,6 +173,19 @@ export class DoughStore {
       return;
     }
     this.patch({ bakeSchedule: { ...this.state().bakeSchedule, bakeAt: bakeAt.toISOString() } });
+  }
+
+  shortenScheduleToNow(): void {
+    this.now.set(new Date());
+    const shortened = this.shortenedTimes();
+    if (shortened) {
+      this.patch(shortened);
+    }
+  }
+
+  moveBakeTimeToEarliest(): void {
+    this.now.set(new Date());
+    this.setBakeTime(this.earliestBakeAt());
   }
 
   addPhase(presetId: PhasePresetId): void {
@@ -239,10 +226,12 @@ export class DoughStore {
   }
 
   reset(): void {
+    this.now.set(new Date());
     this.state.set(createDefaultInput());
   }
 
   private patch(changes: Partial<DoughInput>): void {
+    this.now.set(new Date());
     this.state.update((current) => ({ ...current, ...changes }));
   }
 }
@@ -268,13 +257,4 @@ function manualStarterSeed(
     return sourdough.manualStarterPercent;
   }
   return starterPercentFor(equivalentHoursAt22C(phases)).percent;
-}
-
-function preFermentTemperaturePart(
-  preFermentC: number | undefined,
-): Pick<WaterTemperatureSettings, 'preFermentC'> {
-  if (preFermentC === undefined) {
-    return {};
-  }
-  return { preFermentC: clampToLimit(preFermentC, STORED_LIMITS.preFermentTemperatureC) };
 }

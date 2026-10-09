@@ -65,9 +65,5 @@ function formatSection(section: RecipeSection, t: Translations): string[] {
 }
 
 function formatRow(row: RecipeRow, t: Translations): string {
-  const amount = `  ${row.label}: ${formatAmount(row.amount, t.locale)}`;
-  if (row.temperature === undefined) {
-    return amount;
-  }
-  return `${amount} (${row.temperature})`;
+  return `  ${row.label}: ${formatAmount(row.amount, t.locale)}`;
 }

@@ -1,7 +1,6 @@
 import {
   DoughMethod,
   DoughWarningCode,
-  MixingType,
   PizzaStyleId,
   StarterMode,
   YeastType,
@@ -49,7 +48,6 @@ export interface Translations {
     fermentation: string;
     schedule: string;
     bakeTime: string;
-    waterTemperature: string;
   };
   fields: {
     count: string;
@@ -100,18 +98,6 @@ export interface Translations {
     manualStarter: string;
     calculatedHint: (percent: string) => string;
   };
-  waterTemperature: {
-    intro: string;
-    targetDough: string;
-    room: string;
-    flour: string;
-    preFerment: string;
-    starter: string;
-    sameAsRoom: string;
-    mixing: string;
-    mixingTypes: Record<MixingType, string>;
-    result: (temperature: string) => string;
-  };
   phases: {
     phase: (number: number) => string;
     cold: string;
@@ -134,6 +120,8 @@ export interface Translations {
     time: string;
     title: string;
     startPassed: string;
+    shortenToFit: string;
+    moveBakeTime: (time: string) => string;
     bakesAt: (time: string) => string;
     steps: {
       preDough: (method: string) => string;
@@ -219,7 +207,6 @@ const de: Translations = {
     fermentation: 'Gare',
     schedule: 'Zeitplan',
     bakeTime: 'Backzeit',
-    waterTemperature: 'Wassertemperatur',
   },
   fields: {
     count: 'Anzahl',
@@ -295,19 +282,6 @@ const de: Translations = {
     manualStarter: 'Starter vom Mehl',
     calculatedHint: (percent) => `Berechnet: ${percent} %`,
   },
-  waterTemperature: {
-    intro:
-      'Mit der richtigen Wassertemperatur erreicht der Teig nach dem Kneten die Zieltemperatur.',
-    targetDough: 'Ziel-Teigtemperatur',
-    room: 'Raumtemperatur',
-    flour: 'Mehltemperatur',
-    preFerment: 'Vorteigtemperatur',
-    starter: 'Startertemperatur',
-    sameAsRoom: 'Wie Raumtemperatur',
-    mixing: 'Kneten',
-    mixingTypes: { hand: 'Von Hand', 'stand-mixer': 'Küchenmaschine' },
-    result: (temperature) => `Wasser: ${temperature}`,
-  },
   phases: {
     phase: (number) => `Phase ${number}`,
     cold: 'kalt',
@@ -331,7 +305,9 @@ const de: Translations = {
     time: 'Uhrzeit',
     title: 'Ablauf',
     startPassed:
-      'Der erste Schritt liegt bereits in der Vergangenheit. Wähle eine spätere Backzeit.',
+      'Der erste Schritt liegt bereits in der Vergangenheit. Verkürze die Gärzeit (das Rezept wird angepasst) oder backe später.',
+    shortenToFit: 'Gärzeit verkürzen, jetzt starten',
+    moveBakeTime: (time) => `Später backen: ${time}`,
     bakesAt: (time) => `Backen: ${time}`,
     steps: {
       preDough: (method) => `${method} ansetzen`,
@@ -413,10 +389,6 @@ const de: Translations = {
       'Die Gärzeit ist sehr kurz. Die Startermenge wurde auf das Maximum begrenzt.',
     'no-fermentation':
       'Keine Gärzeit angegeben. Es wird die maximale Hefe- bzw. Startermenge verwendet.',
-    'water-temperature-low':
-      'Das Wasser müsste kälter als Eiswasser sein. Verwende Eiswasser und kühle Mehl oder Raum, oder erhöhe die Ziel-Teigtemperatur.',
-    'water-temperature-high':
-      'Das Wasser wäre zu heiß für den Teig. Senke die Ziel-Teigtemperatur.',
   },
 };
 
@@ -442,7 +414,6 @@ const en: Translations = {
     fermentation: 'Fermentation',
     schedule: 'Schedule',
     bakeTime: 'Bake time',
-    waterTemperature: 'Water temperature',
   },
   fields: {
     count: 'Count',
@@ -517,18 +488,6 @@ const en: Translations = {
     manualStarter: 'Starter of flour',
     calculatedHint: (percent) => `Calculated: ${percent} %`,
   },
-  waterTemperature: {
-    intro: 'The right water temperature brings the dough to the target temperature after mixing.',
-    targetDough: 'Target dough temperature',
-    room: 'Room temperature',
-    flour: 'Flour temperature',
-    preFerment: 'Pre-ferment temperature',
-    starter: 'Starter temperature',
-    sameAsRoom: 'Same as room temperature',
-    mixing: 'Mixing',
-    mixingTypes: { hand: 'By hand', 'stand-mixer': 'Stand mixer' },
-    result: (temperature) => `Water: ${temperature}`,
-  },
   phases: {
     phase: (number) => `Phase ${number}`,
     cold: 'cold',
@@ -551,7 +510,10 @@ const en: Translations = {
     date: 'Bake day',
     time: 'Time',
     title: 'Steps',
-    startPassed: 'The first step is already in the past. Choose a later bake time.',
+    startPassed:
+      'The first step is already in the past. Shorten the fermentation (the recipe is adjusted) or bake later.',
+    shortenToFit: 'Shorten fermentation, start now',
+    moveBakeTime: (time) => `Bake later: ${time}`,
     bakesAt: (time) => `Bake: ${time}`,
     steps: {
       preDough: (method) => `Make ${method.toLowerCase()}`,
@@ -633,10 +595,6 @@ const en: Translations = {
     'starter-clamped-high':
       'The fermentation time is very short. The starter amount was limited to the maximum.',
     'no-fermentation': 'No fermentation time given. The maximum yeast or starter amount is used.',
-    'water-temperature-low':
-      'The water would have to be colder than ice water. Use ice water and cool the flour or room, or raise the target dough temperature.',
-    'water-temperature-high':
-      'The water would be too hot for the dough. Lower the target dough temperature.',
   },
 };
 

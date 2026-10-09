@@ -27,7 +27,7 @@ export function buildScheduleSteps(
     });
   }
   steps.push({ id: 'mix', time: format(plan.mixAt), label: t.bakeSchedule.steps.mix });
-  plan.phases.slice(1).forEach((phase, index) => {
+  plan.phases.forEach((phase, index) => {
     const details = t.timeline.hoursAt(
       formatHours(phase.hours, t.locale),
       formatTemperature(phase.temperatureC, unitSystem, t.locale),
@@ -35,7 +35,7 @@ export function buildScheduleSteps(
     steps.push({
       id: phase.id,
       time: format(phase.startsAt),
-      label: t.bakeSchedule.steps.phase(index + 2, details),
+      label: t.bakeSchedule.steps.phase(index + 1, details),
     });
   });
   steps.push({ id: 'bake', time: format(plan.bakeAt), label: t.bakeSchedule.steps.bake });

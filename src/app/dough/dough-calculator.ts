@@ -21,12 +21,6 @@ import {
   starterPercentFor,
 } from './sourdough-model';
 import {
-  WaterTemperatureClamp,
-  WaterTemperatureEstimate,
-  isValidWaterTemperatureSettings,
-  waterTemperatureFor,
-} from './water-temperature';
-import {
   LeaveningClamp,
   YEAST_MODEL,
   equivalentHoursAt20C,
@@ -47,10 +41,7 @@ const EMPTY_AMOUNTS: IngredientAmounts = {
 
 type Ingredients = Omit<IngredientAmounts, 'total'>;
 
-type CommonResult = Pick<
-  DoughResult,
-  'yeastType' | 'saltPercent' | 'bowlLossGrams' | 'diameterCm' | 'waterTemperatureC'
->;
+type CommonResult = Pick<DoughResult, 'yeastType' | 'saltPercent' | 'bowlLossGrams' | 'diameterCm'>;
 
 interface ClampWarnings {
   low: DoughWarningCode;
@@ -75,12 +66,6 @@ const STARTER_CLAMP_WARNINGS: ClampWarnings = {
   high: 'starter-clamped-high',
 };
 
-const WATER_TEMPERATURE_WARNINGS: Record<WaterTemperatureClamp, DoughWarningCode | null> = {
-  none: null,
-  low: 'water-temperature-low',
-  high: 'water-temperature-high',
-};
-
 export function calculateDough(input: DoughInput): DoughResult {
   if (!isValidInput(input)) {
     return emptyResult(input);
@@ -90,31 +75,16 @@ export function calculateDough(input: DoughInput): DoughResult {
   const targetGrams = input.ballCount * input.ballWeightGrams;
   const bowlLossGrams = targetGrams * BOWL_LOSS_FRACTION;
   const doughGrams = targetGrams + bowlLossGrams;
-  const waterTemperature = waterTemperatureFor(input);
   const common: CommonResult = {
     yeastType: input.yeastType,
     saltPercent: style.saltPercent,
     bowlLossGrams,
     diameterCm: pizzaDiameterCm(input.ballWeightGrams, style.thicknessFactorGramsPerCm2),
-    waterTemperatureC: waterTemperature.temperatureC,
   };
 
-  const result =
-    input.method === 'sourdough'
-      ? sourdoughResult(input, doughGrams, common)
-      : yeastResult(input, doughGrams, common);
-  return withWaterTemperatureWarning(result, waterTemperature);
-}
-
-function withWaterTemperatureWarning(
-  result: DoughResult,
-  waterTemperature: WaterTemperatureEstimate,
-): DoughResult {
-  const code = WATER_TEMPERATURE_WARNINGS[waterTemperature.clamp];
-  if (code === null) {
-    return result;
-  }
-  return { ...result, warnings: [...result.warnings, warning(code)] };
+  return input.method === 'sourdough'
+    ? sourdoughResult(input, doughGrams, common)
+    : yeastResult(input, doughGrams, common);
 }
 
 function yeastResult(input: DoughInput, doughGrams: number, common: CommonResult): DoughResult {
@@ -364,7 +334,6 @@ function isValidInput(input: DoughInput): boolean {
     isNonNegative(input.sugarPercent) &&
     isNonNegative(input.sourdough.starterHydrationPercent) &&
     isNonNegative(input.sourdough.manualStarterPercent) &&
-    isValidWaterTemperatureSettings(input.waterTemperature) &&
     input.style in PIZZA_STYLES &&
     input.yeastType in YEAST_TYPE_FACTORS
   );
@@ -402,7 +371,6 @@ function emptyResult(input: DoughInput): DoughResult {
       : YEAST_MODEL.referenceTemperatureC,
     bowlLossGrams: 0,
     diameterCm: 0,
-    waterTemperatureC: null,
     warnings: [],
   };
 }

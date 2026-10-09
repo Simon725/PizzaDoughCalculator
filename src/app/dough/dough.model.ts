@@ -6,8 +6,6 @@ export type PizzaStyleId = 'neapolitan' | 'new-york' | 'roman';
 
 export type YeastType = 'fresh' | 'instant';
 
-export type MixingType = 'hand' | 'stand-mixer';
-
 export type StarterMode = 'calculated' | 'manual';
 
 export interface FermentationPhase {
@@ -28,14 +26,6 @@ export interface SourdoughSettings {
   manualStarterPercent: number;
 }
 
-export interface WaterTemperatureSettings {
-  targetDoughC: number;
-  roomC: number;
-  flourC: number;
-  preFermentC?: number;
-  mixing: MixingType;
-}
-
 export interface BakeScheduleSettings {
   enabled: boolean;
   bakeAt: string;
@@ -52,7 +42,6 @@ export interface DoughInput {
   yeastType: YeastType;
   preDough: PreDoughSettings;
   sourdough: SourdoughSettings;
-  waterTemperature: WaterTemperatureSettings;
   bakeSchedule: BakeScheduleSettings;
   phases: FermentationPhase[];
 }
@@ -74,9 +63,7 @@ export type DoughWarningCode =
   | 'starter-water-too-high'
   | 'starter-clamped-low'
   | 'starter-clamped-high'
-  | 'no-fermentation'
-  | 'water-temperature-low'
-  | 'water-temperature-high';
+  | 'no-fermentation';
 
 export interface DoughWarning {
   code: DoughWarningCode;
@@ -101,7 +88,6 @@ export interface DoughResult {
   referenceTemperatureC: number;
   bowlLossGrams: number;
   diameterCm: number;
-  waterTemperatureC: number | null;
   warnings: DoughWarning[];
 }
 

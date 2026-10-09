@@ -6,17 +6,14 @@ import {
   PizzaStyleId,
   PreDoughSettings,
   SourdoughSettings,
-  WaterTemperatureSettings,
 } from '../dough/dough.model';
 import { PIZZA_STYLES, SOURDOUGH_DEFAULTS } from '../dough/pizza-styles';
-import { WATER_TEMPERATURE_DEFAULTS } from '../dough/water-temperature';
 import { DOUGH_LIMITS, isWithinLimit } from './dough-limits';
 
 export const DOUGH_STORAGE_KEY = 'pizza-dough-calculator:v1';
 
 const METHODS: readonly string[] = ['direct', 'poolish', 'biga', 'sourdough'];
 const YEAST_TYPES: readonly string[] = ['fresh', 'instant'];
-const MIXING_TYPES: readonly string[] = ['hand', 'stand-mixer'];
 const STARTER_MODES: readonly string[] = ['calculated', 'manual'];
 
 export function loadDoughInput(): DoughInput | null {
@@ -25,10 +22,8 @@ export function loadDoughInput(): DoughInput | null {
     if (raw === null) {
       return null;
     }
-    const parsed = withBakeScheduleDefaults(
-      withWaterTemperatureDefaults(
-        withSourdoughDefaults(withStyleIngredientDefaults(JSON.parse(raw))),
-      ),
+    const parsed = withoutWaterTemperature(
+      withBakeScheduleDefaults(withSourdoughDefaults(withStyleIngredientDefaults(JSON.parse(raw)))),
     );
     return isDoughInput(parsed) ? parsed : null;
   } catch {
@@ -69,11 +64,12 @@ export function withSourdoughDefaults(value: unknown): unknown {
   return { ...value, sourdough: { ...SOURDOUGH_DEFAULTS, ...value['sourdough'] } };
 }
 
-export function withWaterTemperatureDefaults(value: unknown): unknown {
-  if (!isRecord(value) || 'waterTemperature' in value) {
+export function withoutWaterTemperature(value: unknown): unknown {
+  if (!isRecord(value) || !('waterTemperature' in value)) {
     return value;
   }
-  return { ...value, waterTemperature: { ...WATER_TEMPERATURE_DEFAULTS } };
+  const { waterTemperature: _waterTemperature, ...rest } = value;
+  return rest;
 }
 
 export function withBakeScheduleDefaults(value: unknown): unknown {
@@ -99,7 +95,6 @@ export function isDoughInput(value: unknown): value is DoughInput {
     isWithinLimit(value['sugarPercent'], DOUGH_LIMITS.sugarPercent) &&
     isPreDoughSettings(value['preDough']) &&
     isSourdoughSettings(value['sourdough']) &&
-    isWaterTemperatureSettings(value['waterTemperature']) &&
     isBakeScheduleSettings(value['bakeSchedule']) &&
     Array.isArray(value['phases']) &&
     value['phases'].every(isFermentationPhase)
@@ -126,23 +121,6 @@ function isSourdoughSettings(value: unknown): value is SourdoughSettings {
     isOneOf(value['starterMode'], STARTER_MODES) &&
     isWithinLimit(value['manualStarterPercent'], DOUGH_LIMITS.starterPercent)
   );
-}
-
-function isWaterTemperatureSettings(value: unknown): value is WaterTemperatureSettings {
-  if (!isRecord(value)) {
-    return false;
-  }
-  return (
-    isWithinLimit(value['targetDoughC'], DOUGH_LIMITS.targetDoughTemperatureC) &&
-    isWithinLimit(value['roomC'], DOUGH_LIMITS.roomTemperatureC) &&
-    isWithinLimit(value['flourC'], DOUGH_LIMITS.flourTemperatureC) &&
-    isOptionalPreFermentTemperature(value['preFermentC']) &&
-    isOneOf(value['mixing'], MIXING_TYPES)
-  );
-}
-
-function isOptionalPreFermentTemperature(value: unknown): value is number | undefined {
-  return value === undefined || isWithinLimit(value, DOUGH_LIMITS.preFermentTemperatureC);
 }
 
 function isBakeScheduleSettings(value: unknown): value is BakeScheduleSettings {

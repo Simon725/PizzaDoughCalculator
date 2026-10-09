@@ -2,10 +2,12 @@ import {
   BakeScheduleInput,
   createBakeScheduleDefaults,
   defaultBakeTime,
+  earliestBakeTime,
   firstStartOf,
   hasStartPassed,
   parseBakeTime,
   planBakeSchedule,
+  shortenToFit,
 } from './bake-schedule';
 import { PRE_DOUGH_DEFAULTS } from './pizza-styles';
 
@@ -128,5 +130,84 @@ describe('parseBakeTime', () => {
   it('rejects invalid values', () => {
     expect(parseBakeTime('tomorrow')).toBeNull();
     expect(parseBakeTime(42)).toBeNull();
+  });
+});
+
+describe('shortenToFit', () => {
+  const hoursAfter = (hours: number) => new Date(BAKE_AT.getTime() - hours * 3_600_000);
+
+  it('shortens all phases evenly so the plan starts now', () => {
+    const shortened = shortenToFit(scheduleInput(), BAKE_AT, hoursAfter(15));
+
+    expect(shortened?.phases.map((phase) => phase.hours)).toEqual([1, 12, 2]);
+  });
+
+  it('uses half hours and never starts the plan in the past', () => {
+    const shortened = shortenToFit(scheduleInput(), BAKE_AT, hoursAfter(20.2));
+
+    expect(shortened?.phases.map((phase) => phase.hours)).toEqual([1.5, 16, 2.5]);
+  });
+
+  it('keeps a short phase instead of rounding it to 0', () => {
+    const input = scheduleInput({
+      phases: [
+        { id: 'warm', hours: 0.5, temperatureC: 24 },
+        { id: 'fridge', hours: 24, temperatureC: 4 },
+        { id: 'balls', hours: 4, temperatureC: 22 },
+      ],
+    });
+
+    const shortened = shortenToFit(input, BAKE_AT, hoursAfter(10));
+
+    expect(shortened?.phases.map((phase) => phase.hours)).toEqual([0.5, 8.5, 1]);
+  });
+
+  it('shortens the pre-dough as well', () => {
+    const input = scheduleInput({
+      method: 'poolish',
+      preDough: {
+        ...PRE_DOUGH_DEFAULTS.poolish,
+        fermentation: { id: 'pre-dough', hours: 10, temperatureC: 18 },
+      },
+      phases: [{ id: 'bulk', hours: 10, temperatureC: 22 }],
+    });
+
+    const shortened = shortenToFit(input, BAKE_AT, hoursAfter(10));
+
+    expect(shortened?.preDough.fermentation.hours).toBe(5);
+    expect(shortened?.phases[0].hours).toBe(5);
+  });
+
+  it('keeps the pre-dough unchanged without a pre-dough method', () => {
+    const input = scheduleInput();
+
+    expect(shortenToFit(input, BAKE_AT, hoursAfter(15))?.preDough).toBe(input.preDough);
+  });
+
+  it('never makes phases longer', () => {
+    const shortened = shortenToFit(scheduleInput(), BAKE_AT, hoursAfter(60));
+
+    expect(shortened?.phases.map((phase) => phase.hours)).toEqual([2, 24, 4]);
+  });
+
+  it('returns null when the bake time has passed or there are no phases', () => {
+    expect(shortenToFit(scheduleInput(), BAKE_AT, hoursAfter(0))).toBeNull();
+    expect(shortenToFit(scheduleInput({ phases: [] }), BAKE_AT, hoursAfter(5))).toBeNull();
+  });
+});
+
+describe('earliestBakeTime', () => {
+  it('adds all fermentation time to now and rounds up to a quarter hour', () => {
+    const now = new Date('2026-10-09T10:07:00.000Z');
+
+    expect(earliestBakeTime(scheduleInput(), now).toISOString()).toBe('2026-10-10T16:15:00.000Z');
+  });
+
+  it('includes the pre-dough time', () => {
+    const now = new Date('2026-10-09T10:00:00.000Z');
+    const input = scheduleInput({ method: 'biga', preDough: PRE_DOUGH_DEFAULTS.biga });
+    const expectedHours = 30 + PRE_DOUGH_DEFAULTS.biga.fermentation.hours;
+
+    expect(earliestBakeTime(input, now).getTime()).toBe(now.getTime() + expectedHours * 3_600_000);
   });
 });

@@ -6,13 +6,14 @@ import {
   computed,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
 import { BakePlan } from '../dough/bake-schedule';
 import { DoughInput, DoughResult } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { AnimatedNumber } from '../shared/animated-number';
-import { formatHours } from '../shared/format';
+import { formatHours, formatWeekdayDateTime } from '../shared/format';
 import { lengthAmount, weightAmount } from '../units/unit-format';
 import { UnitSystemService } from '../units/unit-system.service';
 import { buildRecipeSections } from './recipe-sections';
@@ -36,6 +37,11 @@ export class RecipeCard {
   readonly totalHours = input.required<number>();
   readonly bakePlan = input<BakePlan | null>(null);
   readonly startHasPassed = input(false);
+  readonly canShortenSchedule = input(false);
+  readonly earliestBakeAt = input<Date | null>(null);
+
+  readonly shortenSchedule = output();
+  readonly moveBakeTime = output();
 
   private readonly document = inject(DOCUMENT);
   protected readonly t = inject(LanguageService).t;
@@ -67,6 +73,13 @@ export class RecipeCard {
       return [];
     }
     return buildScheduleSteps(this.doughInput().method, plan, this.t(), this.unitSystem());
+  });
+  protected readonly earliestBakeLabel = computed(() => {
+    const earliestBakeAt = this.earliestBakeAt();
+    const t = this.t();
+    return earliestBakeAt
+      ? t.bakeSchedule.moveBakeTime(formatWeekdayDateTime(earliestBakeAt, t.locale))
+      : '';
   });
   protected readonly warningMessages = computed(() =>
     this.result().warnings.map((warning) => this.t().warnings[warning.code]),

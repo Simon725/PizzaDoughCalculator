@@ -1,4 +1,8 @@
-import { SCHEDULE_TEMPLATES, findScheduleTemplate, matchesScheduleTemplate } from './schedule-templates';
+import {
+  SCHEDULE_TEMPLATES,
+  findScheduleTemplate,
+  matchesScheduleTemplate,
+} from './schedule-templates';
 
 describe('schedule templates', () => {
   it('provides unique template ids', () => {

@@ -13,7 +13,11 @@ import {
     <span class="schedule-templates__legend" id="schedule-templates-legend">
       {{ t().scheduleTemplates.legend }}
     </span>
-    <div class="schedule-templates__options" role="group" aria-labelledby="schedule-templates-legend">
+    <div
+      class="schedule-templates__options"
+      role="group"
+      aria-labelledby="schedule-templates-legend"
+    >
       @for (template of templates; track template.id) {
         <button
           type="button"

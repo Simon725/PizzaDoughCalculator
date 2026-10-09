@@ -11,7 +11,10 @@ const YEAST_TYPES: readonly YeastType[] = ['fresh', 'instant'];
       <legend class="yeast-toggle__legend">{{ t().fields.yeast }}</legend>
       <span class="yeast-toggle__track">
         @for (id of yeastTypes; track id) {
-          <label class="yeast-toggle__option" [class.yeast-toggle__option--active]="yeastType() === id">
+          <label
+            class="yeast-toggle__option"
+            [class.yeast-toggle__option--active]="yeastType() === id"
+          >
             <input
               class="visually-hidden"
               type="radio"

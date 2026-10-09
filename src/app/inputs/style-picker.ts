@@ -23,7 +23,9 @@ import { UnitSystemService } from '../units/unit-system.service';
           />
           <span class="style-card__header">
             <span class="style-card__title">{{ t().styles.options[option.id].name }}</span>
-            <span class="style-card__salt">{{ t().styles.salt }} {{ formatPercent(option.saltPercent) }}</span>
+            <span class="style-card__salt"
+              >{{ t().styles.salt }} {{ formatPercent(option.saltPercent) }}</span
+            >
           </span>
           <span class="style-card__text">{{ styleDescription(option.id) }}</span>
           <span class="style-card__meta">

@@ -70,7 +70,11 @@ export function temperatureColor(temperatureC: number): string {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-function distribute(weights: readonly number[], pinned: ReadonlySet<number>, minPercent: number): number[] {
+function distribute(
+  weights: readonly number[],
+  pinned: ReadonlySet<number>,
+  minPercent: number,
+): number[] {
   const freePercent = 100 - pinned.size * minPercent;
   const freeWeight = sum(weights.filter((_, index) => !pinned.has(index)));
   return weights.map((weight, index) =>

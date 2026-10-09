@@ -74,53 +74,6 @@
   stop-color: var(--crust-edge);
 }
 
-.plate {
-  fill: var(--color-surface-strong);
-}
-
-.plate-halo {
-  fill: none;
-  stroke: rgba(20, 10, 4, 0.35);
-  stroke-width: 0.5;
-}
-
-.plate-outline {
-  fill: none;
-  stroke: #fff4e2;
-  stroke-width: 0.22;
-  stroke-dasharray: 1 0.8;
-  opacity: 0.85;
-}
-
-.stage__legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 6px 8px;
-  margin: 4px 0 0;
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-}
-
-.stage__legend-plate,
-.stage__legend-span {
-  display: inline-block;
-  width: 18px;
-  height: 0;
-}
-
-.stage__legend-plate {
-  border-top: 2px dashed var(--color-text-muted);
-}
-
-.stage__legend-span {
-  margin-left: 8px;
-  border-top: 4px solid var(--color-ember);
-  border-radius: 2px;
-}
-
 .pizza {
   transition: transform 700ms var(--ease-spring);
   will-change: transform;
@@ -158,23 +111,4 @@
   fill: none;
   stroke: #2a6527;
   stroke-width: 0.1;
-}
-
-.ruler__base,
-.ruler__tick {
-  stroke: var(--color-text-muted);
-  stroke-width: 0.12;
-}
-
-.ruler__label {
-  fill: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 1.8px;
-  text-anchor: middle;
-}
-
-.ruler__span {
-  fill: var(--color-ember);
-  opacity: 0.85;
-  transition: transform 700ms var(--ease-spring);
 }

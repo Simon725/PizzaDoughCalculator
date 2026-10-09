@@ -5,13 +5,13 @@
       <small>{{ t().pizza.approx }}</small> <app-animated-number [value]="roundedDiameter()" /> <small>cm</small>
     </span>
     <span class="visually-hidden">
-      {{ t().pizza.description(roundedDiameter(), plateComparison()) }}
+      {{ t().pizza.description(roundedDiameter()) }}
     </span>
   </figcaption>
 
   <svg
     class="stage__svg"
-    [attr.viewBox]="'-2 0 ' + (scaleMaxCm + 4) + ' 69'"
+    [attr.viewBox]="'0 0 ' + scaleMaxCm + ' ' + scaleMaxCm"
     aria-hidden="true"
     focusable="false"
   >
@@ -36,8 +36,6 @@
         <stop offset="1" stop-color="#6e1a10" />
       </radialGradient>
     </defs>
-
-    <circle class="plate" [attr.cx]="center" [attr.cy]="center" [attr.r]="plateRadius" />
 
     <g class="pizza" [style.transform]="pizzaTransform()">
       <circle class="pizza__shadow" r="10.3" cy="0.5" />
@@ -78,28 +76,5 @@
       }
     </g>
 
-    <circle class="plate-halo" [attr.cx]="center" [attr.cy]="center" [attr.r]="plateRadius" />
-    <circle class="plate-outline" [attr.cx]="center" [attr.cy]="center" [attr.r]="plateRadius" />
-
-    <g class="ruler">
-      <rect class="ruler__span" x="-30" y="61" width="60" height="1.2" [style.transform]="spanTransform()" />
-      <line class="ruler__base" x1="0" [attr.x2]="scaleMaxCm" y1="62.2" y2="62.2" />
-      @for (tick of ticks; track tick.cm) {
-        <line
-          class="ruler__tick"
-          [attr.x1]="tick.cm"
-          [attr.x2]="tick.cm"
-          y1="62.2"
-          [attr.y2]="62.2 + tick.length"
-        />
-        @if (tick.labelled) {
-          <text class="ruler__label" [attr.x]="tick.cm" y="67.8">{{ tick.cm }}</text>
-        }
-      }
-    </g>
   </svg>
-  <p class="stage__legend" aria-hidden="true">
-    <span class="stage__legend-plate"></span> {{ t().pizza.plate(plateDiameter) }}
-    <span class="stage__legend-span"></span> {{ t().pizza.diameter }}
-  </p>
 </figure>

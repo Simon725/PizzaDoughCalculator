@@ -51,7 +51,7 @@
 
 .method-tile--active {
   border-color: var(--color-ember);
-  background: linear-gradient(160deg, rgba(255, 106, 43, 0.22), rgba(255, 200, 87, 0.06));
+  background: var(--selected-bg);
   box-shadow: var(--shadow-glow);
 
   .method-tile__title {

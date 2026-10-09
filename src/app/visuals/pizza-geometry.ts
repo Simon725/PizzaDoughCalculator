@@ -8,14 +8,7 @@ import {
 } from './seeded-random';
 
 export const SCALE_MAX_CM = 60;
-export const PLATE_DIAMETER_CM = 27;
 export const PIZZA_MODEL_RADIUS = 10;
-
-export interface RulerTick {
-  cm: number;
-  length: number;
-  labelled: boolean;
-}
 
 export interface Disc extends Point {
   r: number;
@@ -57,14 +50,6 @@ export function pizzaScale(diameterCm: number): number {
   return clampDiameter(diameterCm) / 2 / PIZZA_MODEL_RADIUS;
 }
 
-export function rulerTicks(maxCm = SCALE_MAX_CM): RulerTick[] {
-  return Array.from({ length: maxCm + 1 }, (_, cm) => ({
-    cm,
-    length: tickLength(cm),
-    labelled: cm % 10 === 0,
-  }));
-}
-
 export function buildToppings(styleId: PizzaStyleId): PizzaToppings {
   const random = createSeededRandom(STYLE_SEEDS[styleId]);
   switch (styleId) {
@@ -75,13 +60,6 @@ export function buildToppings(styleId: PizzaStyleId): PizzaToppings {
     case 'roman':
       return romanToppings(random);
   }
-}
-
-function tickLength(cm: number): number {
-  if (cm % 10 === 0) {
-    return 2.4;
-  }
-  return cm % 5 === 0 ? 1.6 : 0.9;
 }
 
 function neapolitanToppings(random: RandomSource): PizzaToppings {

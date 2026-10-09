@@ -4,7 +4,6 @@ import {
   buildToppings,
   clampDiameter,
   pizzaScale,
-  rulerTicks,
 } from './pizza-geometry';
 
 describe('pizza geometry', () => {
@@ -18,14 +17,6 @@ describe('pizza geometry', () => {
     expect(clampDiameter(Number.NaN)).toBe(0);
     expect(clampDiameter(SCALE_MAX_CM + 10)).toBe(SCALE_MAX_CM);
     expect(pizzaScale(SCALE_MAX_CM + 10)).toBe(SCALE_MAX_CM / 2 / PIZZA_MODEL_RADIUS);
-  });
-
-  it('builds ruler ticks with labels every 10 cm', () => {
-    const ticks = rulerTicks(20);
-    expect(ticks.length).toBe(21);
-    expect(ticks.filter((tick) => tick.labelled).map((tick) => tick.cm)).toEqual([0, 10, 20]);
-    expect(ticks[5].length).toBeGreaterThan(ticks[4].length);
-    expect(ticks[10].length).toBeGreaterThan(ticks[5].length);
   });
 
   it('places toppings deterministically per style', () => {

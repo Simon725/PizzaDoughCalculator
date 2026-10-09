@@ -56,5 +56,5 @@ export function convertLimit(
 }
 
 function metricField(limit: NumberLimit, unit: string): UnitField {
-  return { unit, limit, toDisplay: (value) => value, toMetric: (value) => value };
+  return { unit, limit, toDisplay: (value) => Math.round(value), toMetric: (value) => value };
 }

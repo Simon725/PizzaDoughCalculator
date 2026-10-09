@@ -100,12 +100,7 @@ export interface Translations {
   pizza: {
     perPizza: (style: string) => string;
     approx: string;
-    description: (diameterCm: number, comparison: string) => string;
-    samePlate: string;
-    largerThanPlate: (differenceCm: number, plateCm: number) => string;
-    smallerThanPlate: (differenceCm: number, plateCm: number) => string;
-    plate: (plateCm: number) => string;
-    diameter: string;
+    description: (diameterCm: number) => string;
   };
   recipe: {
     eyebrow: string;
@@ -239,15 +234,7 @@ const de: Translations = {
   pizza: {
     perPizza: (style) => `Ø pro Pizza · ${style}`,
     approx: 'ca.',
-    description: (diameterCm, comparison) =>
-      `Pizza-Durchmesser ca. ${diameterCm} cm, ${comparison}.`,
-    samePlate: 'genau so groß wie ein Essteller',
-    largerThanPlate: (differenceCm, plateCm) =>
-      `${differenceCm} cm größer als ein Essteller (${plateCm} cm)`,
-    smallerThanPlate: (differenceCm, plateCm) =>
-      `${differenceCm} cm kleiner als ein Essteller (${plateCm} cm)`,
-    plate: (plateCm) => `Essteller ${plateCm} cm`,
-    diameter: 'Pizza-Durchmesser',
+    description: (diameterCm) => `Pizza-Durchmesser ca. ${diameterCm} cm.`,
   },
   recipe: {
     eyebrow: 'Dein Rezept',
@@ -390,15 +377,7 @@ const en: Translations = {
   pizza: {
     perPizza: (style) => `Ø per pizza · ${style}`,
     approx: 'approx.',
-    description: (diameterCm, comparison) =>
-      `Pizza diameter approx. ${diameterCm} cm, ${comparison}.`,
-    samePlate: 'exactly the size of a dinner plate',
-    largerThanPlate: (differenceCm, plateCm) =>
-      `${differenceCm} cm larger than a dinner plate (${plateCm} cm)`,
-    smallerThanPlate: (differenceCm, plateCm) =>
-      `${differenceCm} cm smaller than a dinner plate (${plateCm} cm)`,
-    plate: (plateCm) => `Dinner plate ${plateCm} cm`,
-    diameter: 'Pizza diameter',
+    description: (diameterCm) => `Pizza diameter approx. ${diameterCm} cm.`,
   },
   recipe: {
     eyebrow: 'Your recipe',

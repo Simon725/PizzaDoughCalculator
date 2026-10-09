@@ -3,6 +3,8 @@
 Angular app that calculates pizza dough (direct, poolish, biga, sourdough) from number and weight of dough balls.
 Yeast is derived from the fermentation schedule (time + temperature); the pizza diameter is estimated from the style.
 
+Live: https://simon725.github.io/PizzaDoughCalculator/
+
 ## Sourdough model
 With sourdough, a starter replaces the yeast. The starter amount (% of total flour) comes from the schedule:
 

@@ -17,6 +17,9 @@ import { isPreDoughMethod } from './dough/dough.model';
 import { DOUGH_LIMITS } from './state/dough-limits';
 import { DoughStore } from './state/dough.store';
 import { ThemeToggle } from './theme/theme-toggle';
+import { weightField } from './units/unit-fields';
+import { UnitSystemService } from './units/unit-system.service';
+import { UnitSystemToggle } from './units/unit-system-toggle';
 import { DoughBalls } from './visuals/dough-balls';
 import { FermentationTimeline } from './visuals/fermentation-timeline';
 import { OvenAmbience } from './visuals/oven-ambience';
@@ -41,6 +44,7 @@ import { PizzaVisual } from './visuals/pizza-visual';
     SourdoughPanel,
     StylePicker,
     ThemeToggle,
+    UnitSystemToggle,
     WaterTemperaturePanel,
     YeastToggle,
   ],
@@ -53,6 +57,10 @@ export class App {
   protected readonly t = inject(LanguageService).t;
   protected readonly limits = DOUGH_LIMITS;
   protected readonly doughInput = this.store.input;
+  private readonly unitSystem = inject(UnitSystemService).unitSystem;
+  protected readonly ballWeight = computed(() =>
+    weightField(this.limits.ballWeightGrams, this.unitSystem()),
+  );
   protected readonly preDoughMethod = computed(() => {
     const method = this.doughInput().method;
     return isPreDoughMethod(method) ? method : null;

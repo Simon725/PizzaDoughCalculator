@@ -5,6 +5,8 @@ import { DOUGH_LIMITS } from '../state/dough-limits';
 import { PreDoughPatch } from '../state/dough.store';
 import { NumberField } from '../shared/number-field';
 import { RangeField } from '../shared/range-field';
+import { temperatureField } from '../units/unit-fields';
+import { UnitSystemService } from '../units/unit-system.service';
 
 @Component({
   selector: 'app-pre-dough-panel',
@@ -43,11 +45,11 @@ import { RangeField } from '../shared/range-field';
         <span>{{ t().preDough.temperature }}</span>
         <app-number-field
           inputId="pre-dough-temperature"
-          [label]="t().preDough.temperatureLabel"
-          unit="°C"
-          [value]="settings().fermentation.temperatureC"
-          [limit]="limits.temperatureC"
-          (valueChange)="settingsChange.emit({ temperatureC: $event })"
+          [label]="t().preDough.temperatureLabel(temperatureName())"
+          [unit]="temperature().unit"
+          [value]="temperature().toDisplay(settings().fermentation.temperatureC)"
+          [limit]="temperature().limit"
+          (valueChange)="settingsChange.emit({ temperatureC: temperature().toMetric($event) })"
         />
       </label>
     </div>
@@ -63,6 +65,13 @@ export class PreDoughPanel {
 
   protected readonly limits = DOUGH_LIMITS;
   protected readonly t = inject(LanguageService).t;
+  private readonly unitSystem = inject(UnitSystemService).unitSystem;
+  protected readonly temperature = computed(() =>
+    temperatureField(this.limits.temperatureC, this.unitSystem()),
+  );
+  protected readonly temperatureName = computed(
+    () => this.t().units.temperatureNames[this.unitSystem()],
+  );
   protected readonly intro = computed(() =>
     this.t().preDough.intro(this.t().methods.options[this.method()].label),
   );

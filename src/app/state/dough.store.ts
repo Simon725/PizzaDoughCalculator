@@ -12,7 +12,7 @@ import {
 } from '../dough/dough.model';
 import { PIZZA_STYLES } from '../dough/pizza-styles';
 import { createDefaultInput, createPhase, createPreDoughDefaults } from './dough-defaults';
-import { DOUGH_LIMITS, clampToLimit } from './dough-limits';
+import { DOUGH_LIMITS, STORED_LIMITS, clampToLimit } from './dough-limits';
 import { loadDoughInput, saveDoughInput } from './dough-storage';
 import { PhasePresetId, findPhasePreset } from './phase-presets';
 import { ScheduleTemplateId, findScheduleTemplate } from './schedule-templates';
@@ -103,7 +103,7 @@ export class DoughStore {
   }
 
   setBallWeight(ballWeightGrams: number): void {
-    this.patch({ ballWeightGrams: clampToLimit(ballWeightGrams, DOUGH_LIMITS.ballWeightGrams) });
+    this.patch({ ballWeightGrams: clampToLimit(ballWeightGrams, STORED_LIMITS.ballWeightGrams) });
   }
 
   setHydration(hydrationPercent: number): void {
@@ -159,12 +159,12 @@ export class DoughStore {
       waterTemperature: {
         targetDoughC: clampToLimit(
           patch.targetDoughC ?? waterTemperature.targetDoughC,
-          DOUGH_LIMITS.targetDoughTemperatureC,
+          STORED_LIMITS.targetDoughTemperatureC,
         ),
-        roomC: clampToLimit(patch.roomC ?? waterTemperature.roomC, DOUGH_LIMITS.roomTemperatureC),
+        roomC: clampToLimit(patch.roomC ?? waterTemperature.roomC, STORED_LIMITS.roomTemperatureC),
         flourC: clampToLimit(
           patch.flourC ?? waterTemperature.flourC,
-          DOUGH_LIMITS.flourTemperatureC,
+          STORED_LIMITS.flourTemperatureC,
         ),
         mixing: patch.mixing ?? waterTemperature.mixing,
       },
@@ -232,6 +232,9 @@ function applyPhasePatch(phase: FermentationPhase, patch: PhasePatch): Fermentat
   return {
     ...phase,
     hours: clampToLimit(patch.hours ?? phase.hours, DOUGH_LIMITS.hours),
-    temperatureC: clampToLimit(patch.temperatureC ?? phase.temperatureC, DOUGH_LIMITS.temperatureC),
+    temperatureC: clampToLimit(
+      patch.temperatureC ?? phase.temperatureC,
+      STORED_LIMITS.temperatureC,
+    ),
   };
 }

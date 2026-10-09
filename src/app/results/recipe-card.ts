@@ -12,8 +12,10 @@ import { BakePlan } from '../dough/bake-schedule';
 import { DoughInput, DoughResult } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { AnimatedNumber } from '../shared/animated-number';
-import { formatHours, formatNumber } from '../shared/format';
-import { buildRecipeSections, roundGrams } from './recipe-sections';
+import { formatHours } from '../shared/format';
+import { lengthAmount, weightAmount } from '../units/unit-format';
+import { UnitSystemService } from '../units/unit-system.service';
+import { buildRecipeSections } from './recipe-sections';
 import { describeDough, formatRecipeText } from './recipe-text';
 import { buildScheduleSteps } from './schedule-steps';
 
@@ -37,6 +39,7 @@ export class RecipeCard {
 
   private readonly document = inject(DOCUMENT);
   protected readonly t = inject(LanguageService).t;
+  private readonly unitSystem = inject(UnitSystemService).unitSystem;
   private feedbackTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly copyState = signal<CopyState>('idle');
@@ -52,19 +55,28 @@ export class RecipeCard {
   protected readonly styleName = computed(
     () => this.t().styles.options[this.doughInput().style].name,
   );
-  protected readonly summary = computed(() => describeDough(this.doughInput(), this.t()));
+  protected readonly summary = computed(() =>
+    describeDough(this.doughInput(), this.t(), this.unitSystem()),
+  );
   protected readonly sections = computed(() =>
-    buildRecipeSections(this.doughInput(), this.result(), this.t()),
+    buildRecipeSections(this.doughInput(), this.result(), this.t(), this.unitSystem()),
   );
   protected readonly scheduleSteps = computed(() => {
     const plan = this.bakePlan();
-    return plan ? buildScheduleSteps(this.doughInput().method, plan, this.t()) : [];
+    if (!plan) {
+      return [];
+    }
+    return buildScheduleSteps(this.doughInput().method, plan, this.t(), this.unitSystem());
   });
   protected readonly warningMessages = computed(() =>
     this.result().warnings.map((warning) => this.t().warnings[warning.code]),
   );
-  protected readonly diameterCm = computed(() => Math.round(this.result().diameterCm));
-  protected readonly bowlLossGrams = computed(() => roundGrams(this.result().bowlLossGrams));
+  protected readonly diameter = computed(() =>
+    lengthAmount(this.result().diameterCm, this.unitSystem()),
+  );
+  protected readonly bowlLoss = computed(() =>
+    weightAmount(this.result().bowlLossGrams, this.unitSystem()),
+  );
   protected readonly fermentationSummary = computed(() => {
     const t = this.t();
     return t.recipe.fermentationSummary(
@@ -78,18 +90,19 @@ export class RecipeCard {
   }
 
   protected async copyRecipe(): Promise<void> {
-    const text = formatRecipeText(this.doughInput(), this.result(), this.t(), this.bakePlan());
+    const text = formatRecipeText(
+      this.doughInput(),
+      this.result(),
+      this.t(),
+      this.unitSystem(),
+      this.bakePlan(),
+    );
     try {
       await navigator.clipboard.writeText(text);
       this.showFeedback('copied');
     } catch {
       this.showFeedback('failed');
     }
-  }
-
-  protected formatTemperature(temperatureC: number): string {
-    const t = this.t();
-    return t.recipe.temperature(formatNumber(temperatureC, t.locale));
   }
 
   protected printRecipe(): void {

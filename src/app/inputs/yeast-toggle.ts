@@ -1,24 +1,26 @@
-import { ChangeDetectionStrategy, Component, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { YeastType } from '../dough/dough.model';
-import { YEAST_TYPE_LABELS } from '../shared/labels';
+import { LanguageService } from '../i18n/language.service';
+
+const YEAST_TYPES: readonly YeastType[] = ['fresh', 'instant'];
 
 @Component({
   selector: 'app-yeast-toggle',
   template: `
     <fieldset class="yeast-toggle">
-      <legend class="yeast-toggle__legend">Hefe</legend>
+      <legend class="yeast-toggle__legend">{{ t().fields.yeast }}</legend>
       <span class="yeast-toggle__track">
-        @for (option of options; track option.id) {
-          <label class="yeast-toggle__option" [class.yeast-toggle__option--active]="yeastType() === option.id">
+        @for (id of yeastTypes; track id) {
+          <label class="yeast-toggle__option" [class.yeast-toggle__option--active]="yeastType() === id">
             <input
               class="visually-hidden"
               type="radio"
               name="yeast-type"
-              [value]="option.id"
-              [checked]="yeastType() === option.id"
-              (change)="yeastType.set(option.id)"
+              [value]="id"
+              [checked]="yeastType() === id"
+              (change)="yeastType.set(id)"
             />
-            {{ option.label }}
+            {{ t().yeastTypes[id] }}
           </label>
         }
       </span>
@@ -30,8 +32,6 @@ import { YEAST_TYPE_LABELS } from '../shared/labels';
 export class YeastToggle {
   readonly yeastType = model.required<YeastType>();
 
-  protected readonly options: readonly { id: YeastType; label: string }[] = [
-    { id: 'fresh', label: YEAST_TYPE_LABELS.fresh },
-    { id: 'instant', label: YEAST_TYPE_LABELS.instant },
-  ];
+  protected readonly t = inject(LanguageService).t;
+  protected readonly yeastTypes = YEAST_TYPES;
 }

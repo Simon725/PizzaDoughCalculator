@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { LanguageToggle } from './i18n/language-toggle';
+import { LanguageService } from './i18n/language.service';
 import { MethodSwitch } from './inputs/method-switch';
 import { PhaseEditor } from './inputs/phase-editor';
 import { PreDoughPanel } from './inputs/pre-dough-panel';
@@ -20,6 +22,7 @@ import { PizzaVisual } from './visuals/pizza-visual';
   imports: [
     DoughBalls,
     FermentationTimeline,
+    LanguageToggle,
     MethodSwitch,
     NumberStepper,
     OvenAmbience,
@@ -38,6 +41,7 @@ import { PizzaVisual } from './visuals/pizza-visual';
 })
 export class App {
   protected readonly store = inject(DoughStore);
+  protected readonly t = inject(LanguageService).t;
   protected readonly limits = DOUGH_LIMITS;
   protected readonly doughInput = this.store.input;
   protected readonly preDoughMethod = computed(() => {

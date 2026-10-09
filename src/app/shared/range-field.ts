@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { LanguageService } from '../i18n/language.service';
 import { NumberLimit, clampToLimit } from '../state/dough-limits';
 import { NumberField } from './number-field';
 
@@ -14,7 +15,7 @@ let nextRangeId = 0;
         [value]="value()"
         [limit]="limit()"
         [unit]="unit()"
-        [label]="label() + ' in ' + unit()"
+        [label]="label() + ' ' + t().fields.in + ' ' + unit()"
         (valueChange)="valueChange.emit($event)"
       />
     </div>
@@ -46,6 +47,7 @@ export class RangeField {
 
   readonly valueChange = output<number>();
 
+  protected readonly t = inject(LanguageService).t;
   protected readonly sliderId = `range-field-${nextRangeId++}`;
 
   protected readonly fillPercent = computed(() => {

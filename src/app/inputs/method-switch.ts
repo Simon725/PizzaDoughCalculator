@@ -1,29 +1,26 @@
-import { ChangeDetectionStrategy, Component, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { DoughMethod } from '../dough/dough.model';
+import { LanguageService } from '../i18n/language.service';
 
-interface MethodOption {
-  id: DoughMethod;
-  label: string;
-  description: string;
-}
+const METHODS: readonly DoughMethod[] = ['direct', 'poolish', 'biga'];
 
 @Component({
   selector: 'app-method-switch',
   template: `
     <fieldset class="method-switch">
-      <legend class="visually-hidden">Teigmethode</legend>
-      @for (option of options; track option.id) {
-        <label class="method-tile" [class.method-tile--active]="method() === option.id">
+      <legend class="visually-hidden">{{ t().methods.legend }}</legend>
+      @for (id of methods; track id) {
+        <label class="method-tile" [class.method-tile--active]="method() === id">
           <input
             class="visually-hidden"
             type="radio"
             name="dough-method"
-            [value]="option.id"
-            [checked]="method() === option.id"
-            (change)="method.set(option.id)"
+            [value]="id"
+            [checked]="method() === id"
+            (change)="method.set(id)"
           />
-          <span class="method-tile__title">{{ option.label }}</span>
-          <span class="method-tile__text">{{ option.description }}</span>
+          <span class="method-tile__title">{{ t().methods.options[id].label }}</span>
+          <span class="method-tile__text">{{ t().methods.options[id].description }}</span>
         </label>
       }
     </fieldset>
@@ -34,9 +31,6 @@ interface MethodOption {
 export class MethodSwitch {
   readonly method = model.required<DoughMethod>();
 
-  protected readonly options: readonly MethodOption[] = [
-    { id: 'direct', label: 'Direkt', description: 'Alle Zutaten auf einmal – einfach und planbar.' },
-    { id: 'poolish', label: 'Poolish', description: 'Flüssiger Vorteig für Aroma und offene Krume.' },
-    { id: 'biga', label: 'Biga', description: 'Fester Vorteig für Struktur und kräftigen Geschmack.' },
-  ];
+  protected readonly t = inject(LanguageService).t;
+  protected readonly methods = METHODS;
 }

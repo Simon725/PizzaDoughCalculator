@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { LANGUAGE_STORAGE_KEY } from './i18n/language.service';
 
 describe('App', () => {
   beforeEach(async () => {
     localStorage.clear();
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, 'de');
     await TestBed.configureTestingModule({
       imports: [App],
     }).compileComponents();
@@ -51,5 +53,22 @@ describe('App', () => {
     await fixture.whenStable();
 
     expect(compiled.querySelector('app-pre-dough-panel')).not.toBeNull();
+  });
+
+  it('switches the whole page to English', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    compiled.querySelector<HTMLInputElement>('input[name="language"][value="en"]')?.click();
+    await fixture.whenStable();
+
+    expect(compiled.querySelector('h1')?.textContent).toContain('Pizza Dough Calculator');
+    expect(compiled.querySelector('app-recipe-card h2')?.textContent).toContain('Neapolitan');
+    expect(compiled.textContent).toContain('Main dough');
+    expect(compiled.querySelector('app-fermentation-timeline .legend')?.textContent).toContain(
+      '24 h at 4 °C',
+    );
+    expect(document.documentElement.lang).toBe('en');
   });
 });

@@ -9,6 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { LanguageService } from '../i18n/language.service';
 import { formatNumber } from './format';
 
 const TWEEN_DURATION_MS = 400;
@@ -24,11 +25,16 @@ export class AnimatedNumber {
   readonly value = input.required<number>();
   readonly decimals = input(0);
 
+  private readonly language = inject(LanguageService);
   private readonly displayedValue = signal<number | null>(null);
   private frameId: number | null = null;
 
   protected readonly formattedValue = computed(() =>
-    formatNumber(this.displayedValue() ?? this.value(), this.decimals()),
+    formatNumber(
+      this.displayedValue() ?? this.value(),
+      this.language.t().locale,
+      this.decimals(),
+    ),
   );
 
   constructor() {

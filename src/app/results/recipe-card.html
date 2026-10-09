@@ -1,22 +1,23 @@
 <article class="recipe" aria-labelledby="recipe-title">
   <header class="recipe__header">
-    <p class="recipe__eyebrow">Dein Rezept</p>
+    <p class="recipe__eyebrow">{{ t().recipe.eyebrow }}</p>
     <h2 id="recipe-title" class="recipe__title">{{ styleName() }}</h2>
     <p class="recipe__summary">{{ summary() }}</p>
     <div class="recipe__chips">
       <span class="recipe__chip">
-        Ø ca. <app-animated-number [value]="diameterCm()" /> cm pro Pizza
+        {{ t().recipe.diameterPrefix }} <app-animated-number [value]="diameterCm()" />
+        {{ t().recipe.diameterSuffix }}
       </span>
       <span class="recipe__chip">{{ fermentationSummary() }}</span>
     </div>
   </header>
 
-  @if (result().warnings.length) {
+  @if (warningMessages().length) {
     <div class="recipe__warnings" role="alert">
       <span class="recipe__warnings-icon" aria-hidden="true">!</span>
       <ul>
-        @for (warning of result().warnings; track $index) {
-          <li>{{ warning.message }}</li>
+        @for (message of warningMessages(); track $index) {
+          <li>{{ message }}</li>
         }
       </ul>
     </div>
@@ -49,24 +50,25 @@
   }
 
   <p class="recipe__hint">
-    inkl. <app-animated-number [value]="bowlLossGrams()" /> g Schüsselverlust (2 %)
+    {{ t().recipe.bowlLossPrefix }} <app-animated-number [value]="bowlLossGrams()" />
+    {{ t().recipe.bowlLossSuffix }}
   </p>
 
   <div class="recipe__actions no-print">
     <button type="button" class="recipe__button recipe__button--primary" (click)="copyRecipe()">
       @switch (copyState()) {
         @case ('copied') {
-          ✓ Kopiert
+          {{ t().recipe.copied }}
         }
         @case ('failed') {
-          Fehlgeschlagen
+          {{ t().recipe.copyFailed }}
         }
         @default {
-          Rezept kopieren
+          {{ t().recipe.copy }}
         }
       }
     </button>
-    <button type="button" class="recipe__button" (click)="printRecipe()">Drucken</button>
+    <button type="button" class="recipe__button" (click)="printRecipe()">{{ t().recipe.print }}</button>
   </div>
   <p class="visually-hidden" role="status">{{ copyMessage() }}</p>
 </article>

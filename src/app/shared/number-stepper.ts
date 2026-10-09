@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { LanguageService } from '../i18n/language.service';
 import { NumberLimit, clampToLimit } from '../state/dough-limits';
 import { NumberField } from './number-field';
 
@@ -9,7 +10,7 @@ import { NumberField } from './number-field';
     <button
       type="button"
       class="number-stepper__button"
-      [attr.aria-label]="label() + ' verringern'"
+      [attr.aria-label]="t().fields.decrease(label())"
       [disabled]="value() <= limit().min"
       (click)="stepBy(-1)"
     >
@@ -26,7 +27,7 @@ import { NumberField } from './number-field';
     <button
       type="button"
       class="number-stepper__button"
-      [attr.aria-label]="label() + ' erhöhen'"
+      [attr.aria-label]="t().fields.increase(label())"
       [disabled]="value() >= limit().max"
       (click)="stepBy(1)"
     >
@@ -44,6 +45,8 @@ export class NumberStepper {
   readonly inputId = input.required<string>();
 
   readonly valueChange = output<number>();
+
+  protected readonly t = inject(LanguageService).t;
 
   protected stepBy(direction: -1 | 1): void {
     const limit = this.limit();

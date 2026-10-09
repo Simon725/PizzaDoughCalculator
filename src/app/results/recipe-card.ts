@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { DoughInput, DoughResult } from '../dough/dough.model';
-import { PIZZA_STYLES } from '../dough/pizza-styles';
+import { LanguageService } from '../i18n/language.service';
 import { AnimatedNumber } from '../shared/animated-number';
 import { formatHours } from '../shared/format';
 import { buildRecipeSections, roundGrams } from './recipe-sections';
@@ -18,12 +18,6 @@ import { describeDough, formatRecipeText } from './recipe-text';
 type CopyState = 'idle' | 'copied' | 'failed';
 
 const COPY_FEEDBACK_MS = 2500;
-
-const COPY_MESSAGES: Record<CopyState, string> = {
-  idle: '',
-  copied: 'Rezept in die Zwischenablage kopiert.',
-  failed: 'Kopieren nicht möglich. Bitte manuell markieren.',
-};
 
 @Component({
   selector: 'app-recipe-card',
@@ -38,21 +32,37 @@ export class RecipeCard {
   readonly totalHours = input.required<number>();
 
   private readonly document = inject(DOCUMENT);
+  protected readonly t = inject(LanguageService).t;
   private feedbackTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly copyState = signal<CopyState>('idle');
-  protected readonly copyMessage = computed(() => COPY_MESSAGES[this.copyState()]);
-  protected readonly styleName = computed(() => PIZZA_STYLES[this.doughInput().style].name);
-  protected readonly summary = computed(() => describeDough(this.doughInput()));
+  protected readonly copyMessage = computed(() => {
+    const recipe = this.t().recipe;
+    const messages: Record<CopyState, string> = {
+      idle: '',
+      copied: recipe.copiedMessage,
+      failed: recipe.copyFailedMessage,
+    };
+    return messages[this.copyState()];
+  });
+  protected readonly styleName = computed(
+    () => this.t().styles.options[this.doughInput().style].name,
+  );
+  protected readonly summary = computed(() => describeDough(this.doughInput(), this.t()));
   protected readonly sections = computed(() =>
-    buildRecipeSections(this.doughInput(), this.result()),
+    buildRecipeSections(this.doughInput(), this.result(), this.t()),
+  );
+  protected readonly warningMessages = computed(() =>
+    this.result().warnings.map((warning) => this.t().warnings[warning.code]),
   );
   protected readonly diameterCm = computed(() => Math.round(this.result().diameterCm));
   protected readonly bowlLossGrams = computed(() => roundGrams(this.result().bowlLossGrams));
   protected readonly fermentationSummary = computed(() => {
-    const phaseCount = this.doughInput().phases.length;
-    const phaseLabel = phaseCount === 1 ? 'Phase' : 'Phasen';
-    return `${formatHours(this.totalHours())} h Gare · ${phaseCount} ${phaseLabel}`;
+    const t = this.t();
+    return t.recipe.fermentationSummary(
+      formatHours(this.totalHours(), t.locale),
+      this.doughInput().phases.length,
+    );
   });
 
   constructor() {
@@ -60,7 +70,7 @@ export class RecipeCard {
   }
 
   protected async copyRecipe(): Promise<void> {
-    const text = formatRecipeText(this.doughInput(), this.result());
+    const text = formatRecipeText(this.doughInput(), this.result(), this.t());
     try {
       await navigator.clipboard.writeText(text);
       this.showFeedback('copied');

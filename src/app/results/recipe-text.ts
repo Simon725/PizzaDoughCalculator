@@ -1,38 +1,38 @@
 import { DoughInput, DoughResult } from '../dough/dough.model';
-import { PIZZA_STYLES } from '../dough/pizza-styles';
+import { Translations } from '../i18n/translations';
 import { formatHours, formatNumber } from '../shared/format';
-import { METHOD_LABELS } from '../shared/labels';
 import { RecipeSection, buildRecipeSections, roundGrams } from './recipe-sections';
 
-export function describeDough(input: DoughInput): string {
+export function describeDough(input: DoughInput, t: Translations): string {
   return [
     `${input.ballCount} × ${input.ballWeightGrams} g`,
-    `${input.hydrationPercent} % Hydration`,
-    METHOD_LABELS[input.method],
+    t.recipe.hydration(input.hydrationPercent),
+    t.methods.options[input.method].label,
   ].join(' · ');
 }
 
-export function formatRecipeText(input: DoughInput, result: DoughResult): string {
+export function formatRecipeText(input: DoughInput, result: DoughResult, t: Translations): string {
   const lines = [
-    `Pizzateig – ${PIZZA_STYLES[input.style].name}`,
-    describeDough(input),
+    t.recipe.textTitle(t.styles.options[input.style].name),
+    describeDough(input, t),
     '',
-    ...buildRecipeSections(input, result).flatMap(formatSection),
-    `inkl. ${formatNumber(roundGrams(result.bowlLossGrams))} g Schüsselverlust (2 %)`,
-    `Durchmesser: ca. ${formatNumber(Math.round(result.diameterCm))} cm pro Pizza`,
+    ...buildRecipeSections(input, result, t).flatMap((section) => formatSection(section, t)),
+    t.recipe.textBowlLoss(formatNumber(roundGrams(result.bowlLossGrams), t.locale)),
+    t.recipe.textDiameter(formatNumber(Math.round(result.diameterCm), t.locale)),
     '',
-    'Gare',
+    t.recipe.textFermentation,
     ...input.phases.map(
-      (phase, index) => `  ${index + 1}. ${formatHours(phase.hours)} h bei ${phase.temperatureC} °C`,
+      (phase, index) =>
+        `  ${index + 1}. ${t.timeline.hoursAt(formatHours(phase.hours, t.locale), phase.temperatureC)}`,
     ),
   ];
   return lines.join('\n');
 }
 
-function formatSection(section: RecipeSection): string[] {
+function formatSection(section: RecipeSection, t: Translations): string[] {
   const heading = section.note ? `${section.title} (${section.note})` : section.title;
   const rows = section.rows.map(
-    (row) => `  ${row.label}: ${formatNumber(row.grams, row.decimals)} g`,
+    (row) => `  ${row.label}: ${formatNumber(row.grams, t.locale, row.decimals)} g`,
   );
   return [heading, ...rows, ''];
 }

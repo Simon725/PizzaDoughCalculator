@@ -2,8 +2,6 @@ import { DoughMethod, PizzaStyleId, PreDoughSettings } from './dough.model';
 
 export interface PizzaStyle {
   id: PizzaStyleId;
-  name: string;
-  description: string;
   saltPercent: number;
   defaultHydrationPercent: number;
   defaultBallWeightGrams: number;
@@ -13,8 +11,6 @@ export interface PizzaStyle {
 export const PIZZA_STYLES: Record<PizzaStyleId, PizzaStyle> = {
   neapolitan: {
     id: 'neapolitan',
-    name: 'Neapolitanisch',
-    description: 'Dünne Mitte, luftiger Rand, 60–90 Sekunden bei 450 °C.',
     saltPercent: 2.8,
     defaultHydrationPercent: 62,
     defaultBallWeightGrams: 250,
@@ -22,8 +18,6 @@ export const PIZZA_STYLES: Record<PizzaStyleId, PizzaStyle> = {
   },
   'new-york': {
     id: 'new-york',
-    name: 'New York',
-    description: 'Groß, dünn und faltbar. Gebacken im Haushaltsofen auf Stein oder Stahl.',
     saltPercent: 2.5,
     defaultHydrationPercent: 63,
     defaultBallWeightGrams: 450,
@@ -31,8 +25,6 @@ export const PIZZA_STYLES: Record<PizzaStyleId, PizzaStyle> = {
   },
   roman: {
     id: 'roman',
-    name: 'Römisch (tonda)',
-    description: 'Hauchdünn und knusprig, flach ausgerollt.',
     saltPercent: 2.5,
     defaultHydrationPercent: 60,
     defaultBallWeightGrams: 180,

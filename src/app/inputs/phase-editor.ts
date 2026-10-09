@@ -9,6 +9,7 @@ import {
   output,
 } from '@angular/core';
 import { FermentationPhase } from '../dough/dough.model';
+import { LanguageService } from '../i18n/language.service';
 import { DOUGH_LIMITS } from '../state/dough-limits';
 import { MoveDirection, PhasePatch } from '../state/dough.store';
 import { PHASE_PRESETS, PhasePresetId } from '../state/phase-presets';
@@ -38,15 +39,15 @@ const COLD_THRESHOLD_C = 10;
             <div class="phase__header">
               <span class="phase__badge" aria-hidden="true">{{ index + 1 }}</span>
               <span class="phase__title">
-                Phase {{ index + 1 }}
-                <small>{{ isCold(phase) ? 'kalt' : 'warm' }}</small>
+                {{ t().phases.phase(index + 1) }}
+                <small>{{ isCold(phase) ? t().phases.cold : t().phases.warm }}</small>
               </span>
               <span class="phase__actions">
                 <button
                   type="button"
                   class="icon-button"
                   [id]="buttonId('up', phase.id)"
-                  [attr.aria-label]="'Phase ' + (index + 1) + ' nach oben'"
+                  [attr.aria-label]="t().phases.moveUp(index + 1)"
                   [disabled]="first"
                   (click)="move(phase.id, -1)"
                 >
@@ -56,7 +57,7 @@ const COLD_THRESHOLD_C = 10;
                   type="button"
                   class="icon-button"
                   [id]="buttonId('down', phase.id)"
-                  [attr.aria-label]="'Phase ' + (index + 1) + ' nach unten'"
+                  [attr.aria-label]="t().phases.moveDown(index + 1)"
                   [disabled]="last"
                   (click)="move(phase.id, 1)"
                 >
@@ -65,7 +66,7 @@ const COLD_THRESHOLD_C = 10;
                 <button
                   type="button"
                   class="icon-button icon-button--danger"
-                  [attr.aria-label]="'Phase ' + (index + 1) + ' entfernen'"
+                  [attr.aria-label]="t().phases.remove(index + 1)"
                   (click)="removePhase.emit(phase.id)"
                 >
                   ×
@@ -75,15 +76,15 @@ const COLD_THRESHOLD_C = 10;
             <div class="phase__fields">
               <app-number-field
                 unit="h"
-                [label]="'Dauer Phase ' + (index + 1) + ' in Stunden'"
+                [label]="t().phases.durationLabel(index + 1)"
                 [value]="phase.hours"
                 [limit]="limits.hours"
                 (valueChange)="updatePhase.emit({ id: phase.id, patch: { hours: $event } })"
               />
-              <span class="phase__at" aria-hidden="true">bei</span>
+              <span class="phase__at" aria-hidden="true">{{ t().phases.at }}</span>
               <app-number-field
                 unit="°C"
-                [label]="'Temperatur Phase ' + (index + 1) + ' in Grad Celsius'"
+                [label]="t().phases.temperatureLabel(index + 1)"
                 [value]="phase.temperatureC"
                 [limit]="limits.temperatureC"
                 (valueChange)="updatePhase.emit({ id: phase.id, patch: { temperatureC: $event } })"
@@ -93,20 +94,20 @@ const COLD_THRESHOLD_C = 10;
         }
       </ol>
     } @else {
-      <p class="phase-empty">Noch keine Gare-Phase. Füge mindestens eine hinzu.</p>
+      <p class="phase-empty">{{ t().phases.empty }}</p>
     }
 
     <div class="phase-footer">
-      <div class="phase-add" role="group" aria-label="Phase hinzufügen">
+      <div class="phase-add" role="group" [attr.aria-label]="t().phases.add">
         @for (preset of presets; track preset.id) {
           <button type="button" class="phase-add__button" (click)="addPhase.emit(preset.id)">
-            + {{ preset.label }}
+            + {{ t().phases.presets[preset.id] }}
             <small>{{ preset.temperatureC }} °C</small>
           </button>
         }
       </div>
       <p class="phase-total">
-        Gesamt <strong>{{ formatHours(totalHours()) }} h</strong>
+        {{ t().phases.total }} <strong>{{ formatHours(totalHours(), t().locale) }} h</strong>
       </p>
     </div>
   `,
@@ -122,6 +123,7 @@ export class PhaseEditor {
   readonly updatePhase = output<PhaseUpdate>();
   readonly movePhase = output<PhaseMove>();
 
+  protected readonly t = inject(LanguageService).t;
   protected readonly limits = DOUGH_LIMITS;
   protected readonly presets = PHASE_PRESETS;
 

@@ -2,19 +2,22 @@
 
 <header class="hero">
   <div>
-    <p class="eyebrow">Teig · Zeit · Feuer</p>
-    <h1 class="hero__title"><span class="hero__title-text">Pizzateig-Rechner</span></h1>
+    <p class="eyebrow">{{ t().app.eyebrow }}</p>
+    <h1 class="hero__title"><span class="hero__title-text">{{ t().app.title }}</span></h1>
   </div>
   <div class="hero__actions">
+    <app-language-toggle />
     <app-theme-toggle />
-    <button type="button" class="reset-button" (click)="store.reset()">Zurücksetzen</button>
+    <button type="button" class="reset-button" (click)="store.reset()">
+      {{ t().app.reset }}
+    </button>
   </div>
 </header>
 
 <main class="layout">
-  <section class="layout__inputs" aria-label="Eingaben">
+  <section class="layout__inputs" [attr.aria-label]="t().app.inputs">
     <section class="panel" aria-labelledby="panel-method">
-      <h2 class="panel__title" id="panel-method">Methode</h2>
+      <h2 class="panel__title" id="panel-method">{{ t().panels.method }}</h2>
       <app-method-switch
         [method]="doughInput().method"
         (methodChange)="store.setMethod($event)"
@@ -23,7 +26,7 @@
 
     @if (preDoughMethod(); as method) {
       <section class="panel panel--pre-dough" aria-labelledby="panel-pre-dough">
-        <h2 class="panel__title" id="panel-pre-dough">Vorteig</h2>
+        <h2 class="panel__title" id="panel-pre-dough">{{ t().panels.preDough }}</h2>
         <app-pre-dough-panel
           [method]="method"
           [settings]="doughInput().preDough"
@@ -33,24 +36,24 @@
     }
 
     <section class="panel" aria-labelledby="panel-style">
-      <h2 class="panel__title" id="panel-style">Pizzastil</h2>
+      <h2 class="panel__title" id="panel-style">{{ t().panels.style }}</h2>
       <app-style-picker [styleId]="doughInput().style" (styleIdChange)="store.setStyle($event)" />
     </section>
 
     <section class="panel" aria-labelledby="panel-balls">
-      <h2 class="panel__title" id="panel-balls">Teiglinge</h2>
+      <h2 class="panel__title" id="panel-balls">{{ t().panels.balls }}</h2>
       <div class="panel__row">
-        <label class="panel__label" for="ball-count">Anzahl</label>
+        <label class="panel__label" for="ball-count">{{ t().fields.count }}</label>
         <app-number-stepper
           inputId="ball-count"
-          label="Anzahl Teiglinge"
+          [label]="t().fields.ballCount"
           [value]="doughInput().ballCount"
           [limit]="limits.ballCount"
           (valueChange)="store.setBallCount($event)"
         />
       </div>
       <app-range-field
-        label="Gewicht pro Teigling"
+        [label]="t().fields.ballWeight"
         unit="g"
         [value]="doughInput().ballWeightGrams"
         [limit]="limits.ballWeightGrams"
@@ -63,9 +66,9 @@
     </section>
 
     <section class="panel" aria-labelledby="panel-dough">
-      <h2 class="panel__title" id="panel-dough">Teig</h2>
+      <h2 class="panel__title" id="panel-dough">{{ t().panels.dough }}</h2>
       <app-range-field
-        label="Hydration"
+        [label]="t().fields.hydration"
         unit="%"
         [value]="doughInput().hydrationPercent"
         [limit]="limits.hydrationPercent"
@@ -78,7 +81,7 @@
     </section>
 
     <section class="panel" aria-labelledby="panel-phases">
-      <h2 class="panel__title" id="panel-phases">Gare</h2>
+      <h2 class="panel__title" id="panel-phases">{{ t().panels.fermentation }}</h2>
       <app-phase-editor
         [phases]="doughInput().phases"
         [totalHours]="store.totalPhaseHours()"
@@ -90,12 +93,12 @@
     </section>
   </section>
 
-  <section class="layout__results" aria-label="Ergebnis">
-    <section class="visual-slot" aria-label="Pizzagröße">
+  <section class="layout__results" [attr.aria-label]="t().app.result">
+    <section class="visual-slot" [attr.aria-label]="t().app.pizzaSize">
       <app-pizza-visual [diameterCm]="store.result().diameterCm" [styleId]="doughInput().style" />
     </section>
     <section class="panel panel--timeline" aria-labelledby="panel-timeline">
-      <h2 class="panel__title" id="panel-timeline">Zeitplan</h2>
+      <h2 class="panel__title" id="panel-timeline">{{ t().panels.schedule }}</h2>
       <app-fermentation-timeline
         [doughInput]="doughInput()"
         [equivalentHoursAt20C]="store.result().equivalentHoursAt20C"

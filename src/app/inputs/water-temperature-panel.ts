@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MixingType, WaterTemperatureSettings } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
-import { formatNumber } from '../shared/format';
 import { NumberField } from '../shared/number-field';
 import { DOUGH_LIMITS } from '../state/dough-limits';
 import { WaterTemperaturePatch } from '../state/dough.store';
+import { formatTemperature } from '../units/unit-format';
+import { temperatureField } from '../units/unit-fields';
+import { UnitSystemService } from '../units/unit-system.service';
 
 const MIXING_TYPES: readonly MixingType[] = ['hand', 'stand-mixer'];
 
@@ -19,10 +21,10 @@ const MIXING_TYPES: readonly MixingType[] = ['hand', 'stand-mixer'];
         <app-number-field
           inputId="water-temperature-target"
           [label]="t().waterTemperature.targetDough"
-          unit="°C"
-          [value]="settings().targetDoughC"
-          [limit]="limits.targetDoughTemperatureC"
-          (valueChange)="settingsChange.emit({ targetDoughC: $event })"
+          [unit]="fields().targetDough.unit"
+          [value]="fields().targetDough.toDisplay(settings().targetDoughC)"
+          [limit]="fields().targetDough.limit"
+          (valueChange)="updateTargetDough($event)"
         />
       </label>
       <label class="water-temperature__field" for="water-temperature-room">
@@ -30,10 +32,10 @@ const MIXING_TYPES: readonly MixingType[] = ['hand', 'stand-mixer'];
         <app-number-field
           inputId="water-temperature-room"
           [label]="t().waterTemperature.room"
-          unit="°C"
-          [value]="settings().roomC"
-          [limit]="limits.roomTemperatureC"
-          (valueChange)="settingsChange.emit({ roomC: $event })"
+          [unit]="fields().room.unit"
+          [value]="fields().room.toDisplay(settings().roomC)"
+          [limit]="fields().room.limit"
+          (valueChange)="settingsChange.emit({ roomC: fields().room.toMetric($event) })"
         />
       </label>
       <label class="water-temperature__field" for="water-temperature-flour">
@@ -41,10 +43,10 @@ const MIXING_TYPES: readonly MixingType[] = ['hand', 'stand-mixer'];
         <app-number-field
           inputId="water-temperature-flour"
           [label]="t().waterTemperature.flour"
-          unit="°C"
-          [value]="settings().flourC"
-          [limit]="limits.flourTemperatureC"
-          (valueChange)="settingsChange.emit({ flourC: $event })"
+          [unit]="fields().flour.unit"
+          [value]="fields().flour.toDisplay(settings().flourC)"
+          [limit]="fields().flour.limit"
+          (valueChange)="settingsChange.emit({ flourC: fields().flour.toMetric($event) })"
         />
       </label>
     </div>
@@ -79,15 +81,27 @@ export class WaterTemperaturePanel {
 
   readonly settingsChange = output<WaterTemperaturePatch>();
 
-  protected readonly limits = DOUGH_LIMITS;
   protected readonly mixingTypes = MIXING_TYPES;
   protected readonly t = inject(LanguageService).t;
+  private readonly unitSystem = inject(UnitSystemService).unitSystem;
+  protected readonly fields = computed(() => {
+    const unitSystem = this.unitSystem();
+    return {
+      targetDough: temperatureField(DOUGH_LIMITS.targetDoughTemperatureC, unitSystem),
+      room: temperatureField(DOUGH_LIMITS.roomTemperatureC, unitSystem),
+      flour: temperatureField(DOUGH_LIMITS.flourTemperatureC, unitSystem),
+    };
+  });
   protected readonly resultText = computed(() => {
     const temperatureC = this.waterTemperatureC();
     if (temperatureC === null) {
       return '';
     }
     const t = this.t();
-    return t.waterTemperature.result(formatNumber(Math.round(temperatureC), t.locale));
+    return t.waterTemperature.result(formatTemperature(temperatureC, this.unitSystem(), t.locale));
   });
+
+  protected updateTargetDough(displayValue: number): void {
+    this.settingsChange.emit({ targetDoughC: this.fields().targetDough.toMetric(displayValue) });
+  }
 }

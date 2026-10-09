@@ -208,16 +208,16 @@ describe('DoughStore', () => {
       expect(store.result().waterTemperatureC).toBe(3 * 25 - 20 - 19 - 12);
     });
 
-    it('clamps and snaps the temperatures to their limits', () => {
+    it('clamps the temperatures and rounds them to 0.1 °C', () => {
       const store = createStore();
 
-      store.updateWaterTemperature({ targetDoughC: 40, roomC: 2, flourC: 21.6 });
+      store.updateWaterTemperature({ targetDoughC: 40, roomC: 2, flourC: 21.666 });
 
       expect(store.input().waterTemperature).toEqual({
         ...WATER_TEMPERATURE_DEFAULTS,
         targetDoughC: 30,
         roomC: 10,
-        flourC: 22,
+        flourC: 21.7,
       });
     });
 
@@ -266,12 +266,12 @@ describe('DoughStore', () => {
       expect(store.input().sugarPercent).toBe(1);
     });
 
-    it('snaps the ball weight to steps of 5 g', () => {
+    it('rounds the ball weight to whole grams', () => {
       const store = createStore();
 
-      store.setBallWeight(263);
+      store.setBallWeight(354.37);
 
-      expect(store.input().ballWeightGrams).toBe(265);
+      expect(store.input().ballWeightGrams).toBe(354);
     });
   });
 

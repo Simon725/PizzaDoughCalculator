@@ -4,6 +4,8 @@ import { DoughInput, isPreDoughMethod } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { Translations } from '../i18n/translations';
 import { formatHours, formatWeekdayTime } from '../shared/format';
+import { formatTemperature } from '../units/unit-format';
+import { UnitSystemService } from '../units/unit-system.service';
 import { TimelinePhase, buildTimeline } from './timeline-math';
 
 const COMPACT_SEGMENT_PERCENT = 14;
@@ -39,7 +41,7 @@ const PRE_DOUGH_SEGMENT_ID = 'pre-dough';
                 <span class="legend__start">{{ startLabel }}</span>
               }
               <span class="legend__meta">
-                {{ t().timeline.hoursAt(formatHours(segment.hours, t().locale), segment.temperatureC) }}
+                {{ segmentDetails(segment.hours, segment.temperatureC) }}
                 @if (segment.isCold) {
                   <span class="legend__cold" aria-hidden="true">❄</span>
                   <span class="visually-hidden">{{ t().timeline.fridge }}</span>
@@ -60,7 +62,7 @@ const PRE_DOUGH_SEGMENT_ID = 'pre-dough';
         </span>
         <span>
           {{ t().timeline.equivalentPrefix }} <strong>{{ equivalentLabel() }} h</strong>
-          {{ t().timeline.equivalentSuffix(referenceTemperatureC()) }}
+          {{ equivalentSuffix() }}
         </span>
       </figcaption>
     </figure>
@@ -75,6 +77,7 @@ export class FermentationTimeline {
   readonly bakePlan = input<BakePlan | null>(null);
 
   protected readonly t = inject(LanguageService).t;
+  private readonly unitSystem = inject(UnitSystemService).unitSystem;
   protected readonly formatHours = formatHours;
   protected readonly compactPercent = COMPACT_SEGMENT_PERCENT;
 
@@ -93,6 +96,20 @@ export class FermentationTimeline {
   protected readonly equivalentLabel = computed(() =>
     formatHours(Math.round(this.equivalentHours() * 10) / 10, this.t().locale),
   );
+  protected readonly equivalentSuffix = computed(() => {
+    const t = this.t();
+    return t.timeline.equivalentSuffix(
+      formatTemperature(this.referenceTemperatureC(), this.unitSystem(), t.locale),
+    );
+  });
+
+  protected segmentDetails(hours: number, temperatureC: number): string {
+    const t = this.t();
+    return t.timeline.hoursAt(
+      formatHours(hours, t.locale),
+      formatTemperature(temperatureC, this.unitSystem(), t.locale),
+    );
+  }
 }
 
 function startLabelsFor(plan: BakePlan | null, locale: string): Map<string, string> {

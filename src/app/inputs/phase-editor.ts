@@ -4,6 +4,7 @@ import {
   DOCUMENT,
   Injector,
   afterNextRender,
+  computed,
   inject,
   input,
   output,
@@ -15,6 +16,9 @@ import { MoveDirection, PhasePatch } from '../state/dough.store';
 import { PHASE_PRESETS, PhasePresetId } from '../state/phase-presets';
 import { formatHours } from '../shared/format';
 import { NumberField } from '../shared/number-field';
+import { formatTemperature } from '../units/unit-format';
+import { temperatureField } from '../units/unit-fields';
+import { UnitSystemService } from '../units/unit-system.service';
 
 export interface PhaseUpdate {
   id: string;
@@ -83,11 +87,11 @@ const COLD_THRESHOLD_C = 10;
               />
               <span class="phase__at" aria-hidden="true">{{ t().phases.at }}</span>
               <app-number-field
-                unit="°C"
-                [label]="t().phases.temperatureLabel(index + 1)"
-                [value]="phase.temperatureC"
-                [limit]="limits.temperatureC"
-                (valueChange)="updatePhase.emit({ id: phase.id, patch: { temperatureC: $event } })"
+                [unit]="temperature().unit"
+                [label]="t().phases.temperatureLabel(index + 1, temperatureName())"
+                [value]="temperature().toDisplay(phase.temperatureC)"
+                [limit]="temperature().limit"
+                (valueChange)="updateTemperature(phase.id, $event)"
               />
             </div>
           </li>
@@ -102,7 +106,7 @@ const COLD_THRESHOLD_C = 10;
         @for (preset of presets; track preset.id) {
           <button type="button" class="phase-add__button" (click)="addPhase.emit(preset.id)">
             + {{ t().phases.presets[preset.id] }}
-            <small>{{ preset.temperatureC }} °C</small>
+            <small>{{ presetTemperature(preset.temperatureC) }}</small>
           </button>
         }
       </div>
@@ -127,6 +131,14 @@ export class PhaseEditor {
   protected readonly limits = DOUGH_LIMITS;
   protected readonly presets = PHASE_PRESETS;
 
+  private readonly unitSystem = inject(UnitSystemService).unitSystem;
+  protected readonly temperature = computed(() =>
+    temperatureField(this.limits.temperatureC, this.unitSystem()),
+  );
+  protected readonly temperatureName = computed(
+    () => this.t().units.temperatureNames[this.unitSystem()],
+  );
+
   private readonly injector = inject(Injector);
   private readonly document = inject(DOCUMENT);
 
@@ -139,6 +151,15 @@ export class PhaseEditor {
   }
 
   protected readonly formatHours = formatHours;
+
+  protected presetTemperature(temperatureC: number): string {
+    return formatTemperature(temperatureC, this.unitSystem(), this.t().locale);
+  }
+
+  protected updateTemperature(id: string, displayValue: number): void {
+    const temperatureC = this.temperature().toMetric(displayValue);
+    this.updatePhase.emit({ id, patch: { temperatureC } });
+  }
 
   protected move(id: string, direction: MoveDirection): void {
     this.movePhase.emit({ id, direction });

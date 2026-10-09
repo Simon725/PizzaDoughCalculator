@@ -2,10 +2,11 @@
   <figcaption class="stage__label">
     <span class="stage__eyebrow" aria-hidden="true">{{ t().pizza.perPizza(styleName()) }}</span>
     <span class="stage__size" aria-hidden="true">
-      <small>{{ t().pizza.approx }}</small> <app-animated-number [value]="roundedDiameter()" /> <small>cm</small>
+      <small>{{ t().pizza.approx }}</small> <app-animated-number [value]="diameter().value" />
+      <small>{{ diameter().unit }}</small>
     </span>
     <span class="visually-hidden">
-      {{ t().pizza.description(roundedDiameter()) }}
+      {{ diameterDescription() }}
     </span>
   </figcaption>
 

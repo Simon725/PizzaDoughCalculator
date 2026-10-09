@@ -13,6 +13,8 @@ import {
 } from '@angular/core';
 import { LanguageService } from '../i18n/language.service';
 import { AnimatedNumber } from '../shared/animated-number';
+import { weightAmount } from '../units/unit-format';
+import { UnitSystemService } from '../units/unit-system.service';
 import { ballRow, ballScale } from './dough-ball-math';
 import { prefersReducedMotion } from './motion';
 
@@ -45,10 +47,18 @@ const WOBBLE_STAGGER_MS = 35;
     </div>
     <p class="summary">
       <span>
-        <strong><app-animated-number [value]="ballWeightGrams()" /> g</strong> {{ t().balls.perBall }}
+        <strong>
+          <app-animated-number [value]="ballWeight().value" [decimals]="ballWeight().decimals" />
+          {{ ballWeight().unit }}
+        </strong>
+        {{ t().balls.perBall }}
       </span>
       <span>
-        {{ t().balls.total }} <strong><app-animated-number [value]="totalGrams()" /> g</strong>
+        {{ t().balls.total }}
+        <strong>
+          <app-animated-number [value]="totalWeight().value" [decimals]="totalWeight().decimals" />
+          {{ totalWeight().unit }}
+        </strong>
       </span>
     </p>
   `,
@@ -60,6 +70,7 @@ export class DoughBalls {
   readonly ballWeightGrams = input.required<number>();
 
   protected readonly t = inject(LanguageService).t;
+  private readonly unitSystem = inject(UnitSystemService).unitSystem;
   private readonly injector = inject(Injector);
   private readonly ballBodies = viewChildren<ElementRef<HTMLElement>>('ballBody');
   private isFirstRun = true;
@@ -71,7 +82,12 @@ export class DoughBalls {
   protected readonly ballTransform = computed(
     () => `scale(${ballScale(this.ballWeightGrams()).toFixed(3)})`,
   );
-  protected readonly totalGrams = computed(() => this.ballCount() * this.ballWeightGrams());
+  protected readonly ballWeight = computed(() =>
+    weightAmount(this.ballWeightGrams(), this.unitSystem()),
+  );
+  protected readonly totalWeight = computed(() =>
+    weightAmount(this.ballCount() * this.ballWeightGrams(), this.unitSystem()),
+  );
 
   constructor() {
     effect(() => {

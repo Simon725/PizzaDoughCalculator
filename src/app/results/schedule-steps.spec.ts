@@ -18,7 +18,9 @@ describe('buildScheduleSteps', () => {
     };
     const plan = planBakeSchedule({ method: 'poolish', preDough, phases: PHASES }, BAKE_AT);
 
-    const lines = buildScheduleSteps('poolish', plan, TRANSLATIONS.de).map(formatScheduleStep);
+    const lines = buildScheduleSteps('poolish', plan, TRANSLATIONS.de, 'metric').map(
+      formatScheduleStep,
+    );
 
     expect(lines).toEqual([
       'Do 21:00 – Poolish ansetzen',
@@ -35,7 +37,9 @@ describe('buildScheduleSteps', () => {
       BAKE_AT,
     );
 
-    const lines = buildScheduleSteps('sourdough', plan, TRANSLATIONS.en).map(formatScheduleStep);
+    const lines = buildScheduleSteps('sourdough', plan, TRANSLATIONS.en, 'metric').map(
+      formatScheduleStep,
+    );
 
     expect(lines).toEqual(['Sat 17:00 – Mix dough', 'Sat 19:00 – Bake']);
   });
@@ -46,8 +50,22 @@ describe('buildScheduleSteps', () => {
       BAKE_AT,
     );
 
-    const [first] = buildScheduleSteps('biga', plan, TRANSLATIONS.en);
+    const [first] = buildScheduleSteps('biga', plan, TRANSLATIONS.en, 'metric');
 
     expect(first.label).toBe('Make biga');
+  });
+
+  it('shows phase temperatures in Fahrenheit with imperial units', () => {
+    const plan = planBakeSchedule(
+      { method: 'direct', preDough: PRE_DOUGH_DEFAULTS.poolish, phases: PHASES },
+      BAKE_AT,
+    );
+
+    const labels = buildScheduleSteps('direct', plan, TRANSLATIONS.de, 'imperial').map(
+      (step) => step.label,
+    );
+
+    expect(labels).toContain('Phase 2 beginnt (24 h bei 39 °F)');
+    expect(labels).toContain('Phase 3 beginnt (4 h bei 72 °F)');
   });
 });

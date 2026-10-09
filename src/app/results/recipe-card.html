@@ -5,8 +5,8 @@
     <p class="recipe__summary">{{ summary() }}</p>
     <div class="recipe__chips">
       <span class="recipe__chip">
-        {{ t().recipe.diameterPrefix }} <app-animated-number [value]="diameterCm()" />
-        {{ t().recipe.diameterSuffix }}
+        {{ t().recipe.diameterPrefix }} <app-animated-number [value]="diameter().value" />
+        {{ diameter().unit }} {{ t().recipe.diameterSuffix }}
       </span>
       <span class="recipe__chip">{{ fermentationSummary() }}</span>
     </div>
@@ -40,13 +40,13 @@
           <div class="recipe__row">
             <dt>
               {{ row.label }}
-              @if (row.temperatureC !== undefined) {
-                <span class="recipe__temperature">{{ formatTemperature(row.temperatureC) }}</span>
+              @if (row.temperature; as temperature) {
+                <span class="recipe__temperature">{{ temperature }}</span>
               }
             </dt>
             <dd>
-              <app-animated-number [value]="row.grams" [decimals]="row.decimals" />
-              <span class="recipe__unit">g</span>
+              <app-animated-number [value]="row.amount.value" [decimals]="row.amount.decimals" />
+              <span class="recipe__unit">{{ row.amount.unit }}</span>
             </dd>
           </div>
         }
@@ -55,8 +55,9 @@
   }
 
   <p class="recipe__hint">
-    {{ t().recipe.bowlLossPrefix }} <app-animated-number [value]="bowlLossGrams()" />
-    {{ t().recipe.bowlLossSuffix }}
+    {{ t().recipe.bowlLossPrefix }}
+    <app-animated-number [value]="bowlLoss().value" [decimals]="bowlLoss().decimals" />
+    {{ bowlLoss().unit }} {{ t().recipe.bowlLossSuffix }}
   </p>
 
   @if (scheduleSteps().length) {

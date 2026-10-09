@@ -8,14 +8,17 @@ import {
 import { PhasePresetId } from '../state/phase-presets';
 import { ScheduleTemplateId } from '../state/schedule-templates';
 import { ThemePreference } from '../theme/theme.service';
+import { UnitSystem } from '../units/unit-system.service';
 
 export type Language = 'de' | 'en';
 
 export const LANGUAGES: readonly Language[] = ['de', 'en'];
 
+export type TemperatureFormatter = (celsius: number) => string;
+
 export interface StyleText {
   name: string;
-  description: string;
+  description: (formatTemperature: TemperatureFormatter) => string;
 }
 
 export interface MethodText {
@@ -63,6 +66,11 @@ export interface Translations {
     legend: string;
     options: Record<ThemePreference, string>;
   };
+  units: {
+    legend: string;
+    options: Record<UnitSystem, string>;
+    temperatureNames: Record<UnitSystem, string>;
+  };
   methods: {
     legend: string;
     options: Record<DoughMethod, MethodText>;
@@ -80,7 +88,7 @@ export interface Translations {
     time: string;
     timeLabel: string;
     temperature: string;
-    temperatureLabel: string;
+    temperatureLabel: (unitName: string) => string;
   };
   sourdough: {
     intro: string;
@@ -104,7 +112,7 @@ export interface Translations {
     moveDown: (number: number) => string;
     remove: (number: number) => string;
     durationLabel: (number: number) => string;
-    temperatureLabel: (number: number) => string;
+    temperatureLabel: (number: number, unitName: string) => string;
     at: string;
     empty: string;
     add: string;
@@ -131,12 +139,12 @@ export interface Translations {
     options: Record<ScheduleTemplateId, string>;
   };
   timeline: {
-    hoursAt: (hours: string, temperatureC: number) => string;
+    hoursAt: (hours: string, temperature: string) => string;
     fridge: string;
     empty: string;
     total: string;
     equivalentPrefix: string;
-    equivalentSuffix: (temperatureC: number) => string;
+    equivalentSuffix: (temperature: string) => string;
   };
   balls: {
     perBall: string;
@@ -145,7 +153,7 @@ export interface Translations {
   pizza: {
     perPizza: (style: string) => string;
     approx: string;
-    description: (diameterCm: number) => string;
+    description: (diameter: string) => string;
   };
   recipe: {
     eyebrow: string;
@@ -155,7 +163,7 @@ export interface Translations {
     preDough: string;
     mainDough: string;
     total: string;
-    doughGrams: (grams: string) => string;
+    doughWeight: (weight: string) => string;
     flour: string;
     water: string;
     salt: string;
@@ -164,7 +172,6 @@ export interface Translations {
     yeast: (yeastType: string) => string;
     starter: string;
     starterNote: (inoculationPercent: string, hydrationPercent: number) => string;
-    temperature: (temperatureC: string) => string;
     bowlLossPrefix: string;
     bowlLossSuffix: string;
     copy: string;
@@ -175,8 +182,8 @@ export interface Translations {
     print: string;
     hydration: (percent: number) => string;
     textTitle: (style: string) => string;
-    textBowlLoss: (grams: string) => string;
-    textDiameter: (diameterCm: string) => string;
+    textBowlLoss: (weight: string) => string;
+    textDiameter: (diameter: string) => string;
     textFermentation: string;
   };
   warnings: Record<DoughWarningCode, string>;
@@ -222,6 +229,11 @@ const de: Translations = {
     legend: 'Farbschema',
     options: { system: 'System', dark: 'Dunkel', light: 'Hell' },
   },
+  units: {
+    legend: 'Maßeinheiten',
+    options: { metric: 'Metrisch', imperial: 'Imperial' },
+    temperatureNames: { metric: 'Grad Celsius', imperial: 'Grad Fahrenheit' },
+  },
   methods: {
     legend: 'Teigmethode',
     options: {
@@ -240,15 +252,17 @@ const de: Translations = {
     options: {
       neapolitan: {
         name: 'Neapolitanisch',
-        description: 'Dünne Mitte, luftiger Rand, 60–90 Sekunden bei 450 °C.',
+        description: (temperature) =>
+          `Dünne Mitte, luftiger Rand, 60–90 Sekunden bei ${temperature(450)}.`,
       },
       'new-york': {
         name: 'New York',
-        description: 'Groß, dünn und faltbar. Gebacken im Haushaltsofen auf Stein oder Stahl.',
+        description: () =>
+          'Groß, dünn und faltbar. Gebacken im Haushaltsofen auf Stein oder Stahl.',
       },
       roman: {
         name: 'Römisch (tonda)',
-        description: 'Hauchdünn und knusprig, flach ausgerollt.',
+        description: () => 'Hauchdünn und knusprig, flach ausgerollt.',
       },
     },
   },
@@ -261,7 +275,7 @@ const de: Translations = {
     time: 'Reifezeit',
     timeLabel: 'Reifezeit Vorteig in Stunden',
     temperature: 'Temperatur',
-    temperatureLabel: 'Temperatur Vorteig in Grad Celsius',
+    temperatureLabel: (unitName) => `Temperatur Vorteig in ${unitName}`,
   },
   sourdough: {
     intro:
@@ -277,7 +291,7 @@ const de: Translations = {
     flour: 'Mehltemperatur',
     mixing: 'Kneten',
     mixingTypes: { hand: 'Von Hand', 'stand-mixer': 'Küchenmaschine' },
-    result: (temperature) => `Wasser: ${temperature} °C`,
+    result: (temperature) => `Wasser: ${temperature}`,
   },
   phases: {
     phase: (number) => `Phase ${number}`,
@@ -287,7 +301,7 @@ const de: Translations = {
     moveDown: (number) => `Phase ${number} nach unten`,
     remove: (number) => `Phase ${number} entfernen`,
     durationLabel: (number) => `Dauer Phase ${number} in Stunden`,
-    temperatureLabel: (number) => `Temperatur Phase ${number} in Grad Celsius`,
+    temperatureLabel: (number, unitName) => `Temperatur Phase ${number} in ${unitName}`,
     at: 'bei',
     empty: 'Noch keine Gare-Phase. Füge mindestens eine hinzu.',
     add: 'Phase hinzufügen',
@@ -319,12 +333,12 @@ const de: Translations = {
     },
   },
   timeline: {
-    hoursAt: (hours, temperatureC) => `${hours} h bei ${temperatureC} °C`,
+    hoursAt: (hours, temperature) => `${hours} h bei ${temperature}`,
     fridge: '(Kühlschrank)',
     empty: 'Noch keine Gare-Phase geplant.',
     total: 'Gesamt',
     equivalentPrefix: 'entspricht',
-    equivalentSuffix: (temperatureC) => `bei ${temperatureC} °C`,
+    equivalentSuffix: (temperature) => `bei ${temperature}`,
   },
   balls: {
     perBall: 'pro Teigling',
@@ -333,18 +347,18 @@ const de: Translations = {
   pizza: {
     perPizza: (style) => `Ø pro Pizza · ${style}`,
     approx: 'ca.',
-    description: (diameterCm) => `Pizza-Durchmesser ca. ${diameterCm} cm.`,
+    description: (diameter) => `Pizza-Durchmesser ca. ${diameter}.`,
   },
   recipe: {
     eyebrow: 'Dein Rezept',
     diameterPrefix: 'Ø ca.',
-    diameterSuffix: 'cm pro Pizza',
+    diameterSuffix: 'pro Pizza',
     fermentationSummary: (hours, phaseCount) =>
       `${hours} h Gare · ${phaseCount} ${phaseCount === 1 ? 'Phase' : 'Phasen'}`,
     preDough: 'Vorteig',
     mainDough: 'Hauptteig',
     total: 'Gesamt',
-    doughGrams: (grams) => `${grams} g Teig`,
+    doughWeight: (weight) => `${weight} Teig`,
     flour: 'Mehl',
     water: 'Wasser',
     salt: 'Salz',
@@ -354,9 +368,8 @@ const de: Translations = {
     starter: 'Sauerteig-Starter',
     starterNote: (inoculationPercent, hydrationPercent) =>
       `${inoculationPercent} % vom Mehl · ${hydrationPercent} % Hydration`,
-    temperature: (temperatureC) => `${temperatureC} °C`,
     bowlLossPrefix: 'inkl.',
-    bowlLossSuffix: 'g Schüsselverlust (2 %)',
+    bowlLossSuffix: 'Schüsselverlust (2 %)',
     copy: 'Rezept kopieren',
     copied: '✓ Kopiert',
     copyFailed: 'Fehlgeschlagen',
@@ -365,8 +378,8 @@ const de: Translations = {
     print: 'Drucken',
     hydration: (percent) => `${percent} % Hydration`,
     textTitle: (style) => `Pizzateig – ${style}`,
-    textBowlLoss: (grams) => `inkl. ${grams} g Schüsselverlust (2 %)`,
-    textDiameter: (diameterCm) => `Durchmesser: ca. ${diameterCm} cm pro Pizza`,
+    textBowlLoss: (weight) => `inkl. ${weight} Schüsselverlust (2 %)`,
+    textDiameter: (diameter) => `Durchmesser: ca. ${diameter} pro Pizza`,
     textFermentation: 'Gare',
   },
   warnings: {
@@ -431,6 +444,11 @@ const en: Translations = {
     legend: 'Color scheme',
     options: { system: 'System', dark: 'Dark', light: 'Light' },
   },
+  units: {
+    legend: 'Units',
+    options: { metric: 'Metric', imperial: 'Imperial' },
+    temperatureNames: { metric: 'degrees Celsius', imperial: 'degrees Fahrenheit' },
+  },
   methods: {
     legend: 'Dough method',
     options: {
@@ -449,15 +467,16 @@ const en: Translations = {
     options: {
       neapolitan: {
         name: 'Neapolitan',
-        description: 'Thin center, airy crust, 60–90 seconds at 450 °C.',
+        description: (temperature) =>
+          `Thin center, airy crust, 60–90 seconds at ${temperature(450)}.`,
       },
       'new-york': {
         name: 'New York',
-        description: 'Large, thin and foldable. Baked in a home oven on stone or steel.',
+        description: () => 'Large, thin and foldable. Baked in a home oven on stone or steel.',
       },
       roman: {
         name: 'Roman (tonda)',
-        description: 'Paper-thin and crispy, rolled out flat.',
+        description: () => 'Paper-thin and crispy, rolled out flat.',
       },
     },
   },
@@ -470,7 +489,7 @@ const en: Translations = {
     time: 'Time',
     timeLabel: 'Pre-ferment time in hours',
     temperature: 'Temperature',
-    temperatureLabel: 'Pre-ferment temperature in degrees Celsius',
+    temperatureLabel: (unitName) => `Pre-ferment temperature in ${unitName}`,
   },
   sourdough: {
     intro:
@@ -485,7 +504,7 @@ const en: Translations = {
     flour: 'Flour temperature',
     mixing: 'Mixing',
     mixingTypes: { hand: 'By hand', 'stand-mixer': 'Stand mixer' },
-    result: (temperature) => `Water: ${temperature} °C`,
+    result: (temperature) => `Water: ${temperature}`,
   },
   phases: {
     phase: (number) => `Phase ${number}`,
@@ -495,7 +514,7 @@ const en: Translations = {
     moveDown: (number) => `Move phase ${number} down`,
     remove: (number) => `Remove phase ${number}`,
     durationLabel: (number) => `Duration of phase ${number} in hours`,
-    temperatureLabel: (number) => `Temperature of phase ${number} in degrees Celsius`,
+    temperatureLabel: (number, unitName) => `Temperature of phase ${number} in ${unitName}`,
     at: 'at',
     empty: 'No fermentation phase yet. Add at least one.',
     add: 'Add phase',
@@ -527,12 +546,12 @@ const en: Translations = {
     },
   },
   timeline: {
-    hoursAt: (hours, temperatureC) => `${hours} h at ${temperatureC} °C`,
+    hoursAt: (hours, temperature) => `${hours} h at ${temperature}`,
     fridge: '(fridge)',
     empty: 'No fermentation phase planned yet.',
     total: 'Total',
     equivalentPrefix: 'equals',
-    equivalentSuffix: (temperatureC) => `at ${temperatureC} °C`,
+    equivalentSuffix: (temperature) => `at ${temperature}`,
   },
   balls: {
     perBall: 'per dough ball',
@@ -541,18 +560,18 @@ const en: Translations = {
   pizza: {
     perPizza: (style) => `Ø per pizza · ${style}`,
     approx: 'approx.',
-    description: (diameterCm) => `Pizza diameter approx. ${diameterCm} cm.`,
+    description: (diameter) => `Pizza diameter approx. ${diameter}.`,
   },
   recipe: {
     eyebrow: 'Your recipe',
     diameterPrefix: 'Ø approx.',
-    diameterSuffix: 'cm per pizza',
+    diameterSuffix: 'per pizza',
     fermentationSummary: (hours, phaseCount) =>
       `${hours} h fermentation · ${phaseCount} ${phaseCount === 1 ? 'phase' : 'phases'}`,
     preDough: 'Pre-ferment',
     mainDough: 'Main dough',
     total: 'Total',
-    doughGrams: (grams) => `${grams} g dough`,
+    doughWeight: (weight) => `${weight} dough`,
     flour: 'Flour',
     water: 'Water',
     salt: 'Salt',
@@ -562,9 +581,8 @@ const en: Translations = {
     starter: 'Sourdough starter',
     starterNote: (inoculationPercent, hydrationPercent) =>
       `${inoculationPercent} % of flour · ${hydrationPercent} % hydration`,
-    temperature: (temperatureC) => `${temperatureC} °C`,
     bowlLossPrefix: 'incl.',
-    bowlLossSuffix: 'g bowl loss (2 %)',
+    bowlLossSuffix: 'bowl loss (2 %)',
     copy: 'Copy recipe',
     copied: '✓ Copied',
     copyFailed: 'Failed',
@@ -573,8 +591,8 @@ const en: Translations = {
     print: 'Print',
     hydration: (percent) => `${percent} % hydration`,
     textTitle: (style) => `Pizza dough – ${style}`,
-    textBowlLoss: (grams) => `incl. ${grams} g bowl loss (2 %)`,
-    textDiameter: (diameterCm) => `Diameter: approx. ${diameterCm} cm per pizza`,
+    textBowlLoss: (weight) => `incl. ${weight} bowl loss (2 %)`,
+    textDiameter: (diameter) => `Diameter: approx. ${diameter} per pizza`,
     textFermentation: 'Fermentation',
   },
   warnings: {

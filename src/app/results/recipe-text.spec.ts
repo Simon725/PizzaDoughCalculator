@@ -40,7 +40,7 @@ describe('formatRecipeText', () => {
   it('renders all sections with rounded amounts', () => {
     const input = { ...createDefaultInput(), method: 'poolish' as const };
 
-    const text = formatRecipeText(input, RESULT, TRANSLATIONS.de);
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.de, 'metric');
 
     expect(text).toContain('Pizzateig – Neapolitanisch');
     expect(text).toContain('Vorteig (16 h bei 18 °C)');
@@ -56,7 +56,7 @@ describe('formatRecipeText', () => {
   it('renders English text with English number format', () => {
     const input = { ...createDefaultInput(), method: 'poolish' as const };
 
-    const text = formatRecipeText(input, RESULT, TRANSLATIONS.en);
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.en, 'metric');
 
     expect(text).toContain('Pizza dough – Neapolitan');
     expect(text).toContain('Pre-ferment (16 h at 18 °C)');
@@ -71,7 +71,7 @@ describe('formatRecipeText', () => {
   it('shows the water temperature only in the main dough', () => {
     const input = { ...createDefaultInput(), method: 'poolish' as const };
 
-    const text = formatRecipeText(input, RESULT, TRANSLATIONS.de);
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.de, 'metric');
     const [preDoughText, mainText] = text.split('Hauptteig');
     const [mainDoughText, totalText] = mainText.split('Gesamt (');
 
@@ -85,13 +85,14 @@ describe('formatRecipeText', () => {
       createDefaultInput(),
       { ...RESULT, waterTemperatureC: null },
       TRANSLATIONS.en,
+      'metric',
     );
 
     expect(text).toContain('  Water: 196 g\n');
   });
 
   it('omits oil and sugar when they are 0', () => {
-    const text = formatRecipeText(createDefaultInput(), RESULT, TRANSLATIONS.en);
+    const text = formatRecipeText(createDefaultInput(), RESULT, TRANSLATIONS.en, 'metric');
 
     expect(text).not.toContain('Oil');
     expect(text).not.toContain('Sugar');
@@ -106,7 +107,7 @@ describe('formatRecipeText', () => {
     };
     const input = { ...createDefaultInput(), method: 'poolish' as const };
 
-    const text = formatRecipeText(input, result, TRANSLATIONS.de);
+    const text = formatRecipeText(input, result, TRANSLATIONS.de, 'metric');
     const [preDoughText] = text.split('Hauptteig');
 
     expect(text.match(/ {2}Öl: 15 g/g)).toHaveLength(2);
@@ -114,8 +115,50 @@ describe('formatRecipeText', () => {
     expect(preDoughText).not.toContain('Öl');
   });
 
+  it('renders imperial units and keeps small amounts in grams', () => {
+    const input = { ...createDefaultInput(), method: 'poolish' as const };
+
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.en, 'imperial');
+    const [, mainText] = text.split('Main dough');
+
+    expect(text).toContain('4 × 8.8 oz · 62 % hydration');
+    expect(text).toContain('Pre-ferment (16 h at 64 °F)');
+    expect(text).toContain('Total (35.6 oz dough)');
+    expect(text).toContain('  Flour: 21.6 oz');
+    expect(mainText).toContain('  Water: 6.9 oz (71 °F)');
+    expect(text).toContain('  Salt: 17 g');
+    expect(text).toContain('  Yeast (fresh yeast): 1.2 g');
+    expect(text).toContain('incl. 0.7 oz bowl loss (2 %)');
+    expect(text).toContain('Diameter: approx. 12 in per pizza');
+    expect(text).toContain('  2. 24 h at 39 °F');
+    expect(text).not.toContain('°C');
+    expect(text).not.toContain('cm');
+  });
+
+  it('renders imperial units with German number format', () => {
+    const text = formatRecipeText(createDefaultInput(), RESULT, TRANSLATIONS.de, 'imperial');
+
+    expect(text).toContain('Gesamt (35,6 oz Teig)');
+    expect(text).toContain('Durchmesser: ca. 12 in pro Pizza');
+    expect(text).toContain('  Hefe (Frischhefe): 1,2 g');
+  });
+
+  it('keeps oil and sugar in grams with imperial units', () => {
+    const enrichment = { oil: 15.3, sugar: 9.2 };
+    const result: DoughResult = {
+      ...RESULT,
+      totals: { ...RESULT.totals, ...enrichment },
+      mainDough: { ...RESULT.mainDough, ...enrichment },
+    };
+
+    const text = formatRecipeText(createDefaultInput(), result, TRANSLATIONS.en, 'imperial');
+
+    expect(text).toContain('  Oil: 15 g');
+    expect(text).toContain('  Sugar: 9 g');
+  });
+
   it('omits the step list without a bake plan', () => {
-    const text = formatRecipeText(createDefaultInput(), RESULT, TRANSLATIONS.en);
+    const text = formatRecipeText(createDefaultInput(), RESULT, TRANSLATIONS.en, 'metric');
 
     expect(text).not.toContain('Steps');
     expect(text).not.toContain('Bake');
@@ -134,7 +177,7 @@ describe('formatRecipeText', () => {
       '  Sat 19:00 – Bake',
     ].join('\n');
 
-    const text = formatRecipeText(input, RESULT, TRANSLATIONS.en, plan);
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.en, 'metric', plan);
 
     expect(text.endsWith(expectedSteps)).toBe(true);
   });
@@ -161,7 +204,7 @@ describe('formatRecipeText', () => {
     const input = { ...createDefaultInput(), method: 'sourdough' as const };
 
     it('shows the starter section and a starter line instead of yeast', () => {
-      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.de);
+      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.de, 'metric');
       const [starterText, mainText] = text.split('Hauptteig');
 
       expect(text).toContain('Sauerteig-Starter (20,0 % vom Mehl · 100 % Hydration)');
@@ -174,7 +217,7 @@ describe('formatRecipeText', () => {
     });
 
     it('renders the starter in English', () => {
-      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.en);
+      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.en, 'metric');
 
       expect(text).toContain('Sourdough starter (20.0 % of flour · 100 % hydration)');
       expect(text).toContain('  Sourdough starter: 124 g');
@@ -183,7 +226,7 @@ describe('formatRecipeText', () => {
     });
 
     it('does not list the starter again in the totals', () => {
-      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.en);
+      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.en, 'metric');
       const totalText = text.split('Total (')[1];
 
       expect(totalText).not.toContain('starter');

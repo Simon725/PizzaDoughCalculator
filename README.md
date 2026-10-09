@@ -29,6 +29,13 @@ Optionally, the schedule is planned backwards from a bake date and time (default
 - Durations are real elapsed hours (millisecond arithmetic), so across a daylight saving change the wall-clock times shift by one hour (e.g. 24 h before Sun 19:00 after the October change is Sat 20:00).
 - The bake time is stored as an ISO string with the on/off flag. A stored bake time in the past is kept as is; the recipe then warns that the first step has passed.
 
+## Units
+Metric or imperial is a separate setting (header toggle, saved in the browser), independent of the language:
+
+- Calculation and stored values always use g, °C and cm. Imperial values are converted only for display and input.
+- Imperial: ball weight, flour, water, starter, totals and bowl loss in oz (1 decimal); salt, yeast, oil and sugar stay in g; temperatures in whole °F; pizza diameter in whole inches.
+- Imperial inputs use steps of 0.5 oz and 1 °F. The store keeps the ball weight in whole grams and temperatures to 0.1 °C, so an imperial value shows unchanged after it is stored.
+
 ## Requirements
 - Node.js 22.12+ (Angular 21)
 

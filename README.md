@@ -37,6 +37,7 @@ Metric or imperial is a separate setting (header toggle, saved in the browser), 
 - Calculation and stored values always use g, °C and cm. Imperial values are converted only for display and input.
 - Imperial: ball weight, flour, water, starter, totals and bowl loss in oz (1 decimal); salt, yeast, oil and sugar stay in g; temperatures in whole °F; pizza diameter in whole inches.
 - Imperial inputs use steps of 0.5 oz and 1 °F. The store keeps the ball weight in whole grams and temperatures to 0.1 °C, so an imperial value shows unchanged after it is stored.
+- Metric fields and texts show whole grams and whole °C. This rounding is display only; it never changes the stored value.
 
 ## Requirements
 - Node.js 22.12+ (Angular 21)

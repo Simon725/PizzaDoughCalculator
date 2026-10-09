@@ -255,6 +255,51 @@ describe('App', () => {
       expect(temperatureField.value).toBe('71');
     });
 
+    it('rounds metric displays after an imperial edit without changing the store', async () => {
+      const { fixture, compiled } = await renderFixture();
+      const store = TestBed.inject(DoughStore);
+      await selectUnitSystem(fixture, 'imperial');
+      const phaseTemperature = () =>
+        compiled.querySelectorAll<HTMLInputElement>('app-phase-editor app-number-field input')[1];
+      const ballWeight = () =>
+        compiled.querySelector<HTMLInputElement>('app-range-field input[type="number"]')!;
+
+      await commitNumber(fixture, phaseTemperature(), '70');
+      await commitNumber(fixture, ballWeight(), '12.5');
+      const storedInput = store.input();
+
+      await selectUnitSystem(fixture, 'metric');
+
+      expect(phaseTemperature().value).toBe('21');
+      expect(ballWeight().value).toBe('354');
+      expect(compiled.querySelector('app-fermentation-timeline .legend')?.textContent).toContain(
+        'bei 21 °C',
+      );
+      expect(compiled.textContent).not.toContain('21,1');
+      expect(store.input()).toBe(storedInput);
+
+      await selectUnitSystem(fixture, 'imperial');
+
+      expect(phaseTemperature().value).toBe('70');
+      expect(ballWeight().value).toBe('12.5');
+      expect(store.input()).toBe(storedInput);
+    });
+
+    it('stores a metric edit after an imperial edit as entered', async () => {
+      const { fixture, compiled } = await renderFixture();
+      const store = TestBed.inject(DoughStore);
+      await selectUnitSystem(fixture, 'imperial');
+      const phaseTemperature = () =>
+        compiled.querySelectorAll<HTMLInputElement>('app-phase-editor app-number-field input')[1];
+
+      await commitNumber(fixture, phaseTemperature(), '70');
+      await selectUnitSystem(fixture, 'metric');
+      await commitNumber(fixture, phaseTemperature(), '23');
+
+      expect(store.input().phases[0].temperatureC).toBe(23);
+      expect(phaseTemperature().value).toBe('23');
+    });
+
     it('accepts water temperature inputs in Fahrenheit', async () => {
       const { fixture, compiled } = await renderFixture();
       await selectUnitSystem(fixture, 'imperial');

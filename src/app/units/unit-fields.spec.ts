@@ -11,6 +11,25 @@ describe('unit fields', () => {
     expect(field.toMetric(265)).toBe(265);
   });
 
+  it('shows metric values as whole numbers without changing the entered value', () => {
+    const temperature = temperatureField(DOUGH_LIMITS.temperatureC, 'metric');
+    const weight = weightField(DOUGH_LIMITS.ballWeightGrams, 'metric');
+
+    expect(temperature.toDisplay(21.7)).toBe(22);
+    expect(temperature.toDisplay(21.1)).toBe(21);
+    expect(temperature.toMetric(23)).toBe(23);
+    expect(weight.toDisplay(354)).toBe(354);
+  });
+
+  it('shows the original imperial value after a metric display round trip', () => {
+    const imperial = temperatureField(DOUGH_LIMITS.temperatureC, 'imperial');
+    const metric = temperatureField(DOUGH_LIMITS.temperatureC, 'metric');
+    const stored = clampToLimit(imperial.toMetric(71), STORED_LIMITS.temperatureC);
+
+    expect(metric.toDisplay(stored)).toBe(22);
+    expect(imperial.toDisplay(stored)).toBe(71);
+  });
+
   it('converts the ball weight to ounces within the metric range', () => {
     const field = weightField(DOUGH_LIMITS.ballWeightGrams, 'imperial');
 

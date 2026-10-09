@@ -3,13 +3,14 @@ import {
   FermentationPhase,
   PizzaStyleId,
   PreDoughSettings,
+  SourdoughSettings,
 } from '../dough/dough.model';
-import { PIZZA_STYLES } from '../dough/pizza-styles';
+import { PIZZA_STYLES, SOURDOUGH_DEFAULTS } from '../dough/pizza-styles';
 import { DOUGH_LIMITS, isWithinLimit } from './dough-limits';
 
 export const DOUGH_STORAGE_KEY = 'pizza-dough-calculator:v1';
 
-const METHODS: readonly string[] = ['direct', 'poolish', 'biga'];
+const METHODS: readonly string[] = ['direct', 'poolish', 'biga', 'sourdough'];
 const YEAST_TYPES: readonly string[] = ['fresh', 'instant'];
 
 export function loadDoughInput(): DoughInput | null {
@@ -18,7 +19,7 @@ export function loadDoughInput(): DoughInput | null {
     if (raw === null) {
       return null;
     }
-    const parsed = withStyleIngredientDefaults(JSON.parse(raw));
+    const parsed = withSourdoughDefaults(withStyleIngredientDefaults(JSON.parse(raw)));
     return isDoughInput(parsed) ? parsed : null;
   } catch {
     return null;
@@ -45,6 +46,13 @@ export function withStyleIngredientDefaults(value: unknown): unknown {
   };
 }
 
+export function withSourdoughDefaults(value: unknown): unknown {
+  if (!isRecord(value) || 'sourdough' in value) {
+    return value;
+  }
+  return { ...value, sourdough: { ...SOURDOUGH_DEFAULTS } };
+}
+
 export function isDoughInput(value: unknown): value is DoughInput {
   if (!isRecord(value)) {
     return false;
@@ -60,6 +68,7 @@ export function isDoughInput(value: unknown): value is DoughInput {
     isWithinLimit(value['oilPercent'], DOUGH_LIMITS.oilPercent) &&
     isWithinLimit(value['sugarPercent'], DOUGH_LIMITS.sugarPercent) &&
     isPreDoughSettings(value['preDough']) &&
+    isSourdoughSettings(value['sourdough']) &&
     Array.isArray(value['phases']) &&
     value['phases'].every(isFermentationPhase)
   );
@@ -73,6 +82,13 @@ function isPreDoughSettings(value: unknown): value is PreDoughSettings {
     isWithinLimit(value['flourPercent'], DOUGH_LIMITS.preDoughFlourPercent) &&
     isWithinLimit(value['hydrationPercent'], DOUGH_LIMITS.preDoughHydrationPercent) &&
     isFermentationPhase(value['fermentation'])
+  );
+}
+
+function isSourdoughSettings(value: unknown): value is SourdoughSettings {
+  return (
+    isRecord(value) &&
+    isWithinLimit(value['starterHydrationPercent'], DOUGH_LIMITS.starterHydrationPercent)
   );
 }
 

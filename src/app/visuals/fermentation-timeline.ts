@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { DoughInput } from '../dough/dough.model';
+import { DoughInput, isPreDoughMethod } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { Translations } from '../i18n/translations';
 import { formatHours } from '../shared/format';
@@ -52,7 +52,7 @@ const COMPACT_SEGMENT_PERCENT = 14;
         </span>
         <span>
           {{ t().timeline.equivalentPrefix }} <strong>{{ equivalentLabel() }} h</strong>
-          {{ t().timeline.equivalentSuffix }}
+          {{ t().timeline.equivalentSuffix(referenceTemperatureC()) }}
         </span>
       </figcaption>
     </figure>
@@ -62,7 +62,8 @@ const COMPACT_SEGMENT_PERCENT = 14;
 })
 export class FermentationTimeline {
   readonly doughInput = input.required<DoughInput>();
-  readonly equivalentHoursAt20C = input.required<number>();
+  readonly equivalentHours = input.required<number>();
+  readonly referenceTemperatureC = input.required<number>();
 
   protected readonly t = inject(LanguageService).t;
   protected readonly formatHours = formatHours;
@@ -73,7 +74,7 @@ export class FermentationTimeline {
     this.segments().reduce((total, segment) => total + segment.hours, 0),
   );
   protected readonly equivalentLabel = computed(() =>
-    formatHours(Math.round(this.equivalentHoursAt20C() * 10) / 10, this.t().locale),
+    formatHours(Math.round(this.equivalentHours() * 10) / 10, this.t().locale),
   );
 }
 
@@ -85,7 +86,7 @@ function toTimelinePhases(doughInput: DoughInput, t: Translations): TimelinePhas
     temperatureC: phase.temperatureC,
     isPreDough: false,
   }));
-  if (doughInput.method === 'direct') {
+  if (!isPreDoughMethod(doughInput.method)) {
     return mainPhases;
   }
   const preDough = doughInput.preDough.fermentation;

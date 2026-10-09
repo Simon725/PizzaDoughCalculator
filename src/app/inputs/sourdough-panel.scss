@@ -1,0 +1,15 @@
+:host {
+  display: grid;
+  gap: 20px;
+}
+
+.sourdough__intro,
+.sourdough__inoculation {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.sourdough__inoculation {
+  font-weight: 500;
+}

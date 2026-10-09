@@ -1,4 +1,5 @@
 import { FermentationPhase } from './dough.model';
+import { equivalentHours } from './fermentation-time';
 
 export const YEAST_MODEL = {
   referenceTemperatureC: 20,
@@ -9,15 +10,15 @@ export const YEAST_MODEL = {
   maxFreshYeastPercent: 3,
 } as const;
 
-export type YeastClamp = 'none' | 'low' | 'high';
+export type LeaveningClamp = 'none' | 'low' | 'high';
 
 export interface FreshYeastEstimate {
   percent: number;
-  clamp: YeastClamp;
+  clamp: LeaveningClamp;
 }
 
 export function equivalentHoursAt20C(phases: readonly FermentationPhase[]): number {
-  return phases.reduce((sum, phase) => sum + phaseEquivalentHours(phase), 0);
+  return equivalentHours(phases, YEAST_MODEL);
 }
 
 export function freshYeastPercentFor(equivalentHours: number): FreshYeastEstimate {
@@ -32,22 +33,4 @@ export function freshYeastPercentFor(equivalentHours: number): FreshYeastEstimat
     return { percent: YEAST_MODEL.maxFreshYeastPercent, clamp: 'high' };
   }
   return { percent: rawPercent, clamp: 'none' };
-}
-
-export function totalHours(phases: readonly FermentationPhase[]): number {
-  return phases.reduce((sum, phase) => sum + validHours(phase.hours), 0);
-}
-
-function phaseEquivalentHours(phase: FermentationPhase): number {
-  const hours = validHours(phase.hours);
-  if (hours === 0 || !Number.isFinite(phase.temperatureC)) {
-    return 0;
-  }
-  const exponent =
-    (phase.temperatureC - YEAST_MODEL.referenceTemperatureC) / YEAST_MODEL.temperatureDoublingStepC;
-  return hours * Math.pow(2, exponent);
-}
-
-function validHours(hours: number): number {
-  return Number.isFinite(hours) && hours > 0 ? hours : 0;
 }

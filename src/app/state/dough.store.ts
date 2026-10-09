@@ -6,6 +6,7 @@ import {
   FermentationPhase,
   PizzaStyleId,
   YeastType,
+  isPreDoughMethod,
 } from '../dough/dough.model';
 import { PIZZA_STYLES } from '../dough/pizza-styles';
 import { createDefaultInput, createPhase, createPreDoughDefaults } from './dough-defaults';
@@ -22,6 +23,10 @@ export interface PhasePatch {
 export interface PreDoughPatch extends PhasePatch {
   flourPercent?: number;
   hydrationPercent?: number;
+}
+
+export interface SourdoughPatch {
+  starterHydrationPercent?: number;
 }
 
 export type MoveDirection = -1 | 1;
@@ -44,7 +49,7 @@ export class DoughStore {
     if (method === this.state().method) {
       return;
     }
-    if (method === 'direct') {
+    if (!isPreDoughMethod(method)) {
       this.patch({ method });
       return;
     }
@@ -104,6 +109,18 @@ export class DoughStore {
           DOUGH_LIMITS.preDoughHydrationPercent,
         ),
         fermentation: applyPhasePatch(preDough.fermentation, patch),
+      },
+    });
+  }
+
+  updateSourdough(patch: SourdoughPatch): void {
+    const sourdough = this.state().sourdough;
+    this.patch({
+      sourdough: {
+        starterHydrationPercent: clampToLimit(
+          patch.starterHydrationPercent ?? sourdough.starterHydrationPercent,
+          DOUGH_LIMITS.starterHydrationPercent,
+        ),
       },
     });
   }

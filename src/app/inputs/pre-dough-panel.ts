@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { DoughMethod, PreDoughSettings } from '../dough/dough.model';
+import { PreDoughMethod, PreDoughSettings } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { DOUGH_LIMITS } from '../state/dough-limits';
 import { PreDoughPatch } from '../state/dough.store';
@@ -56,7 +56,7 @@ import { RangeField } from '../shared/range-field';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PreDoughPanel {
-  readonly method = input.required<Exclude<DoughMethod, 'direct'>>();
+  readonly method = input.required<PreDoughMethod>();
   readonly settings = input.required<PreDoughSettings>();
 
   readonly settingsChange = output<PreDoughPatch>();

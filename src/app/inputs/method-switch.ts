@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core
 import { DoughMethod } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 
-const METHODS: readonly DoughMethod[] = ['direct', 'poolish', 'biga'];
+const METHODS: readonly DoughMethod[] = ['direct', 'poolish', 'biga', 'sourdough'];
 
 @Component({
   selector: 'app-method-switch',

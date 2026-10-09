@@ -1,9 +1,14 @@
+<app-oven-ambience />
+
 <header class="hero">
   <div>
     <p class="eyebrow">Teig · Zeit · Feuer</p>
-    <h1>Pizzateig-Rechner</h1>
+    <h1 class="hero__title"><span class="hero__title-text">Pizzateig-Rechner</span></h1>
   </div>
-  <button type="button" class="reset-button" (click)="store.reset()">Zurücksetzen</button>
+  <div class="hero__actions">
+    <app-theme-toggle />
+    <button type="button" class="reset-button" (click)="store.reset()">Zurücksetzen</button>
+  </div>
 </header>
 
 <main class="layout">
@@ -51,6 +56,10 @@
         [limit]="limits.ballWeightGrams"
         (valueChange)="store.setBallWeight($event)"
       />
+      <app-dough-balls
+        [ballCount]="doughInput().ballCount"
+        [ballWeightGrams]="doughInput().ballWeightGrams"
+      />
     </section>
 
     <section class="panel" aria-labelledby="panel-dough">
@@ -82,7 +91,16 @@
   </section>
 
   <section class="layout__results" aria-label="Ergebnis">
-    <section class="visual-slot" aria-hidden="true"></section>
+    <section class="visual-slot" aria-label="Pizzagröße">
+      <app-pizza-visual [diameterCm]="store.result().diameterCm" [styleId]="doughInput().style" />
+    </section>
+    <section class="panel panel--timeline" aria-labelledby="panel-timeline">
+      <h2 class="panel__title" id="panel-timeline">Zeitplan</h2>
+      <app-fermentation-timeline
+        [doughInput]="doughInput()"
+        [equivalentHoursAt20C]="store.result().equivalentHoursAt20C"
+      />
+    </section>
     <app-recipe-card
       [doughInput]="doughInput()"
       [result]="store.result()"

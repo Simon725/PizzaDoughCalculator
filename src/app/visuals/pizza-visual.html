@@ -1,0 +1,105 @@
+<figure class="stage" [attr.data-style]="styleId()">
+  <figcaption class="stage__label">
+    <span class="stage__eyebrow" aria-hidden="true">Ø pro Pizza · {{ styleName() }}</span>
+    <span class="stage__size" aria-hidden="true">
+      <small>ca.</small> <app-animated-number [value]="roundedDiameter()" /> <small>cm</small>
+    </span>
+    <span class="visually-hidden">
+      Pizza-Durchmesser ca. {{ roundedDiameter() }} cm, {{ plateComparison() }}.
+    </span>
+  </figcaption>
+
+  <svg
+    class="stage__svg"
+    [attr.viewBox]="'-2 0 ' + (scaleMaxCm + 4) + ' 69'"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <defs>
+      <radialGradient id="pizza-crust" r="0.5">
+        <stop offset="0.7" class="crust-stop-inner" />
+        <stop offset="0.9" class="crust-stop-mid" />
+        <stop offset="1" class="crust-stop-edge" />
+      </radialGradient>
+      <radialGradient id="pizza-sauce" r="0.5">
+        <stop offset="0" stop-color="#e5482c" />
+        <stop offset="1" stop-color="#b8261a" />
+      </radialGradient>
+      <radialGradient id="pizza-cheese" r="0.5">
+        <stop offset="0" stop-color="#ffe08a" />
+        <stop offset="0.85" stop-color="#f6c65a" />
+        <stop offset="1" stop-color="#e09a3a" />
+      </radialGradient>
+      <radialGradient id="pizza-pepperoni" r="0.5">
+        <stop offset="0" stop-color="#c5432a" />
+        <stop offset="0.8" stop-color="#a42e1d" />
+        <stop offset="1" stop-color="#6e1a10" />
+      </radialGradient>
+    </defs>
+
+    <circle class="plate" [attr.cx]="center" [attr.cy]="center" [attr.r]="plateRadius" />
+
+    <g class="pizza" [style.transform]="pizzaTransform()">
+      <circle class="pizza__shadow" r="10.3" cy="0.5" />
+      <circle class="pizza__crust" r="10" fill="url(#pizza-crust)" />
+      <circle class="pizza__sauce" [attr.r]="toppings().sauceRadius" fill="url(#pizza-sauce)" />
+      @if (toppings().cheeseRadius; as cheeseRadius) {
+        <circle [attr.r]="cheeseRadius" fill="url(#pizza-cheese)" />
+      }
+      @for (spot of toppings().charSpots; track $index) {
+        <circle
+          class="pizza__char"
+          [attr.cx]="spot.x"
+          [attr.cy]="spot.y"
+          [attr.r]="spot.r"
+          [attr.opacity]="spot.opacity"
+        />
+      }
+      @for (blob of toppings().mozzarella; track $index) {
+        <polygon class="pizza__mozzarella" [attr.points]="blob.points" />
+      }
+      @for (slice of toppings().pepperoni; track $index) {
+        <g [attr.transform]="'translate(' + slice.x + ' ' + slice.y + ')'">
+          <circle [attr.r]="slice.r" fill="url(#pizza-pepperoni)" />
+          <circle class="pizza__grease" r="0.16" cx="-0.3" cy="-0.25" />
+          <circle class="pizza__grease" r="0.12" cx="0.35" cy="0.2" />
+        </g>
+      }
+      @for (leaf of toppings().basil; track $index) {
+        <g
+          class="pizza__basil"
+          [attr.transform]="
+            'translate(' + leaf.x + ' ' + leaf.y + ') rotate(' + leaf.rotation + ') scale(' + leaf.scale + ')'
+          "
+        >
+          <path d="M0,-1.4 C1,-0.7 1,0.7 0,1.4 C-1,0.7 -1,-0.7 0,-1.4Z" />
+          <path class="pizza__basil-rib" d="M0,-1.2 L0,1.2" />
+        </g>
+      }
+    </g>
+
+    <circle class="plate-halo" [attr.cx]="center" [attr.cy]="center" [attr.r]="plateRadius" />
+    <circle class="plate-outline" [attr.cx]="center" [attr.cy]="center" [attr.r]="plateRadius" />
+
+    <g class="ruler">
+      <rect class="ruler__span" x="-30" y="61" width="60" height="1.2" [style.transform]="spanTransform()" />
+      <line class="ruler__base" x1="0" [attr.x2]="scaleMaxCm" y1="62.2" y2="62.2" />
+      @for (tick of ticks; track tick.cm) {
+        <line
+          class="ruler__tick"
+          [attr.x1]="tick.cm"
+          [attr.x2]="tick.cm"
+          y1="62.2"
+          [attr.y2]="62.2 + tick.length"
+        />
+        @if (tick.labelled) {
+          <text class="ruler__label" [attr.x]="tick.cm" y="67.8">{{ tick.cm }}</text>
+        }
+      }
+    </g>
+  </svg>
+  <p class="stage__legend" aria-hidden="true">
+    <span class="stage__legend-plate"></span> Essteller {{ plateDiameter }} cm
+    <span class="stage__legend-span"></span> Pizza-Durchmesser
+  </p>
+</figure>

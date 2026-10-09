@@ -28,9 +28,64 @@
   text-transform: uppercase;
 }
 
-h1 {
+.hero,
+.layout {
+  position: relative;
+  z-index: 1;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero__title {
+  position: relative;
+  isolation: isolate;
   font-size: clamp(2.5rem, 7vw, 5rem);
   font-weight: 900;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 35% 8% -15%;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgba(255, 106, 43, 0.4), transparent);
+    filter: blur(20px);
+    transform-origin: 50% 100%;
+    animation: heat 2.6s ease-in-out infinite alternate;
+  }
+}
+
+.hero__title-text {
+  background: linear-gradient(
+    180deg,
+    var(--color-text) 30%,
+    var(--color-flame) 72%,
+    var(--color-ember) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes heat {
+  0% {
+    opacity: 0.6;
+    transform: scale(1, 0.92);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04, 1.06);
+  }
+
+  100% {
+    opacity: 0.75;
+    transform: scale(0.98, 1);
+  }
 }
 
 .reset-button {
@@ -70,6 +125,28 @@ h1 {
   display: grid;
   gap: 16px;
   min-width: 0;
+}
+
+:where(.layout__inputs, .layout__results) > * {
+  animation: rise-in 640ms var(--ease-spring) backwards;
+  animation-delay: calc(var(--stagger, 0) * 70ms);
+}
+
+@for $index from 1 through 8 {
+  .layout__inputs > :nth-child(#{$index}) {
+    --stagger: #{$index};
+  }
+
+  .layout__results > :nth-child(#{$index}) {
+    --stagger: #{$index + 1};
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
 }
 
 .panel {
@@ -115,7 +192,6 @@ h1 {
 }
 
 .visual-slot {
-  min-height: clamp(160px, 28vw, 260px);
   border-radius: var(--radius-lg);
   background: radial-gradient(
     closest-side,

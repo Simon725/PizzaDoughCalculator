@@ -1,0 +1,105 @@
+:host {
+  display: grid;
+  gap: 10px;
+}
+
+.range-field__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.range-field__label {
+  font-weight: 500;
+}
+
+.range-field__scale {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+@mixin thumb {
+  width: 26px;
+  height: 26px;
+  border: 3px solid var(--color-bg);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--color-flame), var(--color-ember) 70%);
+  box-shadow:
+    0 0 0 1px var(--color-ember),
+    0 4px 14px rgba(255, 106, 43, 0.45);
+  transition: transform 220ms var(--ease-spring);
+}
+
+.range-field__slider {
+  --fill: 50%;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      var(--color-ember) 0%,
+      var(--color-flame) var(--fill),
+      var(--color-surface-strong) var(--fill)
+    );
+  }
+
+  &::-moz-range-track {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--color-surface-strong);
+  }
+
+  &::-moz-range-progress {
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-ember), var(--color-flame));
+  }
+
+  &::-webkit-slider-thumb {
+    @include thumb;
+    margin-top: -9px;
+    -webkit-appearance: none;
+  }
+
+  &::-moz-range-thumb {
+    @include thumb;
+  }
+
+  &:hover::-webkit-slider-thumb,
+  &:active::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+
+  &:hover::-moz-range-thumb,
+  &:active::-moz-range-thumb {
+    transform: scale(1.15);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible::-webkit-slider-thumb {
+    box-shadow:
+      0 0 0 3px var(--color-flame),
+      0 4px 14px rgba(255, 106, 43, 0.45);
+  }
+
+  &:focus-visible::-moz-range-thumb {
+    box-shadow:
+      0 0 0 3px var(--color-flame),
+      0 4px 14px rgba(255, 106, 43, 0.45);
+  }
+}

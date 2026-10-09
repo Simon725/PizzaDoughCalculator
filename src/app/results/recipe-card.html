@@ -1,0 +1,72 @@
+<article class="recipe" aria-labelledby="recipe-title">
+  <header class="recipe__header">
+    <p class="recipe__eyebrow">Dein Rezept</p>
+    <h2 id="recipe-title" class="recipe__title">{{ styleName() }}</h2>
+    <p class="recipe__summary">{{ summary() }}</p>
+    <div class="recipe__chips">
+      <span class="recipe__chip">
+        Ø ca. <app-animated-number [value]="diameterCm()" /> cm pro Pizza
+      </span>
+      <span class="recipe__chip">{{ fermentationSummary() }}</span>
+    </div>
+  </header>
+
+  @if (result().warnings.length) {
+    <div class="recipe__warnings" role="alert">
+      <span class="recipe__warnings-icon" aria-hidden="true">!</span>
+      <ul>
+        @for (warning of result().warnings; track $index) {
+          <li>{{ warning.message }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  @for (section of sections(); track section.id) {
+    <section
+      class="recipe__section"
+      [class.recipe__section--total]="section.id === 'total'"
+      [attr.aria-labelledby]="'recipe-section-' + section.id"
+    >
+      <div class="recipe__section-header">
+        <h3 [id]="'recipe-section-' + section.id">{{ section.title }}</h3>
+        @if (section.note) {
+          <span class="recipe__note">{{ section.note }}</span>
+        }
+      </div>
+      <dl class="recipe__rows">
+        @for (row of section.rows; track row.label) {
+          <div class="recipe__row">
+            <dt>{{ row.label }}</dt>
+            <dd>
+              <app-animated-number [value]="row.grams" [decimals]="row.decimals" />
+              <span class="recipe__unit">g</span>
+            </dd>
+          </div>
+        }
+      </dl>
+    </section>
+  }
+
+  <p class="recipe__hint">
+    inkl. <app-animated-number [value]="bowlLossGrams()" /> g Schüsselverlust (2 %)
+  </p>
+
+  <div class="recipe__actions no-print">
+    <button type="button" class="recipe__button recipe__button--primary" (click)="copyRecipe()">
+      @switch (copyState()) {
+        @case ('copied') {
+          ✓ Kopiert
+        }
+        @case ('failed') {
+          Fehlgeschlagen
+        }
+        @default {
+          Rezept kopieren
+        }
+      }
+    </button>
+    <button type="button" class="recipe__button" (click)="printRecipe()">Drucken</button>
+  </div>
+  <p class="visually-hidden" role="status">{{ copyMessage() }}</p>
+</article>

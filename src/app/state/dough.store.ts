@@ -4,6 +4,7 @@ import {
   DoughInput,
   DoughMethod,
   FermentationPhase,
+  MixingType,
   PizzaStyleId,
   YeastType,
   isPreDoughMethod,
@@ -27,6 +28,13 @@ export interface PreDoughPatch extends PhasePatch {
 
 export interface SourdoughPatch {
   starterHydrationPercent?: number;
+}
+
+export interface WaterTemperaturePatch {
+  targetDoughC?: number;
+  roomC?: number;
+  flourC?: number;
+  mixing?: MixingType;
 }
 
 export type MoveDirection = -1 | 1;
@@ -121,6 +129,24 @@ export class DoughStore {
           patch.starterHydrationPercent ?? sourdough.starterHydrationPercent,
           DOUGH_LIMITS.starterHydrationPercent,
         ),
+      },
+    });
+  }
+
+  updateWaterTemperature(patch: WaterTemperaturePatch): void {
+    const waterTemperature = this.state().waterTemperature;
+    this.patch({
+      waterTemperature: {
+        targetDoughC: clampToLimit(
+          patch.targetDoughC ?? waterTemperature.targetDoughC,
+          DOUGH_LIMITS.targetDoughTemperatureC,
+        ),
+        roomC: clampToLimit(patch.roomC ?? waterTemperature.roomC, DOUGH_LIMITS.roomTemperatureC),
+        flourC: clampToLimit(
+          patch.flourC ?? waterTemperature.flourC,
+          DOUGH_LIMITS.flourTemperatureC,
+        ),
+        mixing: patch.mixing ?? waterTemperature.mixing,
       },
     });
   }

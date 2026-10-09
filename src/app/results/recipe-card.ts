@@ -11,7 +11,7 @@ import {
 import { DoughInput, DoughResult } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { AnimatedNumber } from '../shared/animated-number';
-import { formatHours } from '../shared/format';
+import { formatHours, formatNumber } from '../shared/format';
 import { buildRecipeSections, roundGrams } from './recipe-sections';
 import { describeDough, formatRecipeText } from './recipe-text';
 
@@ -77,6 +77,11 @@ export class RecipeCard {
     } catch {
       this.showFeedback('failed');
     }
+  }
+
+  protected formatTemperature(temperatureC: number): string {
+    const t = this.t();
+    return t.recipe.temperature(formatNumber(temperatureC, t.locale));
   }
 
   protected printRecipe(): void {

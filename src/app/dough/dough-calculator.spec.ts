@@ -1,6 +1,7 @@
 import { calculateDough } from './dough-calculator';
 import { DoughInput, IngredientAmounts } from './dough.model';
 import { PRE_DOUGH_DEFAULTS, SOURDOUGH_DEFAULTS } from './pizza-styles';
+import { WATER_TEMPERATURE_DEFAULTS } from './water-temperature';
 
 function neapolitanInput(overrides: Partial<DoughInput> = {}): DoughInput {
   return {
@@ -14,6 +15,7 @@ function neapolitanInput(overrides: Partial<DoughInput> = {}): DoughInput {
     yeastType: 'fresh',
     preDough: PRE_DOUGH_DEFAULTS.poolish,
     sourdough: SOURDOUGH_DEFAULTS,
+    waterTemperature: WATER_TEMPERATURE_DEFAULTS,
     phases: [{ id: 'bulk', hours: 24, temperatureC: 20 }],
     ...overrides,
   };
@@ -355,6 +357,41 @@ describe('calculateDough', () => {
     });
   });
 
+  describe('water temperature', () => {
+    it('reports the water temperature for the main dough', () => {
+      expect(calculateDough(neapolitanInput()).waterTemperatureC).toBe(26);
+      expect(calculateDough(neapolitanInput({ method: 'poolish' })).waterTemperatureC).toBe(32);
+      expect(calculateDough(neapolitanInput({ method: 'sourdough' })).waterTemperatureC).toBe(28);
+    });
+
+    it('warns when ice water is needed', () => {
+      const input = neapolitanInput({
+        waterTemperature: { targetDoughC: 20, roomC: 30, flourC: 30, mixing: 'stand-mixer' },
+      });
+
+      expect(calculateDough(input).waterTemperatureC).toBe(0);
+      expect(warningCodes(input)).toEqual(['water-temperature-low']);
+    });
+
+    it('warns when the water would be too hot', () => {
+      const input = neapolitanInput({
+        waterTemperature: { targetDoughC: 28, roomC: 12, flourC: 10, mixing: 'hand' },
+      });
+
+      expect(calculateDough(input).waterTemperatureC).toBe(45);
+      expect(warningCodes(input)).toEqual(['water-temperature-high']);
+    });
+
+    it('keeps other warnings', () => {
+      const input = neapolitanInput({
+        phases: [],
+        waterTemperature: { targetDoughC: 28, roomC: 12, flourC: 10, mixing: 'hand' },
+      });
+
+      expect(warningCodes(input)).toEqual(['no-fermentation', 'water-temperature-high']);
+    });
+  });
+
   describe('invalid input', () => {
     const zero = { flour: 0, water: 0, salt: 0, yeast: 0, oil: 0, sugar: 0, total: 0 };
 
@@ -372,6 +409,13 @@ describe('calculateDough', () => {
       expect(result.mainDough).toEqual(zero);
       expect(result.bowlLossGrams).toBe(0);
       expect(result.diameterCm).toBe(0);
+      expect(result.waterTemperatureC).toBeNull();
+    });
+
+    it('returns zeros for an unknown mixing type', () => {
+      const waterTemperature = { ...WATER_TEMPERATURE_DEFAULTS, mixing: 'spoon' as never };
+
+      expect(calculateDough(neapolitanInput({ waterTemperature })).totals).toEqual(zero);
     });
 
     it('returns a zero pre-dough for pre-dough methods', () => {

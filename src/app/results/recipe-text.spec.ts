@@ -31,6 +31,7 @@ const RESULT: DoughResult = {
   referenceTemperatureC: 20,
   bowlLossGrams: 19.6,
   diameterCm: 29.4,
+  waterTemperatureC: 21.4,
   warnings: [],
 };
 
@@ -64,6 +65,28 @@ describe('formatRecipeText', () => {
     expect(text).toContain('  Yeast (fresh yeast): 1.2 g');
     expect(text).toContain('incl. 20 g bowl loss (2 %)');
     expect(text).toContain('  2. 24 h at 4 °C');
+  });
+
+  it('shows the water temperature only in the main dough', () => {
+    const input = { ...createDefaultInput(), method: 'poolish' as const };
+
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.de);
+    const [preDoughText, mainText] = text.split('Hauptteig');
+    const [mainDoughText, totalText] = mainText.split('Gesamt (');
+
+    expect(mainDoughText).toContain('  Wasser: 196 g (21 °C)');
+    expect(preDoughText).toContain('  Wasser: 184 g\n');
+    expect(totalText).toContain('  Wasser: 380 g\n');
+  });
+
+  it('omits the water temperature when there is none', () => {
+    const text = formatRecipeText(
+      createDefaultInput(),
+      { ...RESULT, waterTemperatureC: null },
+      TRANSLATIONS.en,
+    );
+
+    expect(text).toContain('  Water: 196 g\n');
   });
 
   it('omits oil and sugar when they are 0', () => {
@@ -119,6 +142,7 @@ describe('formatRecipeText', () => {
       expect(starterText).toContain('  Mehl: 62 g');
       expect(starterText).toContain('  Wasser: 62 g');
       expect(mainText).toContain('  Sauerteig-Starter: 124 g');
+      expect(mainText).toContain('  Wasser: 322 g (21 °C)');
       expect(text).not.toContain('Hefe');
       expect(text).not.toContain('Vorteig');
     });

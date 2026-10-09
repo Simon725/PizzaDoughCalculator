@@ -15,6 +15,9 @@ export const DOUGH_LIMITS = {
   starterHydrationPercent: { min: 50, max: 200, step: 5 },
   hours: { min: 0, max: 120, step: 0.5 },
   temperatureC: { min: 0, max: 35, step: 1 },
+  targetDoughTemperatureC: { min: 18, max: 30, step: 1 },
+  roomTemperatureC: { min: 10, max: 35, step: 1 },
+  flourTemperatureC: { min: 0, max: 35, step: 1 },
 } as const satisfies Record<string, NumberLimit>;
 
 export function clampToLimit(value: number, limit: NumberLimit): number {

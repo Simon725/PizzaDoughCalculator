@@ -1,7 +1,7 @@
 import { DoughInput, DoughResult } from '../dough/dough.model';
 import { Translations } from '../i18n/translations';
 import { formatHours, formatNumber } from '../shared/format';
-import { RecipeSection, buildRecipeSections, roundGrams } from './recipe-sections';
+import { RecipeRow, RecipeSection, buildRecipeSections, roundGrams } from './recipe-sections';
 
 export function describeDough(input: DoughInput, t: Translations): string {
   return [
@@ -31,8 +31,14 @@ export function formatRecipeText(input: DoughInput, result: DoughResult, t: Tran
 
 function formatSection(section: RecipeSection, t: Translations): string[] {
   const heading = section.note ? `${section.title} (${section.note})` : section.title;
-  const rows = section.rows.map(
-    (row) => `  ${row.label}: ${formatNumber(row.grams, t.locale, row.decimals)} g`,
-  );
+  const rows = section.rows.map((row) => formatRow(row, t));
   return [heading, ...rows, ''];
+}
+
+function formatRow(row: RecipeRow, t: Translations): string {
+  const amount = `  ${row.label}: ${formatNumber(row.grams, t.locale, row.decimals)} g`;
+  if (row.temperatureC === undefined) {
+    return amount;
+  }
+  return `${amount} (${t.recipe.temperature(formatNumber(row.temperatureC, t.locale))})`;
 }

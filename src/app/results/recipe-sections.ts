@@ -14,6 +14,7 @@ export interface RecipeRow {
   label: string;
   grams: number;
   decimals: number;
+  temperatureC?: number;
 }
 
 export interface RecipeSection {
@@ -60,7 +61,12 @@ function yeastSections(input: DoughInput, result: DoughResult, t: Translations):
       id: 'main-dough',
       title: t.recipe.mainDough,
       note: '',
-      rows: buildRows(result.mainDough, yeastRow(result.mainDough, result.yeastType, t), t),
+      rows: buildRows(
+        result.mainDough,
+        yeastRow(result.mainDough, result.yeastType, t),
+        t,
+        result.waterTemperatureC,
+      ),
     },
     totalSection(result, yeastRow(result.totals, result.yeastType, t), t),
   );
@@ -89,7 +95,7 @@ function sourdoughSections(
       id: 'main-dough',
       title: t.recipe.mainDough,
       note: '',
-      rows: buildRows(result.mainDough, starterRow(starter, t), t),
+      rows: buildRows(result.mainDough, starterRow(starter, t), t, result.waterTemperatureC),
     },
     totalSection(result, null, t),
   ];
@@ -112,17 +118,38 @@ function buildRows(
   amounts: IngredientAmounts,
   leaveningRow: RecipeRow | null,
   t: Translations,
+  waterTemperatureC: number | null = null,
 ): RecipeRow[] {
   const leavening = leaveningRow ? [leaveningRow] : [];
-  return [...baseRows(amounts, t), ...leavening, ...enrichmentRows(amounts, t)];
+  return [
+    ...baseRows(amounts, waterTemperatureC, t),
+    ...leavening,
+    ...enrichmentRows(amounts, t),
+  ];
 }
 
-function baseRows(amounts: IngredientAmounts, t: Translations): RecipeRow[] {
+function baseRows(
+  amounts: IngredientAmounts,
+  waterTemperatureC: number | null,
+  t: Translations,
+): RecipeRow[] {
   return [
     { label: t.recipe.flour, grams: roundGrams(amounts.flour), decimals: 0 },
-    { label: t.recipe.water, grams: roundGrams(amounts.water), decimals: 0 },
+    waterRow(amounts, waterTemperatureC, t),
     { label: t.recipe.salt, grams: roundGrams(amounts.salt), decimals: 0 },
   ];
+}
+
+function waterRow(
+  amounts: IngredientAmounts,
+  waterTemperatureC: number | null,
+  t: Translations,
+): RecipeRow {
+  const row: RecipeRow = { label: t.recipe.water, grams: roundGrams(amounts.water), decimals: 0 };
+  if (waterTemperatureC === null) {
+    return row;
+  }
+  return { ...row, temperatureC: Math.round(waterTemperatureC) };
 }
 
 function yeastRow(amounts: IngredientAmounts, yeastType: YeastType, t: Translations): RecipeRow {

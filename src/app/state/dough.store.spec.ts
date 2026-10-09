@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { PIZZA_STYLES, PRE_DOUGH_DEFAULTS, SOURDOUGH_DEFAULTS } from '../dough/pizza-styles';
+import { WATER_TEMPERATURE_DEFAULTS } from '../dough/water-temperature';
 import { DOUGH_STORAGE_KEY } from './dough-storage';
 import { DoughStore } from './dough.store';
 
@@ -180,6 +181,61 @@ describe('DoughStore', () => {
       store.reset();
 
       expect(store.input().sourdough).toEqual(SOURDOUGH_DEFAULTS);
+    });
+  });
+
+  describe('water temperature', () => {
+    it('starts with the default water temperature settings', () => {
+      const store = createStore();
+
+      expect(store.input().waterTemperature).toEqual(WATER_TEMPERATURE_DEFAULTS);
+      expect(store.result().waterTemperatureC).toBe(26);
+    });
+
+    it('updates settings and recomputes the water temperature', () => {
+      const store = createStore();
+
+      store.updateWaterTemperature({ mixing: 'stand-mixer' });
+      expect(store.result().waterTemperatureC).toBe(16);
+
+      store.updateWaterTemperature({ targetDoughC: 25, roomC: 20, flourC: 19 });
+      expect(store.input().waterTemperature).toEqual({
+        targetDoughC: 25,
+        roomC: 20,
+        flourC: 19,
+        mixing: 'stand-mixer',
+      });
+      expect(store.result().waterTemperatureC).toBe(3 * 25 - 20 - 19 - 12);
+    });
+
+    it('clamps and snaps the temperatures to their limits', () => {
+      const store = createStore();
+
+      store.updateWaterTemperature({ targetDoughC: 40, roomC: 2, flourC: 21.6 });
+
+      expect(store.input().waterTemperature).toEqual({
+        ...WATER_TEMPERATURE_DEFAULTS,
+        targetDoughC: 30,
+        roomC: 10,
+        flourC: 22,
+      });
+    });
+
+    it('restores the defaults on reset', () => {
+      const store = createStore();
+      store.updateWaterTemperature({ roomC: 30, mixing: 'stand-mixer' });
+
+      store.reset();
+
+      expect(store.input().waterTemperature).toEqual(WATER_TEMPERATURE_DEFAULTS);
+    });
+
+    it('persists the water temperature settings', () => {
+      const store = createStore();
+      store.updateWaterTemperature({ flourC: 15 });
+      TestBed.tick();
+
+      expect(recreateStore().input().waterTemperature.flourC).toBe(15);
     });
   });
 

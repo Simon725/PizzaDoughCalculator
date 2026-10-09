@@ -124,6 +124,15 @@
         (movePhase)="store.movePhase($event.id, $event.direction)"
       />
     </section>
+
+    <section class="panel" aria-labelledby="panel-water-temperature">
+      <h2 class="panel__title" id="panel-water-temperature">{{ t().panels.waterTemperature }}</h2>
+      <app-water-temperature-panel
+        [settings]="doughInput().waterTemperature"
+        [waterTemperatureC]="store.result().waterTemperatureC"
+        (settingsChange)="store.updateWaterTemperature($event)"
+      />
+    </section>
   </section>
 
   <section class="layout__results" [attr.aria-label]="t().app.result">

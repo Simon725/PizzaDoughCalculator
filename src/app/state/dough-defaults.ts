@@ -4,8 +4,10 @@ import {
   PreDoughMethod,
   PreDoughSettings,
   SourdoughSettings,
+  WaterTemperatureSettings,
 } from '../dough/dough.model';
 import { PIZZA_STYLES, PRE_DOUGH_DEFAULTS, SOURDOUGH_DEFAULTS } from '../dough/pizza-styles';
+import { WATER_TEMPERATURE_DEFAULTS } from '../dough/water-temperature';
 
 export function createPhase(hours: number, temperatureC: number): FermentationPhase {
   return { id: createPhaseId(), hours, temperatureC };
@@ -27,6 +29,10 @@ export function createSourdoughDefaults(): SourdoughSettings {
   return { ...SOURDOUGH_DEFAULTS };
 }
 
+export function createWaterTemperatureDefaults(): WaterTemperatureSettings {
+  return { ...WATER_TEMPERATURE_DEFAULTS };
+}
+
 export function createDefaultInput(): DoughInput {
   const style = PIZZA_STYLES.neapolitan;
   return {
@@ -40,6 +46,7 @@ export function createDefaultInput(): DoughInput {
     yeastType: 'fresh',
     preDough: createPreDoughDefaults('poolish'),
     sourdough: createSourdoughDefaults(),
+    waterTemperature: createWaterTemperatureDefaults(),
     phases: [createPhase(2, 22), createPhase(24, 4), createPhase(4, 22)],
   };
 }

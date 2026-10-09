@@ -1,4 +1,10 @@
-import { DoughMethod, DoughWarningCode, PizzaStyleId, YeastType } from '../dough/dough.model';
+import {
+  DoughMethod,
+  DoughWarningCode,
+  MixingType,
+  PizzaStyleId,
+  YeastType,
+} from '../dough/dough.model';
 import { PhasePresetId } from '../state/phase-presets';
 import { ScheduleTemplateId } from '../state/schedule-templates';
 import { ThemePreference } from '../theme/theme.service';
@@ -38,6 +44,7 @@ export interface Translations {
     dough: string;
     fermentation: string;
     schedule: string;
+    waterTemperature: string;
   };
   fields: {
     count: string;
@@ -78,6 +85,15 @@ export interface Translations {
     intro: string;
     starterHydration: string;
     inoculation: (percent: string) => string;
+  };
+  waterTemperature: {
+    intro: string;
+    targetDough: string;
+    room: string;
+    flour: string;
+    mixing: string;
+    mixingTypes: Record<MixingType, string>;
+    result: (temperature: string) => string;
   };
   phases: {
     phase: (number: number) => string;
@@ -132,6 +148,7 @@ export interface Translations {
     yeast: (yeastType: string) => string;
     starter: string;
     starterNote: (inoculationPercent: string, hydrationPercent: number) => string;
+    temperature: (temperatureC: string) => string;
     bowlLossPrefix: string;
     bowlLossSuffix: string;
     copy: string;
@@ -170,6 +187,7 @@ const de: Translations = {
     dough: 'Teig',
     fermentation: 'Gare',
     schedule: 'Zeitplan',
+    waterTemperature: 'Wassertemperatur',
   },
   fields: {
     count: 'Anzahl',
@@ -234,6 +252,16 @@ const de: Translations = {
     starterHydration: 'Hydration Starter',
     inoculation: (percent) => `Starter: ${percent} % vom Mehl – aus dem Gärplan berechnet.`,
   },
+  waterTemperature: {
+    intro:
+      'Mit der richtigen Wassertemperatur erreicht der Teig nach dem Kneten die Zieltemperatur.',
+    targetDough: 'Ziel-Teigtemperatur',
+    room: 'Raumtemperatur',
+    flour: 'Mehltemperatur',
+    mixing: 'Kneten',
+    mixingTypes: { hand: 'Von Hand', 'stand-mixer': 'Küchenmaschine' },
+    result: (temperature) => `Wasser: ${temperature} °C`,
+  },
   phases: {
     phase: (number) => `Phase ${number}`,
     cold: 'kalt',
@@ -294,6 +322,7 @@ const de: Translations = {
     starter: 'Sauerteig-Starter',
     starterNote: (inoculationPercent, hydrationPercent) =>
       `${inoculationPercent} % vom Mehl · ${hydrationPercent} % Hydration`,
+    temperature: (temperatureC) => `${temperatureC} °C`,
     bowlLossPrefix: 'inkl.',
     bowlLossSuffix: 'g Schüsselverlust (2 %)',
     copy: 'Rezept kopieren',
@@ -323,6 +352,10 @@ const de: Translations = {
       'Die Gärzeit ist sehr kurz. Die Startermenge wurde auf das Maximum begrenzt.',
     'no-fermentation':
       'Keine Gärzeit angegeben. Es wird die maximale Hefe- bzw. Startermenge verwendet.',
+    'water-temperature-low':
+      'Das Wasser müsste kälter als Eiswasser sein. Verwende Eiswasser und kühle Mehl oder Raum, oder erhöhe die Ziel-Teigtemperatur.',
+    'water-temperature-high':
+      'Das Wasser wäre zu heiß für den Teig. Senke die Ziel-Teigtemperatur.',
   },
 };
 
@@ -347,6 +380,7 @@ const en: Translations = {
     dough: 'Dough',
     fermentation: 'Fermentation',
     schedule: 'Schedule',
+    waterTemperature: 'Water temperature',
   },
   fields: {
     count: 'Count',
@@ -411,6 +445,15 @@ const en: Translations = {
     starterHydration: 'Starter hydration',
     inoculation: (percent) => `Starter: ${percent} % of the flour – derived from the schedule.`,
   },
+  waterTemperature: {
+    intro: 'The right water temperature brings the dough to the target temperature after mixing.',
+    targetDough: 'Target dough temperature',
+    room: 'Room temperature',
+    flour: 'Flour temperature',
+    mixing: 'Mixing',
+    mixingTypes: { hand: 'By hand', 'stand-mixer': 'Stand mixer' },
+    result: (temperature) => `Water: ${temperature} °C`,
+  },
   phases: {
     phase: (number) => `Phase ${number}`,
     cold: 'cold',
@@ -471,6 +514,7 @@ const en: Translations = {
     starter: 'Sourdough starter',
     starterNote: (inoculationPercent, hydrationPercent) =>
       `${inoculationPercent} % of flour · ${hydrationPercent} % hydration`,
+    temperature: (temperatureC) => `${temperatureC} °C`,
     bowlLossPrefix: 'incl.',
     bowlLossSuffix: 'g bowl loss (2 %)',
     copy: 'Copy recipe',
@@ -499,6 +543,10 @@ const en: Translations = {
     'starter-clamped-high':
       'The fermentation time is very short. The starter amount was limited to the maximum.',
     'no-fermentation': 'No fermentation time given. The maximum yeast or starter amount is used.',
+    'water-temperature-low':
+      'The water would have to be colder than ice water. Use ice water and cool the flour or room, or raise the target dough temperature.',
+    'water-temperature-high':
+      'The water would be too hot for the dough. Lower the target dough temperature.',
   },
 };
 

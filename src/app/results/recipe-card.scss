@@ -158,6 +158,17 @@
   }
 }
 
+.recipe__temperature {
+  margin-left: 6px;
+  padding: 1px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-ember-soft);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
 .recipe__unit {
   margin-left: 3px;
   color: var(--color-text-muted);
@@ -230,6 +241,7 @@
   .recipe__section--total h3,
   .recipe__row dt,
   .recipe__note,
+  .recipe__temperature,
   .recipe__summary,
   .recipe__hint {
     color: #000;

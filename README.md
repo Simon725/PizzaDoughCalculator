@@ -28,6 +28,7 @@ Optionally, the schedule is planned backwards from a bake date and time (default
 
 - The last main fermentation phase ends at the bake time; each phase starts its duration earlier. Mixing the dough is the start of the first phase.
 - Poolish and biga start their pre-ferment time before mixing. Feeding a sourdough starter is not planned.
+- Every clock time shows weekday, date and 24-hour time (German `Fr 10.10. 13:00`, English `Fri 10/10 13:00`), so schedules longer than a week stay unambiguous. This applies to the timeline, the recipe step list, the copied recipe text and print. The parts are built with `Intl.DateTimeFormat.formatToParts` in the app locale, so the output is the same in Node and browsers.
 - Durations are real elapsed hours (millisecond arithmetic), so across a daylight saving change the wall-clock times shift by one hour (e.g. 24 h before Sun 19:00 after the October change is Sat 20:00).
 - The bake time is stored as an ISO string with the on/off flag. A stored bake time in the past is kept as is; the recipe then warns that the first step has passed.
 

@@ -1,7 +1,7 @@
 import { BakePlan } from '../dough/bake-schedule';
 import { DoughMethod } from '../dough/dough.model';
 import { Translations } from '../i18n/translations';
-import { formatHours, formatWeekdayTime } from '../shared/format';
+import { formatHours, formatWeekdayDateTime } from '../shared/format';
 import { formatTemperature } from '../units/unit-format';
 import { UnitSystem } from '../units/unit-system.service';
 
@@ -17,7 +17,7 @@ export function buildScheduleSteps(
   t: Translations,
   unitSystem: UnitSystem,
 ): ScheduleStep[] {
-  const format = (date: Date): string => formatWeekdayTime(date, t.locale);
+  const format = (date: Date): string => formatWeekdayDateTime(date, t.locale);
   const steps: ScheduleStep[] = [];
   if (plan.preDoughStartsAt) {
     steps.push({

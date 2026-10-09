@@ -23,11 +23,11 @@ describe('buildScheduleSteps', () => {
     );
 
     expect(lines).toEqual([
-      'Do 21:00 – Poolish ansetzen',
-      'Fr 13:00 – Teig kneten',
-      'Fr 15:00 – Phase 2 beginnt (24 h bei 4 °C)',
-      'Sa 15:00 – Phase 3 beginnt (4 h bei 22 °C)',
-      'Sa 19:00 – Backen',
+      'Do 08.10. 21:00 – Poolish ansetzen',
+      'Fr 09.10. 13:00 – Teig kneten',
+      'Fr 09.10. 15:00 – Phase 2 beginnt (24 h bei 4 °C)',
+      'Sa 10.10. 15:00 – Phase 3 beginnt (4 h bei 22 °C)',
+      'Sa 10.10. 19:00 – Backen',
     ]);
   });
 
@@ -41,7 +41,7 @@ describe('buildScheduleSteps', () => {
       formatScheduleStep,
     );
 
-    expect(lines).toEqual(['Sat 17:00 – Mix dough', 'Sat 19:00 – Bake']);
+    expect(lines).toEqual(['Sat 10/10 17:00 – Mix dough', 'Sat 10/10 19:00 – Bake']);
   });
 
   it('names biga in the English pre-dough step', () => {

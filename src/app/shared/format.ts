@@ -23,16 +23,41 @@ function getFormatter(locale: string, decimals: number): Intl.NumberFormat {
 }
 
 const weekdayFormatters = new Map<string, Intl.DateTimeFormat>();
+const dayMonthFormatters = new Map<string, Intl.DateTimeFormat>();
 const timeFormatters = new Map<string, Intl.DateTimeFormat>();
 
-export function formatWeekdayTime(date: Date, locale: string): string {
-  const weekday = cachedDateFormatter(weekdayFormatters, locale, { weekday: 'short' });
-  const time = cachedDateFormatter(timeFormatters, locale, {
+export function formatWeekdayDateTime(date: Date, locale: string): string {
+  return [weekdayOf(date, locale), dayMonthOf(date, locale), timeOf(date, locale)].join(' ');
+}
+
+function weekdayOf(date: Date, locale: string): string {
+  const formatter = cachedDateFormatter(weekdayFormatters, locale, { weekday: 'short' });
+  return partValue(formatter.formatToParts(date), 'weekday');
+}
+
+function dayMonthOf(date: Date, locale: string): string {
+  const formatter = cachedDateFormatter(dayMonthFormatters, locale, {
+    day: '2-digit',
+    month: '2-digit',
+  });
+  return formatter
+    .formatToParts(date)
+    .map((part) => part.value.trim())
+    .join('');
+}
+
+function timeOf(date: Date, locale: string): string {
+  const formatter = cachedDateFormatter(timeFormatters, locale, {
     hour: '2-digit',
     minute: '2-digit',
     hourCycle: 'h23',
   });
-  return `${weekday.format(date)} ${time.format(date)}`;
+  const parts = formatter.formatToParts(date);
+  return `${partValue(parts, 'hour')}:${partValue(parts, 'minute')}`;
+}
+
+function partValue(parts: Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPartTypes): string {
+  return parts.find((part) => part.type === type)?.value ?? '';
 }
 
 function cachedDateFormatter(

@@ -92,7 +92,7 @@
 }
 
 .legend__dot {
-  grid-row: span 2;
+  grid-row: span 3;
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -109,8 +109,21 @@
   font-size: 0.75rem;
 }
 
+.legend__start {
+  grid-column: 2;
+  color: var(--color-ember-soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .legend__cold {
   color: #4a9be0;
+}
+
+.total .total__bake {
+  flex-basis: 100%;
+  color: var(--color-ember-soft);
 }
 
 .empty {

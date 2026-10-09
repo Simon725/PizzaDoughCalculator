@@ -381,6 +381,73 @@ describe('DoughStore', () => {
     });
   });
 
+  describe('bake schedule', () => {
+    const bakeAt = new Date('2026-10-10T17:00:00.000Z');
+
+    it('is off by default and has no plan', () => {
+      const store = createStore();
+
+      expect(store.input().bakeSchedule.enabled).toBe(false);
+      expect(store.bakePlan()).toBeNull();
+      expect(store.bakeStartHasPassed()).toBe(false);
+    });
+
+    it('plans backwards from the bake time when enabled', () => {
+      const store = createStore();
+      store.setBakeTime(bakeAt);
+      store.setBakeScheduleEnabled(true);
+
+      const plan = store.bakePlan();
+
+      expect(store.input().bakeSchedule.bakeAt).toBe(bakeAt.toISOString());
+      expect(plan?.bakeAt).toEqual(bakeAt);
+      expect(plan?.mixAt.toISOString()).toBe('2026-10-09T11:00:00.000Z');
+    });
+
+    it('starts the pre-dough before mixing for poolish', () => {
+      const store = createStore();
+      store.setMethod('poolish');
+      store.setBakeTime(bakeAt);
+      store.setBakeScheduleEnabled(true);
+      const preDoughHours = PRE_DOUGH_DEFAULTS.poolish.fermentation.hours;
+
+      const plan = store.bakePlan();
+
+      expect(plan?.preDoughStartsAt?.getTime()).toBe(
+        (plan?.mixAt.getTime() ?? 0) - preDoughHours * 3_600_000,
+      );
+    });
+
+    it('ignores invalid bake times', () => {
+      const store = createStore();
+      store.setBakeTime(bakeAt);
+
+      store.setBakeTime(new Date('invalid'));
+
+      expect(store.input().bakeSchedule.bakeAt).toBe(bakeAt.toISOString());
+    });
+
+    it('flags a start time that has passed', () => {
+      const store = createStore();
+      store.setBakeTime(new Date('2020-01-03T18:00:00.000Z'));
+      store.setBakeScheduleEnabled(true);
+
+      expect(store.bakeStartHasPassed()).toBe(true);
+    });
+
+    it('persists the bake schedule', () => {
+      const store = createStore();
+      store.setBakeTime(bakeAt);
+      store.setBakeScheduleEnabled(true);
+      TestBed.tick();
+
+      expect(recreateStore().input().bakeSchedule).toEqual({
+        enabled: true,
+        bakeAt: bakeAt.toISOString(),
+      });
+    });
+  });
+
   describe('persistence', () => {
     it('restores the saved input in a new store', () => {
       const store = createStore();

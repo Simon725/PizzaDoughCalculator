@@ -44,6 +44,7 @@ export interface Translations {
     dough: string;
     fermentation: string;
     schedule: string;
+    bakeTime: string;
     waterTemperature: string;
   };
   fields: {
@@ -109,6 +110,21 @@ export interface Translations {
     add: string;
     total: string;
     presets: Record<PhasePresetId, string>;
+  };
+  bakeSchedule: {
+    enabled: string;
+    intro: string;
+    date: string;
+    time: string;
+    title: string;
+    startPassed: string;
+    bakesAt: (time: string) => string;
+    steps: {
+      preDough: (method: string) => string;
+      mix: string;
+      phase: (number: number, details: string) => string;
+      bake: string;
+    };
   };
   scheduleTemplates: {
     legend: string;
@@ -187,6 +203,7 @@ const de: Translations = {
     dough: 'Teig',
     fermentation: 'Gare',
     schedule: 'Zeitplan',
+    bakeTime: 'Backzeit',
     waterTemperature: 'Wassertemperatur',
   },
   fields: {
@@ -276,6 +293,21 @@ const de: Translations = {
     add: 'Phase hinzufügen',
     total: 'Gesamt',
     presets: { room: 'Raumtemperatur', fridge: 'Kühlschrank' },
+  },
+  bakeSchedule: {
+    enabled: 'Zeitplan ab Backzeit berechnen',
+    intro: 'Die letzte Gare-Phase endet zur Backzeit. Alle Schritte werden davon rückwärts geplant.',
+    date: 'Backtag',
+    time: 'Uhrzeit',
+    title: 'Ablauf',
+    startPassed: 'Der erste Schritt liegt bereits in der Vergangenheit. Wähle eine spätere Backzeit.',
+    bakesAt: (time) => `Backen: ${time}`,
+    steps: {
+      preDough: (method) => `${method} ansetzen`,
+      mix: 'Teig kneten',
+      phase: (number, details) => `Phase ${number} beginnt (${details})`,
+      bake: 'Backen',
+    },
   },
   scheduleTemplates: {
     legend: 'Vorlage',
@@ -380,6 +412,7 @@ const en: Translations = {
     dough: 'Dough',
     fermentation: 'Fermentation',
     schedule: 'Schedule',
+    bakeTime: 'Bake time',
     waterTemperature: 'Water temperature',
   },
   fields: {
@@ -468,6 +501,21 @@ const en: Translations = {
     add: 'Add phase',
     total: 'Total',
     presets: { room: 'Room temperature', fridge: 'Fridge' },
+  },
+  bakeSchedule: {
+    enabled: 'Plan backwards from bake time',
+    intro: 'The last fermentation phase ends at the bake time. All steps are planned backwards from it.',
+    date: 'Bake day',
+    time: 'Time',
+    title: 'Steps',
+    startPassed: 'The first step is already in the past. Choose a later bake time.',
+    bakesAt: (time) => `Bake: ${time}`,
+    steps: {
+      preDough: (method) => `Make ${method.toLowerCase()}`,
+      mix: 'Mix dough',
+      phase: (number, details) => `Start phase ${number} (${details})`,
+      bake: 'Bake',
+    },
   },
   scheduleTemplates: {
     legend: 'Template',

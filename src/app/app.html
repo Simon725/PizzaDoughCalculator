@@ -125,6 +125,15 @@
       />
     </section>
 
+    <section class="panel" aria-labelledby="panel-bake-time">
+      <h2 class="panel__title" id="panel-bake-time">{{ t().panels.bakeTime }}</h2>
+      <app-bake-schedule-panel
+        [settings]="doughInput().bakeSchedule"
+        (enabledChange)="store.setBakeScheduleEnabled($event)"
+        (bakeAtChange)="store.setBakeTime($event)"
+      />
+    </section>
+
     <section class="panel" aria-labelledby="panel-water-temperature">
       <h2 class="panel__title" id="panel-water-temperature">{{ t().panels.waterTemperature }}</h2>
       <app-water-temperature-panel
@@ -145,12 +154,15 @@
         [doughInput]="doughInput()"
         [equivalentHours]="store.result().equivalentHours"
         [referenceTemperatureC]="store.result().referenceTemperatureC"
+        [bakePlan]="store.bakePlan()"
       />
     </section>
     <app-recipe-card
       [doughInput]="doughInput()"
       [result]="store.result()"
       [totalHours]="store.totalPhaseHours()"
+      [bakePlan]="store.bakePlan()"
+      [startHasPassed]="store.bakeStartHasPassed()"
     />
   </section>
 </main>

@@ -6,6 +6,7 @@ import {
   isDoughInput,
   loadDoughInput,
   saveDoughInput,
+  withBakeScheduleDefaults,
   withSourdoughDefaults,
   withWaterTemperatureDefaults,
 } from './dough-storage';
@@ -16,6 +17,7 @@ function legacyInput(): Record<string, unknown> {
     oilPercent: _oil,
     sugarPercent: _sugar,
     waterTemperature: _waterTemperature,
+    bakeSchedule: _bakeSchedule,
     ...legacy
   } = createDefaultInput();
   return legacy;
@@ -122,5 +124,43 @@ describe('dough storage', () => {
     for (const method of ['direct', 'poolish', 'biga', 'sourdough']) {
       expect(isDoughInput({ ...createDefaultInput(), method })).toBe(true);
     }
+  });
+
+  it('loads input saved before the bake schedule existed', () => {
+    const { bakeSchedule: _bakeSchedule, ...saved } = { ...createDefaultInput(), ballCount: 7 };
+    localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify(saved));
+
+    const loaded = loadDoughInput();
+
+    expect(loaded?.ballCount).toBe(7);
+    expect(loaded?.bakeSchedule.enabled).toBe(false);
+    expect(Number.isNaN(Date.parse(loaded?.bakeSchedule.bakeAt ?? ''))).toBe(false);
+  });
+
+  it('keeps a stored bake time that lies in the past', () => {
+    const input = {
+      ...createDefaultInput(),
+      bakeSchedule: { enabled: true, bakeAt: '2020-01-03T18:00:00.000Z' },
+    };
+
+    saveDoughInput(input);
+
+    expect(loadDoughInput()).toEqual(input);
+  });
+
+  it('adds bake schedule defaults only when they are missing', () => {
+    const custom = { bakeSchedule: { enabled: true, bakeAt: '2026-10-10T17:00:00.000Z' } };
+
+    expect(withBakeScheduleDefaults(custom)).toBe(custom);
+    expect(withBakeScheduleDefaults(null)).toBeNull();
+  });
+
+  it.each([
+    ['missing', undefined],
+    ['not an object', true],
+    ['without a boolean flag', { enabled: 'yes', bakeAt: '2026-10-10T17:00:00.000Z' }],
+    ['without a valid time', { enabled: true, bakeAt: 'saturday' }],
+  ])('rejects bake schedule settings that are %s', (_label, bakeSchedule) => {
+    expect(isDoughInput({ ...createDefaultInput(), bakeSchedule })).toBe(false);
   });
 });

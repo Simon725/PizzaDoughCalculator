@@ -8,12 +8,14 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { BakePlan } from '../dough/bake-schedule';
 import { DoughInput, DoughResult } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { AnimatedNumber } from '../shared/animated-number';
 import { formatHours, formatNumber } from '../shared/format';
 import { buildRecipeSections, roundGrams } from './recipe-sections';
 import { describeDough, formatRecipeText } from './recipe-text';
+import { buildScheduleSteps } from './schedule-steps';
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
@@ -30,6 +32,8 @@ export class RecipeCard {
   readonly doughInput = input.required<DoughInput>();
   readonly result = input.required<DoughResult>();
   readonly totalHours = input.required<number>();
+  readonly bakePlan = input<BakePlan | null>(null);
+  readonly startHasPassed = input(false);
 
   private readonly document = inject(DOCUMENT);
   protected readonly t = inject(LanguageService).t;
@@ -52,6 +56,10 @@ export class RecipeCard {
   protected readonly sections = computed(() =>
     buildRecipeSections(this.doughInput(), this.result(), this.t()),
   );
+  protected readonly scheduleSteps = computed(() => {
+    const plan = this.bakePlan();
+    return plan ? buildScheduleSteps(this.doughInput().method, plan, this.t()) : [];
+  });
   protected readonly warningMessages = computed(() =>
     this.result().warnings.map((warning) => this.t().warnings[warning.code]),
   );
@@ -70,7 +78,7 @@ export class RecipeCard {
   }
 
   protected async copyRecipe(): Promise<void> {
-    const text = formatRecipeText(this.doughInput(), this.result(), this.t());
+    const text = formatRecipeText(this.doughInput(), this.result(), this.t(), this.bakePlan());
     try {
       await navigator.clipboard.writeText(text);
       this.showFeedback('copied');

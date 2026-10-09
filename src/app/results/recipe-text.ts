@@ -1,7 +1,9 @@
+import { BakePlan } from '../dough/bake-schedule';
 import { DoughInput, DoughResult } from '../dough/dough.model';
 import { Translations } from '../i18n/translations';
 import { formatHours, formatNumber } from '../shared/format';
 import { RecipeRow, RecipeSection, buildRecipeSections, roundGrams } from './recipe-sections';
+import { buildScheduleSteps, formatScheduleStep } from './schedule-steps';
 
 export function describeDough(input: DoughInput, t: Translations): string {
   return [
@@ -11,7 +13,12 @@ export function describeDough(input: DoughInput, t: Translations): string {
   ].join(' · ');
 }
 
-export function formatRecipeText(input: DoughInput, result: DoughResult, t: Translations): string {
+export function formatRecipeText(
+  input: DoughInput,
+  result: DoughResult,
+  t: Translations,
+  bakePlan: BakePlan | null = null,
+): string {
   const lines = [
     t.recipe.textTitle(t.styles.options[input.style].name),
     describeDough(input, t),
@@ -25,8 +32,17 @@ export function formatRecipeText(input: DoughInput, result: DoughResult, t: Tran
       (phase, index) =>
         `  ${index + 1}. ${t.timeline.hoursAt(formatHours(phase.hours, t.locale), phase.temperatureC)}`,
     ),
+    ...formatSchedule(input, bakePlan, t),
   ];
   return lines.join('\n');
+}
+
+function formatSchedule(input: DoughInput, bakePlan: BakePlan | null, t: Translations): string[] {
+  if (!bakePlan) {
+    return [];
+  }
+  const steps = buildScheduleSteps(input.method, bakePlan, t);
+  return ['', t.bakeSchedule.title, ...steps.map((step) => `  ${formatScheduleStep(step)}`)];
 }
 
 function formatSection(section: RecipeSection, t: Translations): string[] {

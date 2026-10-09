@@ -59,6 +59,23 @@
     {{ t().recipe.bowlLossSuffix }}
   </p>
 
+  @if (scheduleSteps().length) {
+    <section class="recipe__schedule" aria-labelledby="recipe-section-schedule">
+      <h3 id="recipe-section-schedule">{{ t().bakeSchedule.title }}</h3>
+      @if (startHasPassed()) {
+        <p class="recipe__schedule-warning" role="alert">{{ t().bakeSchedule.startPassed }}</p>
+      }
+      <ol class="recipe__steps">
+        @for (step of scheduleSteps(); track step.id) {
+          <li class="recipe__step">
+            <span class="recipe__step-time">{{ step.time }}</span>
+            <span>{{ step.label }}</span>
+          </li>
+        }
+      </ol>
+    </section>
+  }
+
   <div class="recipe__actions no-print">
     <button type="button" class="recipe__button recipe__button--primary" (click)="copyRecipe()">
       @switch (copyState()) {

@@ -2,7 +2,14 @@ import { DoughInput, DoughMethod, FermentationPhase, PreDoughSettings } from '..
 import { PIZZA_STYLES, PRE_DOUGH_DEFAULTS } from '../dough/pizza-styles';
 
 export function createPhase(hours: number, temperatureC: number): FermentationPhase {
-  return { id: crypto.randomUUID(), hours, temperatureC };
+  return { id: createPhaseId(), hours, temperatureC };
+}
+
+let phaseIdCounter = 0;
+
+function createPhaseId(): string {
+  phaseIdCounter += 1;
+  return `phase-${Date.now().toString(36)}-${phaseIdCounter}`;
 }
 
 export function createPreDoughDefaults(method: Exclude<DoughMethod, 'direct'>): PreDoughSettings {

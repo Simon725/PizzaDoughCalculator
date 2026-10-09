@@ -12,6 +12,7 @@ import { createDefaultInput, createPhase, createPreDoughDefaults } from './dough
 import { DOUGH_LIMITS, clampToLimit } from './dough-limits';
 import { loadDoughInput, saveDoughInput } from './dough-storage';
 import { PhasePresetId, findPhasePreset } from './phase-presets';
+import { ScheduleTemplateId, findScheduleTemplate } from './schedule-templates';
 
 export interface PhasePatch {
   hours?: number;
@@ -101,6 +102,13 @@ export class DoughStore {
     const preset = findPhasePreset(presetId);
     this.patch({
       phases: [...this.state().phases, createPhase(preset.hours, preset.temperatureC)],
+    });
+  }
+
+  applyScheduleTemplate(templateId: ScheduleTemplateId): void {
+    const template = findScheduleTemplate(templateId);
+    this.patch({
+      phases: template.phases.map((phase) => createPhase(phase.hours, phase.temperatureC)),
     });
   }
 

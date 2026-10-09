@@ -1,5 +1,6 @@
 import { DoughMethod, DoughWarningCode, PizzaStyleId, YeastType } from '../dough/dough.model';
 import { PhasePresetId } from '../state/phase-presets';
+import { ScheduleTemplateId } from '../state/schedule-templates';
 import { ThemePreference } from '../theme/theme.service';
 
 export type Language = 'de' | 'en';
@@ -84,6 +85,10 @@ export interface Translations {
     add: string;
     total: string;
     presets: Record<PhasePresetId, string>;
+  };
+  scheduleTemplates: {
+    legend: string;
+    options: Record<ScheduleTemplateId, string>;
   };
   timeline: {
     hoursAt: (hours: string, temperatureC: number) => string;
@@ -218,6 +223,15 @@ const de: Translations = {
     add: 'Phase hinzufügen',
     total: 'Gesamt',
     presets: { room: 'Raumtemperatur', fridge: 'Kühlschrank' },
+  },
+  scheduleTemplates: {
+    legend: 'Vorlage',
+    options: {
+      'same-day': 'Am selben Tag',
+      'fridge-24': 'Kühlschrank 24 h',
+      'fridge-48': 'Kühlschrank 48 h',
+      'fridge-72': 'Kühlschrank 72 h',
+    },
   },
   timeline: {
     hoursAt: (hours, temperatureC) => `${hours} h bei ${temperatureC} °C`,
@@ -361,6 +375,15 @@ const en: Translations = {
     add: 'Add phase',
     total: 'Total',
     presets: { room: 'Room temperature', fridge: 'Fridge' },
+  },
+  scheduleTemplates: {
+    legend: 'Template',
+    options: {
+      'same-day': 'Same day',
+      'fridge-24': 'Fridge 24 h',
+      'fridge-48': 'Fridge 48 h',
+      'fridge-72': 'Fridge 72 h',
+    },
   },
   timeline: {
     hoursAt: (hours, temperatureC) => `${hours} h at ${temperatureC} °C`,

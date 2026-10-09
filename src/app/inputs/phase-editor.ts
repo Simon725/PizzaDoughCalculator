@@ -174,6 +174,8 @@ export class PhaseEditor {
   }
 
   private findButton(direction: 'up' | 'down', phaseId: string): HTMLButtonElement | null {
-    return this.document.getElementById(this.buttonId(direction, phaseId)) as HTMLButtonElement | null;
+    return this.document.getElementById(
+      this.buttonId(direction, phaseId),
+    ) as HTMLButtonElement | null;
   }
 }

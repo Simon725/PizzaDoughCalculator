@@ -35,7 +35,11 @@ const PRE_DOUGH_SEGMENT_ID = 'pre-dough';
         <ol class="legend">
           @for (segment of segments(); track segment.id) {
             <li class="legend__item">
-              <span class="legend__dot" aria-hidden="true" [style.background]="segment.color"></span>
+              <span
+                class="legend__dot"
+                aria-hidden="true"
+                [style.background]="segment.color"
+              ></span>
               <span class="legend__name">{{ segment.label }}</span>
               @if (startLabels().get(segment.id); as startLabel) {
                 <span class="legend__start">{{ startLabel }}</span>
@@ -81,13 +85,13 @@ export class FermentationTimeline {
   protected readonly formatHours = formatHours;
   protected readonly compactPercent = COMPACT_SEGMENT_PERCENT;
 
-  protected readonly segments = computed(() => buildTimeline(toTimelinePhases(this.doughInput(), this.t())));
+  protected readonly segments = computed(() =>
+    buildTimeline(toTimelinePhases(this.doughInput(), this.t())),
+  );
   protected readonly totalHours = computed(() =>
     this.segments().reduce((total, segment) => total + segment.hours, 0),
   );
-  protected readonly startLabels = computed(() =>
-    startLabelsFor(this.bakePlan(), this.t().locale),
-  );
+  protected readonly startLabels = computed(() => startLabelsFor(this.bakePlan(), this.t().locale));
   protected readonly bakeLabel = computed(() => {
     const plan = this.bakePlan();
     const t = this.t();

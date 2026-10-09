@@ -325,11 +325,13 @@ const de: Translations = {
   },
   bakeSchedule: {
     enabled: 'Zeitplan ab Backzeit berechnen',
-    intro: 'Die letzte Gare-Phase endet zur Backzeit. Alle Schritte werden davon rückwärts geplant.',
+    intro:
+      'Die letzte Gare-Phase endet zur Backzeit. Alle Schritte werden davon rückwärts geplant.',
     date: 'Backtag',
     time: 'Uhrzeit',
     title: 'Ablauf',
-    startPassed: 'Der erste Schritt liegt bereits in der Vergangenheit. Wähle eine spätere Backzeit.',
+    startPassed:
+      'Der erste Schritt liegt bereits in der Vergangenheit. Wähle eine spätere Backzeit.',
     bakesAt: (time) => `Backen: ${time}`,
     steps: {
       preDough: (method) => `${method} ansetzen`,
@@ -400,8 +402,7 @@ const de: Translations = {
   warnings: {
     'main-water-negative':
       'Der Vorteig enthält mehr Wasser als der Gesamtteig erlaubt. Erhöhe die Hydration oder senke den Vorteig-Anteil.',
-    'yeast-clamped-low':
-      'Die Gärzeit ist sehr lang. Die Hefemenge wurde auf das Minimum begrenzt.',
+    'yeast-clamped-low': 'Die Gärzeit ist sehr lang. Die Hefemenge wurde auf das Minimum begrenzt.',
     'yeast-clamped-high':
       'Die Gärzeit ist sehr kurz. Die Hefemenge wurde auf das Maximum begrenzt.',
     'starter-water-too-high':
@@ -545,7 +546,8 @@ const en: Translations = {
   },
   bakeSchedule: {
     enabled: 'Plan backwards from bake time',
-    intro: 'The last fermentation phase ends at the bake time. All steps are planned backwards from it.',
+    intro:
+      'The last fermentation phase ends at the bake time. All steps are planned backwards from it.',
     date: 'Bake day',
     time: 'Time',
     title: 'Steps',

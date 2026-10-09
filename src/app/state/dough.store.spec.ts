@@ -410,10 +410,18 @@ describe('DoughStore', () => {
       const [first, second, third] = store.input().phases;
 
       store.movePhase(third.id, -1);
-      expect(store.input().phases.map((phase) => phase.id)).toEqual([first.id, third.id, second.id]);
+      expect(store.input().phases.map((phase) => phase.id)).toEqual([
+        first.id,
+        third.id,
+        second.id,
+      ]);
 
       store.movePhase(first.id, 1);
-      expect(store.input().phases.map((phase) => phase.id)).toEqual([third.id, first.id, second.id]);
+      expect(store.input().phases.map((phase) => phase.id)).toEqual([
+        third.id,
+        first.id,
+        second.id,
+      ]);
     });
 
     it('ignores moves beyond the list bounds', () => {
@@ -424,7 +432,9 @@ describe('DoughStore', () => {
       store.movePhase(before[2].id, 1);
       store.movePhase('unknown', 1);
 
-      expect(store.input().phases.map((phase) => phase.id)).toEqual(before.map((phase) => phase.id));
+      expect(store.input().phases.map((phase) => phase.id)).toEqual(
+        before.map((phase) => phase.id),
+      );
     });
   });
 

@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "format": "prettier --write \"src/**/*.{ts,html,scss}\""
   },
   "prettier": {
     "printWidth": 100,
@@ -18,7 +19,8 @@
           "parser": "angular"
         }
       }
-    ]
+    ],
+    "endOfLine": "auto"
   },
   "private": true,
   "packageManager": "npm@11.11.1",
@@ -37,6 +39,7 @@
     "@angular/cli": "^21.1.1",
     "@angular/compiler-cli": "^21.1.0",
     "jsdom": "^27.1.0",
+    "prettier": "3.9.9",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
   }

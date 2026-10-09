@@ -1,4 +1,7 @@
-export function pizzaDiameterCm(ballWeightGrams: number, thicknessFactorGramsPerCm2: number): number {
+export function pizzaDiameterCm(
+  ballWeightGrams: number,
+  thicknessFactorGramsPerCm2: number,
+): number {
   if (!(ballWeightGrams > 0) || !(thicknessFactorGramsPerCm2 > 0)) {
     return 0;
   }

@@ -1,9 +1,4 @@
-import {
-  DoughInput,
-  DoughMethod,
-  WaterTemperatureSettings,
-  isPreDoughMethod,
-} from './dough.model';
+import { DoughInput, DoughMethod, WaterTemperatureSettings, isPreDoughMethod } from './dough.model';
 
 export const WATER_TEMPERATURE_MODEL = {
   frictionRiseC: {

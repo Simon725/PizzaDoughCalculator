@@ -30,11 +30,7 @@ export class AnimatedNumber {
   private frameId: number | null = null;
 
   protected readonly formattedValue = computed(() =>
-    formatNumber(
-      this.displayedValue() ?? this.value(),
-      this.language.t().locale,
-      this.decimals(),
-    ),
+    formatNumber(this.displayedValue() ?? this.value(), this.language.t().locale, this.decimals()),
   );
 
   constructor() {

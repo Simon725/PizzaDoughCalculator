@@ -32,7 +32,12 @@
   position: absolute;
   bottom: -12px;
   border-radius: 50%;
-  background: radial-gradient(circle, #fff3c4 0%, var(--color-flame) 45%, rgba(255, 106, 43, 0) 75%);
+  background: radial-gradient(
+    circle,
+    #fff3c4 0%,
+    var(--color-flame) 45%,
+    rgba(255, 106, 43, 0) 75%
+  );
   opacity: 0;
   will-change: transform, opacity;
   animation: rise linear infinite;

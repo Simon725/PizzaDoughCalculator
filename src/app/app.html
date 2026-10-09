@@ -3,7 +3,9 @@
 <header class="hero">
   <div>
     <p class="eyebrow">{{ t().app.eyebrow }}</p>
-    <h1 class="hero__title"><span class="hero__title-text">{{ t().app.title }}</span></h1>
+    <h1 class="hero__title">
+      <span class="hero__title-text">{{ t().app.title }}</span>
+    </h1>
   </div>
   <div class="hero__actions">
     <app-language-toggle />
@@ -19,10 +21,7 @@
   <section class="layout__inputs" [attr.aria-label]="t().app.inputs">
     <section class="panel" aria-labelledby="panel-method">
       <h2 class="panel__title" id="panel-method">{{ t().panels.method }}</h2>
-      <app-method-switch
-        [method]="doughInput().method"
-        (methodChange)="store.setMethod($event)"
-      />
+      <app-method-switch [method]="doughInput().method" (methodChange)="store.setMethod($event)" />
     </section>
 
     @if (preDoughMethod(); as method) {

@@ -51,9 +51,6 @@ export function clampToLimit(value: number, limit: NumberLimit): number {
 
 export function isWithinLimit(value: unknown, limit: NumberLimit): value is number {
   return (
-    typeof value === 'number' &&
-    Number.isFinite(value) &&
-    value >= limit.min &&
-    value <= limit.max
+    typeof value === 'number' && Number.isFinite(value) && value >= limit.min && value <= limit.max
   );
 }

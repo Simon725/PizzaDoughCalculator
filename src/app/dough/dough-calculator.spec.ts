@@ -9,6 +9,8 @@ function neapolitanInput(overrides: Partial<DoughInput> = {}): DoughInput {
     ballCount: 4,
     ballWeightGrams: 250,
     hydrationPercent: 62,
+    oilPercent: 0,
+    sugarPercent: 0,
     yeastType: 'fresh',
     preDough: PRE_DOUGH_DEFAULTS.poolish,
     phases: [{ id: 'bulk', hours: 24, temperatureC: 20 }],
@@ -17,7 +19,7 @@ function neapolitanInput(overrides: Partial<DoughInput> = {}): DoughInput {
 }
 
 function partSum(part: IngredientAmounts): number {
-  return part.flour + part.water + part.salt + part.yeast;
+  return part.flour + part.water + part.salt + part.yeast + part.oil + part.sugar;
 }
 
 function warningCodes(input: DoughInput): string[] {
@@ -177,8 +179,49 @@ describe('calculateDough', () => {
     });
   });
 
+  describe('oil and sugar', () => {
+    const enriched = { style: 'new-york', oilPercent: 2.5, sugarPercent: 1.5 } as const;
+
+    it('adds no oil or sugar when the percentages are 0', () => {
+      const result = calculateDough(neapolitanInput());
+
+      expect(result.totals.oil).toBe(0);
+      expect(result.totals.sugar).toBe(0);
+    });
+
+    it('computes oil and sugar relative to the flour in a direct dough', () => {
+      const { flour, oil, sugar, total } = calculateDough(neapolitanInput(enriched)).totals;
+
+      expect(oil / flour).toBeCloseTo(0.025, 10);
+      expect(sugar / flour).toBeCloseTo(0.015, 10);
+      expect(total).toBeCloseTo(1020, 10);
+    });
+
+    it('lowers the flour to make room for oil and sugar', () => {
+      const plain = calculateDough(neapolitanInput({ style: 'new-york' }));
+      const result = calculateDough(neapolitanInput(enriched));
+
+      expect(result.totals.flour).toBeLessThan(plain.totals.flour);
+      expect(partSum(result.totals)).toBeCloseTo(result.totals.total, 10);
+    });
+
+    it.each(['poolish', 'biga'] as const)('puts oil and sugar into the %s main dough', (method) => {
+      const result = calculateDough(
+        neapolitanInput({ ...enriched, method, preDough: PRE_DOUGH_DEFAULTS[method] }),
+      );
+      const preDough = result.preDough!;
+
+      expect(preDough.oil).toBe(0);
+      expect(preDough.sugar).toBe(0);
+      expect(result.mainDough.oil).toBeCloseTo(result.totals.flour * 0.025, 10);
+      expect(result.mainDough.sugar).toBeCloseTo(result.totals.flour * 0.015, 10);
+      expect(preDough.total + result.mainDough.total).toBeCloseTo(result.totals.total, 10);
+      expect(result.totals.total).toBeCloseTo(1020, 10);
+    });
+  });
+
   describe('invalid input', () => {
-    const zero = { flour: 0, water: 0, salt: 0, yeast: 0, total: 0 };
+    const zero = { flour: 0, water: 0, salt: 0, yeast: 0, oil: 0, sugar: 0, total: 0 };
 
     it.each([
       ['ball count 0', { ballCount: 0 }],
@@ -186,6 +229,8 @@ describe('calculateDough', () => {
       ['ball weight 0', { ballWeightGrams: 0 }],
       ['NaN ball weight', { ballWeightGrams: Number.NaN }],
       ['NaN hydration', { hydrationPercent: Number.NaN }],
+      ['negative oil', { oilPercent: -1 }],
+      ['NaN sugar', { sugarPercent: Number.NaN }],
     ] as const)('returns zeros for %s', (_label, overrides) => {
       const result = calculateDough(neapolitanInput(overrides));
       expect(result.totals).toEqual(zero);

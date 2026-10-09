@@ -30,6 +30,8 @@ describe('DoughStore', () => {
       expect(input.ballCount).toBe(4);
       expect(input.ballWeightGrams).toBe(PIZZA_STYLES.neapolitan.defaultBallWeightGrams);
       expect(input.hydrationPercent).toBe(PIZZA_STYLES.neapolitan.defaultHydrationPercent);
+      expect(input.oilPercent).toBe(0);
+      expect(input.sugarPercent).toBe(0);
       expect(input.yeastType).toBe('fresh');
       expect(input.preDough).toEqual(PRE_DOUGH_DEFAULTS.poolish);
     });
@@ -67,6 +69,20 @@ describe('DoughStore', () => {
       expect(store.input().style).toBe('new-york');
       expect(store.input().hydrationPercent).toBe(PIZZA_STYLES['new-york'].defaultHydrationPercent);
       expect(store.input().ballWeightGrams).toBe(PIZZA_STYLES['new-york'].defaultBallWeightGrams);
+    });
+
+    it('applies the default oil and sugar of the new style', () => {
+      const store = createStore();
+
+      store.setStyle('new-york');
+      expect(store.input().oilPercent).toBe(2.5);
+      expect(store.input().sugarPercent).toBe(1.5);
+
+      store.setOil(4);
+      store.setSugar(3);
+      store.setStyle('roman');
+      expect(store.input().oilPercent).toBe(0);
+      expect(store.input().sugarPercent).toBe(0);
     });
 
     it('keeps custom values when the same style is selected again', () => {
@@ -119,6 +135,20 @@ describe('DoughStore', () => {
       expect(store.input().ballCount).toBe(50);
       expect(store.input().ballWeightGrams).toBe(120);
       expect(store.input().hydrationPercent).toBe(50);
+    });
+
+    it('clamps oil and sugar and snaps them to steps of 0.5 %', () => {
+      const store = createStore();
+
+      store.setOil(9);
+      store.setSugar(-1);
+      expect(store.input().oilPercent).toBe(6);
+      expect(store.input().sugarPercent).toBe(0);
+
+      store.setOil(2.7);
+      store.setSugar(1.2);
+      expect(store.input().oilPercent).toBe(2.5);
+      expect(store.input().sugarPercent).toBe(1);
     });
 
     it('snaps the ball weight to steps of 5 g', () => {
@@ -275,6 +305,47 @@ describe('DoughStore', () => {
       TestBed.tick();
       const stored = JSON.parse(localStorage.getItem(DOUGH_STORAGE_KEY) ?? '{}');
       localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify({ ...stored, ballCount: 0 }));
+
+      expect(recreateStore().input().ballCount).toBe(4);
+    });
+
+    it('fills missing oil and sugar of older saved input with the style defaults', () => {
+      const store = createStore();
+      store.setStyle('new-york');
+      store.setOil(4);
+      store.setBallCount(3);
+      TestBed.tick();
+      const stored = JSON.parse(localStorage.getItem(DOUGH_STORAGE_KEY) ?? '{}');
+      delete stored.oilPercent;
+      delete stored.sugarPercent;
+      localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify(stored));
+
+      const restored = recreateStore().input();
+
+      expect(restored.ballCount).toBe(3);
+      expect(restored.oilPercent).toBe(PIZZA_STYLES['new-york'].defaultOilPercent);
+      expect(restored.sugarPercent).toBe(PIZZA_STYLES['new-york'].defaultSugarPercent);
+    });
+
+    it('restores custom oil and sugar', () => {
+      const store = createStore();
+      store.setStyle('new-york');
+      store.setOil(4);
+      store.setSugar(0.5);
+      TestBed.tick();
+
+      const restored = recreateStore().input();
+
+      expect(restored.oilPercent).toBe(4);
+      expect(restored.sugarPercent).toBe(0.5);
+    });
+
+    it('falls back to defaults when stored oil is out of range', () => {
+      const store = createStore();
+      store.setBallCount(9);
+      TestBed.tick();
+      const stored = JSON.parse(localStorage.getItem(DOUGH_STORAGE_KEY) ?? '{}');
+      localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify({ ...stored, oilPercent: 20 }));
 
       expect(recreateStore().input().ballCount).toBe(4);
     });

@@ -12,12 +12,24 @@ import { equivalentHoursAt20C, freshYeastPercentFor, totalHours } from './yeast-
 
 export const BOWL_LOSS_FRACTION = 0.02;
 
-const EMPTY_AMOUNTS: IngredientAmounts = { flour: 0, water: 0, salt: 0, yeast: 0, total: 0 };
+const EMPTY_AMOUNTS: IngredientAmounts = {
+  flour: 0,
+  water: 0,
+  salt: 0,
+  yeast: 0,
+  oil: 0,
+  sugar: 0,
+  total: 0,
+};
+
+type Ingredients = Omit<IngredientAmounts, 'total'>;
 
 interface Fractions {
   hydration: number;
   salt: number;
   yeast: number;
+  oil: number;
+  sugar: number;
 }
 
 export function calculateDough(input: DoughInput): DoughResult {
@@ -39,6 +51,8 @@ export function calculateDough(input: DoughInput): DoughResult {
     hydration: input.hydrationPercent / 100,
     salt: style.saltPercent / 100,
     yeast: (mainYeast.percent / 100) * yeastTypeFactor,
+    oil: input.oilPercent / 100,
+    sugar: input.sugarPercent / 100,
   };
 
   const split =
@@ -72,13 +86,17 @@ interface DoughSplit {
 }
 
 function directSplit(doughGrams: number, fractions: Fractions): DoughSplit {
-  const flour = doughGrams / (1 + fractions.hydration + fractions.salt + fractions.yeast);
-  const totals = amounts(
+  const flour =
+    doughGrams /
+    (1 + fractions.hydration + fractions.salt + fractions.yeast + enrichmentFraction(fractions));
+  const totals = amounts({
     flour,
-    flour * fractions.hydration,
-    flour * fractions.salt,
-    flour * fractions.yeast,
-  );
+    water: flour * fractions.hydration,
+    salt: flour * fractions.salt,
+    yeast: flour * fractions.yeast,
+    oil: flour * fractions.oil,
+    sugar: flour * fractions.sugar,
+  });
   return { totals, preDough: null, mainDough: totals, mainWaterClamped: false };
 }
 
@@ -100,20 +118,25 @@ function preDoughSplit(
   const totalYeastPerFlour = Math.max(fractions.yeast, preDoughYeastPerFlour);
 
   const totalFlour =
-    doughGrams / (1 + totalWaterPerFlour + fractions.salt + totalYeastPerFlour);
+    doughGrams /
+    (1 + totalWaterPerFlour + fractions.salt + totalYeastPerFlour + enrichmentFraction(fractions));
 
-  const preDough = amounts(
-    totalFlour * flourShare,
-    totalFlour * preDoughWaterPerFlour,
-    0,
-    totalFlour * preDoughYeastPerFlour,
-  );
-  const mainDough = amounts(
-    totalFlour - preDough.flour,
-    totalFlour * (totalWaterPerFlour - preDoughWaterPerFlour),
-    totalFlour * fractions.salt,
-    totalFlour * (totalYeastPerFlour - preDoughYeastPerFlour),
-  );
+  const preDough = amounts({
+    flour: totalFlour * flourShare,
+    water: totalFlour * preDoughWaterPerFlour,
+    salt: 0,
+    yeast: totalFlour * preDoughYeastPerFlour,
+    oil: 0,
+    sugar: 0,
+  });
+  const mainDough = amounts({
+    flour: totalFlour - preDough.flour,
+    water: totalFlour * (totalWaterPerFlour - preDoughWaterPerFlour),
+    salt: totalFlour * fractions.salt,
+    yeast: totalFlour * (totalYeastPerFlour - preDoughYeastPerFlour),
+    oil: totalFlour * fractions.oil,
+    sugar: totalFlour * fractions.sugar,
+  });
 
   return {
     totals: sumAmounts(preDough, mainDough),
@@ -123,17 +146,24 @@ function preDoughSplit(
   };
 }
 
-function amounts(flour: number, water: number, salt: number, yeast: number): IngredientAmounts {
-  return { flour, water, salt, yeast, total: flour + water + salt + yeast };
+function enrichmentFraction(fractions: Fractions): number {
+  return fractions.oil + fractions.sugar;
+}
+
+function amounts(ingredients: Ingredients): IngredientAmounts {
+  const { flour, water, salt, yeast, oil, sugar } = ingredients;
+  return { ...ingredients, total: flour + water + salt + yeast + oil + sugar };
 }
 
 function sumAmounts(first: IngredientAmounts, second: IngredientAmounts): IngredientAmounts {
-  return amounts(
-    first.flour + second.flour,
-    first.water + second.water,
-    first.salt + second.salt,
-    first.yeast + second.yeast,
-  );
+  return amounts({
+    flour: first.flour + second.flour,
+    water: first.water + second.water,
+    salt: first.salt + second.salt,
+    yeast: first.yeast + second.yeast,
+    oil: first.oil + second.oil,
+    sugar: first.sugar + second.sugar,
+  });
 }
 
 function yeastWarnings(mainHours: number, clamp: 'none' | 'low' | 'high'): DoughWarning[] {
@@ -157,8 +187,9 @@ function isValidInput(input: DoughInput): boolean {
   return (
     isPositive(input.ballCount) &&
     isPositive(input.ballWeightGrams) &&
-    Number.isFinite(input.hydrationPercent) &&
-    input.hydrationPercent >= 0 &&
+    isNonNegative(input.hydrationPercent) &&
+    isNonNegative(input.oilPercent) &&
+    isNonNegative(input.sugarPercent) &&
     input.style in PIZZA_STYLES &&
     input.yeastType in YEAST_TYPE_FACTORS
   );
@@ -166,6 +197,10 @@ function isValidInput(input: DoughInput): boolean {
 
 function isPositive(value: number): boolean {
   return Number.isFinite(value) && value > 0;
+}
+
+function isNonNegative(value: number): boolean {
+  return Number.isFinite(value) && value >= 0;
 }
 
 function nonNegative(value: number): number {

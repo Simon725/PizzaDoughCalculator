@@ -50,4 +50,5 @@ export class App {
     const method = this.doughInput().method;
     return method === 'direct' ? null : method;
   });
+  protected readonly showsOilAndSugar = computed(() => this.doughInput().style === 'new-york');
 }

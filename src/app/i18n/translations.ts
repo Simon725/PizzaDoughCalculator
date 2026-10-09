@@ -43,6 +43,8 @@ export interface Translations {
     ballCount: string;
     ballWeight: string;
     hydration: string;
+    oil: string;
+    sugar: string;
     yeast: string;
     in: string;
     decrease: (label: string) => string;
@@ -119,6 +121,8 @@ export interface Translations {
     flour: string;
     water: string;
     salt: string;
+    oil: string;
+    sugar: string;
     yeast: (yeastType: string) => string;
     bowlLossPrefix: string;
     bowlLossSuffix: string;
@@ -163,6 +167,8 @@ const de: Translations = {
     ballCount: 'Anzahl Teiglinge',
     ballWeight: 'Gewicht pro Teigling',
     hydration: 'Hydration',
+    oil: 'Öl',
+    sugar: 'Zucker',
     yeast: 'Hefe',
     in: 'in',
     decrease: (label) => `${label} verringern`,
@@ -263,6 +269,8 @@ const de: Translations = {
     flour: 'Mehl',
     water: 'Wasser',
     salt: 'Salz',
+    oil: 'Öl',
+    sugar: 'Zucker',
     yeast: (yeastType) => `Hefe (${yeastType})`,
     bowlLossPrefix: 'inkl.',
     bowlLossSuffix: 'g Schüsselverlust (2 %)',
@@ -315,6 +323,8 @@ const en: Translations = {
     ballCount: 'Number of dough balls',
     ballWeight: 'Weight per dough ball',
     hydration: 'Hydration',
+    oil: 'Oil',
+    sugar: 'Sugar',
     yeast: 'Yeast',
     in: 'in',
     decrease: (label) => `Decrease ${label.toLowerCase()}`,
@@ -415,6 +425,8 @@ const en: Translations = {
     flour: 'Flour',
     water: 'Water',
     salt: 'Salt',
+    oil: 'Oil',
+    sugar: 'Sugar',
     yeast: (yeastType) => `Yeast (${yeastType.toLowerCase()})`,
     bowlLossPrefix: 'incl.',
     bowlLossSuffix: 'g bowl loss (2 %)',

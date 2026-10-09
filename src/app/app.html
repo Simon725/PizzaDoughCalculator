@@ -82,6 +82,10 @@
 
     <section class="panel" aria-labelledby="panel-phases">
       <h2 class="panel__title" id="panel-phases">{{ t().panels.fermentation }}</h2>
+      <app-schedule-templates
+        [phases]="doughInput().phases"
+        (applyTemplate)="store.applyScheduleTemplate($event)"
+      />
       <app-phase-editor
         [phases]="doughInput().phases"
         [totalHours]="store.totalPhaseHours()"

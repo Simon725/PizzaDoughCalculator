@@ -186,6 +186,56 @@ describe('DoughStore', () => {
     });
   });
 
+  describe('schedule templates', () => {
+    it('replaces all phases with the same day schedule', () => {
+      const store = createStore();
+
+      store.applyScheduleTemplate('same-day');
+
+      expect(phaseSummary(store)).toEqual([[8, 22]]);
+      expect(store.totalPhaseHours()).toBe(8);
+    });
+
+    it.each([
+      ['fridge-24', 24],
+      ['fridge-48', 48],
+      ['fridge-72', 72],
+    ] as const)('applies the %s schedule', (templateId, fridgeHours) => {
+      const store = createStore();
+      store.addPhase('room');
+
+      store.applyScheduleTemplate(templateId);
+
+      expect(phaseSummary(store)).toEqual([
+        [2, 22],
+        [fridgeHours, 4],
+        [4, 22],
+      ]);
+      expect(store.totalPhaseHours()).toBe(fridgeHours + 6);
+    });
+
+    it('creates new unique phase ids', () => {
+      const store = createStore();
+      const previousIds = store.input().phases.map((phase) => phase.id);
+
+      store.applyScheduleTemplate('fridge-48');
+
+      const ids = store.input().phases.map((phase) => phase.id);
+      expect(new Set(ids).size).toBe(ids.length);
+      expect(ids.some((id) => previousIds.includes(id))).toBe(false);
+    });
+
+    it('keeps the pre-ferment settings', () => {
+      const store = createStore();
+      store.setMethod('poolish');
+      const preDough = store.input().preDough;
+
+      store.applyScheduleTemplate('same-day');
+
+      expect(store.input().preDough).toEqual(preDough);
+    });
+  });
+
   describe('persistence', () => {
     it('restores the saved input in a new store', () => {
       const store = createStore();

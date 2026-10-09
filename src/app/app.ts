@@ -4,6 +4,7 @@ import { LanguageService } from './i18n/language.service';
 import { MethodSwitch } from './inputs/method-switch';
 import { PhaseEditor } from './inputs/phase-editor';
 import { PreDoughPanel } from './inputs/pre-dough-panel';
+import { ScheduleTemplates } from './inputs/schedule-templates';
 import { StylePicker } from './inputs/style-picker';
 import { YeastToggle } from './inputs/yeast-toggle';
 import { RecipeCard } from './results/recipe-card';
@@ -31,6 +32,7 @@ import { PizzaVisual } from './visuals/pizza-visual';
     PreDoughPanel,
     RangeField,
     RecipeCard,
+    ScheduleTemplates,
     StylePicker,
     ThemeToggle,
     YeastToggle,

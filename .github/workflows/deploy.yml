@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -23,6 +23,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Use public npm registry
+        run: sed -i 's#https://registry.prolion.com/repository/npm-group/#https://registry.npmjs.org/#g' package-lock.json
       - run: npm ci
       - run: npx ng build --base-href /PizzaDoughCalculator/
       - uses: actions/upload-pages-artifact@v4

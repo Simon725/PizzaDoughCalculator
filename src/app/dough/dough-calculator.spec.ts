@@ -361,8 +361,22 @@ describe('calculateDough', () => {
   describe('water temperature', () => {
     it('reports the water temperature for the main dough', () => {
       expect(calculateDough(neapolitanInput()).waterTemperatureC).toBe(26);
-      expect(calculateDough(neapolitanInput({ method: 'poolish' })).waterTemperatureC).toBe(32);
+      expect(calculateDough(neapolitanInput({ method: 'poolish' })).waterTemperatureC).toBe(28);
       expect(calculateDough(neapolitanInput({ method: 'sourdough' })).waterTemperatureC).toBe(28);
+    });
+
+    it('does not use the pre-ferment fermentation temperature', () => {
+      const poolish = neapolitanInput({ method: 'poolish' });
+      const coldPoolish = {
+        ...poolish,
+        preDough: {
+          ...poolish.preDough,
+          fermentation: { ...poolish.preDough.fermentation, temperatureC: 4 },
+        },
+      };
+
+      expect(calculateDough(coldPoolish).waterTemperatureC).toBe(28);
+      expect(warningCodes(coldPoolish)).not.toContain('water-temperature-high');
     });
 
     it('warns when ice water is needed', () => {

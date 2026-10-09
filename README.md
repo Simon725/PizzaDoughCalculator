@@ -16,7 +16,9 @@ The water temperature for the main dough uses the desired dough temperature meth
 
 - Direct: water = 3 × target − room − flour − friction.
 - Poolish, biga, sourdough: water = 4 × target − room − flour − pre-ferment − friction.
-- The pre-ferment temperature is the poolish/biga fermentation temperature; a sourdough starter is assumed to be at room temperature.
+- Pre-ferment is the temperature of the poolish, biga or sourdough starter when it goes into the main dough (field "Pre-ferment temperature" / "Starter temperature", 0–35 °C, shown only for these methods).
+- Until it is edited, the pre-ferment temperature follows the room temperature. An edited value stays independent; "Same as room temperature" makes it follow the room again. It is stored as an optional `preFermentC`, so older saved settings still load.
+- The fermentation temperature of the poolish/biga (e.g. 4 °C in the fridge) is not used: take the pre-ferment out in time or enter its actual temperature.
 - Friction rise while mixing: by hand 2 °C, stand mixer 12 °C (`WATER_TEMPERATURE_MODEL` in `src/app/dough/water-temperature.ts`).
 - The result is clamped to 0–45 °C. Below 0 °C the app suggests ice water, above 45 °C a lower target temperature.
 - Example: direct, target 24 °C, room 22 °C, flour 22 °C, stand mixer → 3 × 24 − 22 − 22 − 12 = 16 °C.

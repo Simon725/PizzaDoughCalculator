@@ -28,6 +28,22 @@
   font-weight: 500;
 }
 
+.water-temperature__reset {
+  justify-self: end;
+  padding: 4px 12px;
+  border: 1px dashed var(--color-ember-soft);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 160ms ease;
+
+  &:hover {
+    background: rgba(255, 106, 43, 0.14);
+  }
+}
+
 .water-temperature__mixing {
   display: flex;
   flex-wrap: wrap;

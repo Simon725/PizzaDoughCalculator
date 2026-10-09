@@ -100,6 +100,9 @@ export interface Translations {
     targetDough: string;
     room: string;
     flour: string;
+    preFerment: string;
+    starter: string;
+    sameAsRoom: string;
     mixing: string;
     mixingTypes: Record<MixingType, string>;
     result: (temperature: string) => string;
@@ -289,6 +292,9 @@ const de: Translations = {
     targetDough: 'Ziel-Teigtemperatur',
     room: 'Raumtemperatur',
     flour: 'Mehltemperatur',
+    preFerment: 'Vorteigtemperatur',
+    starter: 'Startertemperatur',
+    sameAsRoom: 'Wie Raumtemperatur',
     mixing: 'Kneten',
     mixingTypes: { hand: 'Von Hand', 'stand-mixer': 'Küchenmaschine' },
     result: (temperature) => `Wasser: ${temperature}`,
@@ -502,6 +508,9 @@ const en: Translations = {
     targetDough: 'Target dough temperature',
     room: 'Room temperature',
     flour: 'Flour temperature',
+    preFerment: 'Pre-ferment temperature',
+    starter: 'Starter temperature',
+    sameAsRoom: 'Same as room temperature',
     mixing: 'Mixing',
     mixingTypes: { hand: 'By hand', 'stand-mixer': 'Stand mixer' },
     result: (temperature) => `Water: ${temperature}`,

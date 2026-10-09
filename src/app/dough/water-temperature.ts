@@ -1,4 +1,9 @@
-import { DoughInput, WaterTemperatureSettings, isPreDoughMethod } from './dough.model';
+import {
+  DoughInput,
+  DoughMethod,
+  WaterTemperatureSettings,
+  isPreDoughMethod,
+} from './dough.model';
 
 export const WATER_TEMPERATURE_MODEL = {
   frictionRiseC: {
@@ -23,7 +28,7 @@ export interface WaterTemperatureEstimate {
   clamp: WaterTemperatureClamp;
 }
 
-export type WaterTemperatureInput = Pick<DoughInput, 'method' | 'preDough' | 'waterTemperature'>;
+export type WaterTemperatureInput = Pick<DoughInput, 'method' | 'waterTemperature'>;
 
 export function waterTemperatureFor(input: WaterTemperatureInput): WaterTemperatureEstimate {
   const settings = input.waterTemperature;
@@ -41,18 +46,24 @@ export function isValidWaterTemperatureSettings(settings: WaterTemperatureSettin
     Number.isFinite(settings.targetDoughC) &&
     Number.isFinite(settings.roomC) &&
     Number.isFinite(settings.flourC) &&
+    (settings.preFermentC === undefined || Number.isFinite(settings.preFermentC)) &&
     settings.mixing in WATER_TEMPERATURE_MODEL.frictionRiseC
   );
 }
 
+export function preFermentTemperatureC(settings: WaterTemperatureSettings): number {
+  return settings.preFermentC ?? settings.roomC;
+}
+
+export function usesPreFerment(method: DoughMethod): boolean {
+  return isPreDoughMethod(method) || method === 'sourdough';
+}
+
 function preFermentTemperaturesC(input: WaterTemperatureInput): number[] {
-  if (isPreDoughMethod(input.method)) {
-    return [input.preDough.fermentation.temperatureC];
+  if (!usesPreFerment(input.method)) {
+    return [];
   }
-  if (input.method === 'sourdough') {
-    return [input.waterTemperature.roomC];
-  }
-  return [];
+  return [preFermentTemperatureC(input.waterTemperature)];
 }
 
 function clampWaterTemperature(temperatureC: number): WaterTemperatureEstimate {

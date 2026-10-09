@@ -230,6 +230,58 @@ describe('DoughStore', () => {
       expect(store.input().waterTemperature).toEqual(WATER_TEMPERATURE_DEFAULTS);
     });
 
+    it('lets the pre-ferment temperature follow the room temperature by default', () => {
+      const store = createStore();
+      store.setMethod('poolish');
+
+      store.updateWaterTemperature({ roomC: 20 });
+
+      expect(store.input().waterTemperature.preFermentC).toBeUndefined();
+      expect(store.result().waterTemperatureC).toBe(4 * 24 - 20 - 22 - 20 - 2);
+    });
+
+    it('keeps a set pre-ferment temperature when the room temperature changes', () => {
+      const store = createStore();
+      store.setMethod('biga');
+
+      store.updateWaterTemperature({ preFermentC: 16 });
+      store.updateWaterTemperature({ roomC: 26 });
+
+      expect(store.input().waterTemperature.preFermentC).toBe(16);
+      expect(store.result().waterTemperatureC).toBe(4 * 24 - 26 - 22 - 16 - 2);
+    });
+
+    it('clamps the pre-ferment temperature and rounds it to 0.1 °C', () => {
+      const store = createStore();
+
+      store.updateWaterTemperature({ preFermentC: 40 });
+      expect(store.input().waterTemperature.preFermentC).toBe(35);
+
+      store.updateWaterTemperature({ preFermentC: 4.444 });
+      expect(store.input().waterTemperature.preFermentC).toBe(4.4);
+    });
+
+    it('resets the pre-ferment temperature to follow the room temperature', () => {
+      const store = createStore();
+      store.updateWaterTemperature({ preFermentC: 16, mixing: 'stand-mixer' });
+
+      store.resetPreFermentTemperature();
+
+      expect(store.input().waterTemperature).toEqual({
+        ...WATER_TEMPERATURE_DEFAULTS,
+        mixing: 'stand-mixer',
+      });
+      expect('preFermentC' in store.input().waterTemperature).toBe(false);
+    });
+
+    it('persists the pre-ferment temperature', () => {
+      const store = createStore();
+      store.updateWaterTemperature({ preFermentC: 12 });
+      TestBed.tick();
+
+      expect(recreateStore().input().waterTemperature.preFermentC).toBe(12);
+    });
+
     it('persists the water temperature settings', () => {
       const store = createStore();
       store.updateWaterTemperature({ flourC: 15 });

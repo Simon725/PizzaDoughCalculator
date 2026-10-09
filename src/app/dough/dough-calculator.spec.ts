@@ -16,6 +16,7 @@ function neapolitanInput(overrides: Partial<DoughInput> = {}): DoughInput {
     preDough: PRE_DOUGH_DEFAULTS.poolish,
     sourdough: SOURDOUGH_DEFAULTS,
     waterTemperature: WATER_TEMPERATURE_DEFAULTS,
+    bakeSchedule: { enabled: false, bakeAt: '2026-10-10T17:00:00.000Z' },
     phases: [{ id: 'bulk', hours: 24, temperatureC: 20 }],
     ...overrides,
   };

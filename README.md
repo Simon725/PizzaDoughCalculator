@@ -21,6 +21,14 @@ The water temperature for the main dough uses the desired dough temperature meth
 - The result is clamped to 0–45 °C. Below 0 °C the app suggests ice water, above 45 °C a lower target temperature.
 - Example: direct, target 24 °C, room 22 °C, flour 22 °C, stand mixer → 3 × 24 − 22 − 22 − 12 = 16 °C.
 
+## Bake schedule
+Optionally, the schedule is planned backwards from a bake date and time (default: tomorrow at 19:00):
+
+- The last main fermentation phase ends at the bake time; each phase starts its duration earlier. Mixing the dough is the start of the first phase.
+- Poolish and biga start their pre-ferment time before mixing. Feeding a sourdough starter is not planned.
+- Durations are real elapsed hours (millisecond arithmetic), so across a daylight saving change the wall-clock times shift by one hour (e.g. 24 h before Sun 19:00 after the October change is Sat 20:00).
+- The bake time is stored as an ISO string with the on/off flag. A stored bake time in the past is kept as is; the recipe then warns that the first step has passed.
+
 ## Requirements
 - Node.js 22.12+ (Angular 21)
 

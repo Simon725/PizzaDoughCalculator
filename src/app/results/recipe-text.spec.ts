@@ -1,3 +1,4 @@
+import { planBakeSchedule } from '../dough/bake-schedule';
 import { DoughResult } from '../dough/dough.model';
 import { TRANSLATIONS } from '../i18n/translations';
 import { createDefaultInput } from '../state/dough-defaults';
@@ -111,6 +112,31 @@ describe('formatRecipeText', () => {
     expect(text.match(/ {2}Öl: 15 g/g)).toHaveLength(2);
     expect(text.match(/ {2}Zucker: 9 g/g)).toHaveLength(2);
     expect(preDoughText).not.toContain('Öl');
+  });
+
+  it('omits the step list without a bake plan', () => {
+    const text = formatRecipeText(createDefaultInput(), RESULT, TRANSLATIONS.en);
+
+    expect(text).not.toContain('Steps');
+    expect(text).not.toContain('Bake');
+  });
+
+  it('appends the step list when a bake plan is given', () => {
+    const input = createDefaultInput();
+    const plan = planBakeSchedule(input, new Date(2026, 9, 10, 19, 0));
+
+    const expectedSteps = [
+      '',
+      'Steps',
+      '  Fri 13:00 – Mix dough',
+      '  Fri 15:00 – Start phase 2 (24 h at 4 °C)',
+      '  Sat 15:00 – Start phase 3 (4 h at 22 °C)',
+      '  Sat 19:00 – Bake',
+    ].join('\n');
+
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.en, plan);
+
+    expect(text.endsWith(expectedSteps)).toBe(true);
   });
 
   describe('sourdough', () => {

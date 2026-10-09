@@ -1,4 +1,5 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
+import { hasStartPassed, parseBakeTime, planBakeSchedule } from '../dough/bake-schedule';
 import { calculateDough } from '../dough/dough-calculator';
 import {
   DoughInput,
@@ -39,6 +40,8 @@ export interface WaterTemperaturePatch {
 
 export type MoveDirection = -1 | 1;
 
+const CLOCK_INTERVAL_MS = 60_000;
+
 @Injectable({ providedIn: 'root' })
 export class DoughStore {
   private readonly state = signal<DoughInput>(loadDoughInput() ?? createDefaultInput());
@@ -49,8 +52,25 @@ export class DoughStore {
     this.state().phases.reduce((sum, phase) => sum + phase.hours, 0),
   );
 
+  private readonly now = signal(new Date());
+
+  readonly bakePlan = computed(() => {
+    const input = this.state();
+    if (!input.bakeSchedule.enabled) {
+      return null;
+    }
+    const bakeAt = parseBakeTime(input.bakeSchedule.bakeAt);
+    return bakeAt ? planBakeSchedule(input, bakeAt) : null;
+  });
+  readonly bakeStartHasPassed = computed(() => {
+    const plan = this.bakePlan();
+    return plan !== null && hasStartPassed(plan, this.now());
+  });
+
   constructor() {
     effect(() => saveDoughInput(this.state()));
+    const clock = setInterval(() => this.now.set(new Date()), CLOCK_INTERVAL_MS);
+    inject(DestroyRef).onDestroy(() => clearInterval(clock));
   }
 
   setMethod(method: DoughMethod): void {
@@ -149,6 +169,17 @@ export class DoughStore {
         mixing: patch.mixing ?? waterTemperature.mixing,
       },
     });
+  }
+
+  setBakeScheduleEnabled(enabled: boolean): void {
+    this.patch({ bakeSchedule: { ...this.state().bakeSchedule, enabled } });
+  }
+
+  setBakeTime(bakeAt: Date): void {
+    if (Number.isNaN(bakeAt.getTime())) {
+      return;
+    }
+    this.patch({ bakeSchedule: { ...this.state().bakeSchedule, bakeAt: bakeAt.toISOString() } });
   }
 
   addPhase(presetId: PhasePresetId): void {

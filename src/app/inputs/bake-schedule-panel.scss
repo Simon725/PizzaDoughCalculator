@@ -1,0 +1,97 @@
+:host {
+  display: grid;
+  gap: 16px;
+}
+
+.bake-schedule__toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.bake-schedule__switch {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 24px;
+  margin: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  appearance: none;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+    transition:
+      transform 240ms var(--ease-spring),
+      background 160ms ease;
+  }
+
+  &:checked {
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--color-ember), var(--color-flame));
+
+    &::after {
+      background: #1a0d06;
+      transform: translateX(20px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-flame);
+    outline-offset: 2px;
+  }
+}
+
+.bake-schedule__intro {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.bake-schedule__fields {
+  display: grid;
+  gap: 10px;
+}
+
+.bake-schedule__field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.bake-schedule__input {
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: inherit;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+
+  &:focus-visible {
+    border-color: var(--color-ember-soft);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 106, 43, 0.2);
+  }
+}

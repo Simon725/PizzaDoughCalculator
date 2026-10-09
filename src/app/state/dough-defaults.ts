@@ -1,3 +1,4 @@
+import { createBakeScheduleDefaults } from '../dough/bake-schedule';
 import {
   DoughInput,
   FermentationPhase,
@@ -33,7 +34,7 @@ export function createWaterTemperatureDefaults(): WaterTemperatureSettings {
   return { ...WATER_TEMPERATURE_DEFAULTS };
 }
 
-export function createDefaultInput(): DoughInput {
+export function createDefaultInput(now = new Date()): DoughInput {
   const style = PIZZA_STYLES.neapolitan;
   return {
     method: 'direct',
@@ -47,6 +48,7 @@ export function createDefaultInput(): DoughInput {
     preDough: createPreDoughDefaults('poolish'),
     sourdough: createSourdoughDefaults(),
     waterTemperature: createWaterTemperatureDefaults(),
+    bakeSchedule: createBakeScheduleDefaults(now),
     phases: [createPhase(2, 22), createPhase(24, 4), createPhase(4, 22)],
   };
 }

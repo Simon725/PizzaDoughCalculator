@@ -31,6 +31,11 @@ export interface WaterTemperatureSettings {
   mixing: MixingType;
 }
 
+export interface BakeScheduleSettings {
+  enabled: boolean;
+  bakeAt: string;
+}
+
 export interface DoughInput {
   method: DoughMethod;
   style: PizzaStyleId;
@@ -43,6 +48,7 @@ export interface DoughInput {
   preDough: PreDoughSettings;
   sourdough: SourdoughSettings;
   waterTemperature: WaterTemperatureSettings;
+  bakeSchedule: BakeScheduleSettings;
   phases: FermentationPhase[];
 }
 

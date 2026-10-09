@@ -1,4 +1,6 @@
+import { createBakeScheduleDefaults, parseBakeTime } from '../dough/bake-schedule';
 import {
+  BakeScheduleSettings,
   DoughInput,
   FermentationPhase,
   PizzaStyleId,
@@ -22,8 +24,10 @@ export function loadDoughInput(): DoughInput | null {
     if (raw === null) {
       return null;
     }
-    const parsed = withWaterTemperatureDefaults(
-      withSourdoughDefaults(withStyleIngredientDefaults(JSON.parse(raw))),
+    const parsed = withBakeScheduleDefaults(
+      withWaterTemperatureDefaults(
+        withSourdoughDefaults(withStyleIngredientDefaults(JSON.parse(raw))),
+      ),
     );
     return isDoughInput(parsed) ? parsed : null;
   } catch {
@@ -65,6 +69,13 @@ export function withWaterTemperatureDefaults(value: unknown): unknown {
   return { ...value, waterTemperature: { ...WATER_TEMPERATURE_DEFAULTS } };
 }
 
+export function withBakeScheduleDefaults(value: unknown): unknown {
+  if (!isRecord(value) || 'bakeSchedule' in value) {
+    return value;
+  }
+  return { ...value, bakeSchedule: createBakeScheduleDefaults() };
+}
+
 export function isDoughInput(value: unknown): value is DoughInput {
   if (!isRecord(value)) {
     return false;
@@ -82,6 +93,7 @@ export function isDoughInput(value: unknown): value is DoughInput {
     isPreDoughSettings(value['preDough']) &&
     isSourdoughSettings(value['sourdough']) &&
     isWaterTemperatureSettings(value['waterTemperature']) &&
+    isBakeScheduleSettings(value['bakeSchedule']) &&
     Array.isArray(value['phases']) &&
     value['phases'].every(isFermentationPhase)
   );
@@ -114,6 +126,14 @@ function isWaterTemperatureSettings(value: unknown): value is WaterTemperatureSe
     isWithinLimit(value['roomC'], DOUGH_LIMITS.roomTemperatureC) &&
     isWithinLimit(value['flourC'], DOUGH_LIMITS.flourTemperatureC) &&
     isOneOf(value['mixing'], MIXING_TYPES)
+  );
+}
+
+function isBakeScheduleSettings(value: unknown): value is BakeScheduleSettings {
+  return (
+    isRecord(value) &&
+    typeof value['enabled'] === 'boolean' &&
+    parseBakeTime(value['bakeAt']) !== null
   );
 }
 

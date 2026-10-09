@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { LanguageToggle } from './i18n/language-toggle';
 import { LanguageService } from './i18n/language.service';
+import { BakeSchedulePanel } from './inputs/bake-schedule-panel';
 import { MethodSwitch } from './inputs/method-switch';
 import { PhaseEditor } from './inputs/phase-editor';
 import { PreDoughPanel } from './inputs/pre-dough-panel';
@@ -24,6 +25,7 @@ import { PizzaVisual } from './visuals/pizza-visual';
 @Component({
   selector: 'app-root',
   imports: [
+    BakeSchedulePanel,
     DoughBalls,
     FermentationTimeline,
     LanguageToggle,

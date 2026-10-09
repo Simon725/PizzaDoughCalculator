@@ -32,7 +32,11 @@ describe('dough storage', () => {
     const input = {
       ...createDefaultInput(),
       method: 'sourdough' as const,
-      sourdough: { starterHydrationPercent: 65 },
+      sourdough: {
+        starterHydrationPercent: 65,
+        starterMode: 'manual' as const,
+        manualStarterPercent: 7.5,
+      },
     };
 
     saveDoughInput(input);
@@ -124,11 +128,28 @@ describe('dough storage', () => {
   });
 
   it('adds sourdough defaults only when they are missing', () => {
-    const custom = { sourdough: { starterHydrationPercent: 70 } };
+    const custom = {
+      sourdough: { starterHydrationPercent: 70, starterMode: 'manual', manualStarterPercent: 4 },
+    };
 
-    expect(withSourdoughDefaults(custom)).toBe(custom);
+    expect(withSourdoughDefaults(custom)).toEqual(custom);
     expect(withSourdoughDefaults({})).toEqual({ sourdough: SOURDOUGH_DEFAULTS });
     expect(withSourdoughDefaults(null)).toBeNull();
+  });
+
+  it('loads sourdough settings saved before the manual starter existed', () => {
+    const saved = {
+      ...createDefaultInput(),
+      method: 'sourdough',
+      sourdough: { starterHydrationPercent: 80 },
+    };
+    localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify(saved));
+
+    const loaded = loadDoughInput();
+
+    expect(loaded?.method).toBe('sourdough');
+    expect(loaded?.sourdough).toEqual({ ...SOURDOUGH_DEFAULTS, starterHydrationPercent: 80 });
+    expect(loaded?.sourdough.starterMode).toBe('calculated');
   });
 
   it('does not share the default sourdough object', () => {
@@ -143,6 +164,9 @@ describe('dough storage', () => {
     ['below the limit', { starterHydrationPercent: 40 }],
     ['above the limit', { starterHydrationPercent: 250 }],
     ['not a number', { starterHydrationPercent: '100' }],
+    ['in an unknown starter mode', { ...SOURDOUGH_DEFAULTS, starterMode: 'auto' }],
+    ['below the manual limit', { ...SOURDOUGH_DEFAULTS, manualStarterPercent: 1 }],
+    ['above the manual limit', { ...SOURDOUGH_DEFAULTS, manualStarterPercent: 31 }],
   ])('rejects sourdough settings that are %s', (_label, sourdough) => {
     expect(isDoughInput({ ...createDefaultInput(), sourdough })).toBe(false);
   });

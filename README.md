@@ -10,6 +10,8 @@ With sourdough, a starter replaces the yeast. The starter amount (% of total flo
 - Starter % = 20 × (equivalent hours / 8)^-2.25, clamped to 2–30 %.
 - Examples: 8 h at 22 °C → 20 %, 12 h at 22 °C → 8 %, 2 h + 24 h at 4 °C + 4 h → 9.7 %, same with 48 h → 4.2 %, 72 h → 2.2 %.
 - Starter flour and water count toward total flour and hydration (starter hydration 50–200 %, default 100 %).
+- Manual override: the switch "Calculated / Manual" in the sourdough panel lets you set the starter % yourself (2–30 %, step 0.5). Switching to manual starts from the calculated value, snapped to the step; the calculated value stays visible as a hint.
+- In manual mode the schedule warnings for the starter amount (clamped, no fermentation time) are not shown. Mode and manual % are stored with the settings (`starterMode`, `manualStarterPercent`); older saved settings load in calculated mode.
 
 ## Water temperature
 The water temperature for the main dough uses the desired dough temperature method (all values in °C):

@@ -7,11 +7,14 @@ import {
   FermentationPhase,
   MixingType,
   PizzaStyleId,
+  SourdoughSettings,
+  StarterMode,
   WaterTemperatureSettings,
   YeastType,
   isPreDoughMethod,
 } from '../dough/dough.model';
 import { PIZZA_STYLES } from '../dough/pizza-styles';
+import { equivalentHoursAt22C, starterPercentFor } from '../dough/sourdough-model';
 import { createDefaultInput, createPhase, createPreDoughDefaults } from './dough-defaults';
 import { DOUGH_LIMITS, STORED_LIMITS, clampToLimit } from './dough-limits';
 import { loadDoughInput, saveDoughInput } from './dough-storage';
@@ -30,6 +33,8 @@ export interface PreDoughPatch extends PhasePatch {
 
 export interface SourdoughPatch {
   starterHydrationPercent?: number;
+  starterMode?: StarterMode;
+  manualStarterPercent?: number;
 }
 
 export interface WaterTemperaturePatch {
@@ -144,12 +149,18 @@ export class DoughStore {
   }
 
   updateSourdough(patch: SourdoughPatch): void {
-    const sourdough = this.state().sourdough;
+    const { phases, sourdough } = this.state();
+    const starterMode = patch.starterMode ?? sourdough.starterMode;
     this.patch({
       sourdough: {
         starterHydrationPercent: clampToLimit(
           patch.starterHydrationPercent ?? sourdough.starterHydrationPercent,
           DOUGH_LIMITS.starterHydrationPercent,
+        ),
+        starterMode,
+        manualStarterPercent: clampToLimit(
+          patch.manualStarterPercent ?? manualStarterSeed(sourdough, starterMode, phases),
+          DOUGH_LIMITS.starterPercent,
         ),
       },
     });
@@ -245,6 +256,18 @@ function applyPhasePatch(phase: FermentationPhase, patch: PhasePatch): Fermentat
       STORED_LIMITS.temperatureC,
     ),
   };
+}
+
+function manualStarterSeed(
+  sourdough: SourdoughSettings,
+  nextMode: StarterMode,
+  phases: readonly FermentationPhase[],
+): number {
+  const switchesToManual = nextMode === 'manual' && sourdough.starterMode !== 'manual';
+  if (!switchesToManual) {
+    return sourdough.manualStarterPercent;
+  }
+  return starterPercentFor(equivalentHoursAt22C(phases)).percent;
 }
 
 function preFermentTemperaturePart(

@@ -4,12 +4,31 @@
 }
 
 .sourdough__intro,
-.sourdough__inoculation {
+.sourdough__inoculation,
+.sourdough__hint {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .sourdough__inoculation {
+  font-weight: 500;
+}
+
+.sourdough__mode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sourdough__legend {
+  float: left;
+  padding: 0;
   font-weight: 500;
 }

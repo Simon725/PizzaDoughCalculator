@@ -41,7 +41,7 @@
         <h2 class="panel__title" id="panel-sourdough">{{ t().panels.sourdough }}</h2>
         <app-sourdough-panel
           [settings]="doughInput().sourdough"
-          [inoculationPercent]="store.result().starter?.inoculationPercent ?? 0"
+          [calculatedPercent]="store.result().starter?.calculatedInoculationPercent ?? 0"
           (settingsChange)="store.updateSourdough($event)"
         />
       </section>

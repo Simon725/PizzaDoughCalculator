@@ -195,7 +195,12 @@ describe('formatRecipeText', () => {
     const sourdoughResult: DoughResult = {
       ...RESULT,
       preDough: null,
-      starter: { amounts: starterAmounts, inoculationPercent: 20, hydrationPercent: 100 },
+      starter: {
+        amounts: starterAmounts,
+        inoculationPercent: 20,
+        calculatedInoculationPercent: 20,
+        hydrationPercent: 100,
+      },
       totals: { ...RESULT.totals, yeast: 0 },
       mainDough: { ...RESULT.mainDough, flour: 557, water: 321.9, yeast: 0 },
       equivalentHours: 8,

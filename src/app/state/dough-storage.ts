@@ -17,6 +17,7 @@ export const DOUGH_STORAGE_KEY = 'pizza-dough-calculator:v1';
 const METHODS: readonly string[] = ['direct', 'poolish', 'biga', 'sourdough'];
 const YEAST_TYPES: readonly string[] = ['fresh', 'instant'];
 const MIXING_TYPES: readonly string[] = ['hand', 'stand-mixer'];
+const STARTER_MODES: readonly string[] = ['calculated', 'manual'];
 
 export function loadDoughInput(): DoughInput | null {
   try {
@@ -56,10 +57,16 @@ export function withStyleIngredientDefaults(value: unknown): unknown {
 }
 
 export function withSourdoughDefaults(value: unknown): unknown {
-  if (!isRecord(value) || 'sourdough' in value) {
+  if (!isRecord(value)) {
     return value;
   }
-  return { ...value, sourdough: { ...SOURDOUGH_DEFAULTS } };
+  if (!('sourdough' in value)) {
+    return { ...value, sourdough: { ...SOURDOUGH_DEFAULTS } };
+  }
+  if (!isRecord(value['sourdough'])) {
+    return value;
+  }
+  return { ...value, sourdough: { ...SOURDOUGH_DEFAULTS, ...value['sourdough'] } };
 }
 
 export function withWaterTemperatureDefaults(value: unknown): unknown {
@@ -111,9 +118,13 @@ function isPreDoughSettings(value: unknown): value is PreDoughSettings {
 }
 
 function isSourdoughSettings(value: unknown): value is SourdoughSettings {
+  if (!isRecord(value)) {
+    return false;
+  }
   return (
-    isRecord(value) &&
-    isWithinLimit(value['starterHydrationPercent'], DOUGH_LIMITS.starterHydrationPercent)
+    isWithinLimit(value['starterHydrationPercent'], DOUGH_LIMITS.starterHydrationPercent) &&
+    isOneOf(value['starterMode'], STARTER_MODES) &&
+    isWithinLimit(value['manualStarterPercent'], DOUGH_LIMITS.starterPercent)
   );
 }
 

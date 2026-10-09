@@ -3,6 +3,7 @@ import {
   DoughWarningCode,
   MixingType,
   PizzaStyleId,
+  StarterMode,
   YeastType,
 } from '../dough/dough.model';
 import { PhasePresetId } from '../state/phase-presets';
@@ -94,6 +95,10 @@ export interface Translations {
     intro: string;
     starterHydration: string;
     inoculation: (percent: string) => string;
+    starterMode: string;
+    starterModes: Record<StarterMode, string>;
+    manualStarter: string;
+    calculatedHint: (percent: string) => string;
   };
   waterTemperature: {
     intro: string;
@@ -285,6 +290,10 @@ const de: Translations = {
       'Ein aktiver Sauerteig-Starter ersetzt die Hefe. Mehl und Wasser im Starter zählen zur Gesamtmenge.',
     starterHydration: 'Hydration Starter',
     inoculation: (percent) => `Starter: ${percent} % vom Mehl – aus dem Gärplan berechnet.`,
+    starterMode: 'Starter-Menge',
+    starterModes: { calculated: 'Berechnet', manual: 'Manuell' },
+    manualStarter: 'Starter vom Mehl',
+    calculatedHint: (percent) => `Berechnet: ${percent} %`,
   },
   waterTemperature: {
     intro:
@@ -502,6 +511,10 @@ const en: Translations = {
       'An active sourdough starter replaces the yeast. Flour and water in the starter count toward the totals.',
     starterHydration: 'Starter hydration',
     inoculation: (percent) => `Starter: ${percent} % of the flour – derived from the schedule.`,
+    starterMode: 'Starter amount',
+    starterModes: { calculated: 'Calculated', manual: 'Manual' },
+    manualStarter: 'Starter of flour',
+    calculatedHint: (percent) => `Calculated: ${percent} %`,
   },
   waterTemperature: {
     intro: 'The right water temperature brings the dough to the target temperature after mixing.',

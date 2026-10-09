@@ -122,6 +122,37 @@ describe('App', () => {
     });
   });
 
+  it('switches the sourdough starter to a manual percent', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const store = TestBed.inject(DoughStore);
+    store.setMethod('sourdough');
+    await fixture.whenStable();
+    const panel = () => compiled.querySelector('app-sourdough-panel')!;
+
+    expect(panel().querySelectorAll('app-range-field').length).toBe(1);
+    expect(panel().textContent).toContain('aus dem Gärplan berechnet');
+
+    panel().querySelector<HTMLInputElement>('input[name="starter-mode"][value="manual"]')?.click();
+    await fixture.whenStable();
+
+    const manualField = panel().querySelectorAll('app-range-field')[1];
+    const slider = manualField?.querySelector<HTMLInputElement>('input[type="range"]');
+    expect(slider?.min).toBe('2');
+    expect(slider?.max).toBe('30');
+    expect(slider?.step).toBe('0.5');
+    expect(slider?.value).toBe('9.5');
+    expect(panel().querySelector('.sourdough__hint')?.textContent).toContain('Berechnet: 9,7 %');
+
+    slider!.value = '15';
+    slider!.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+
+    expect(store.input().sourdough.manualStarterPercent).toBe(15);
+    expect(compiled.querySelector('app-recipe-card')?.textContent).toContain('15,0 % vom Mehl');
+  });
+
   it('switches the whole page to English', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();

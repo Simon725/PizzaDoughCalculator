@@ -250,7 +250,10 @@ describe('calculateDough', () => {
     });
 
     it('uses the starter hydration for the flour and water split', () => {
-      const stiff = calculateDough({ ...input, sourdough: { starterHydrationPercent: 50 } });
+      const stiff = calculateDough({
+        ...input,
+        sourdough: { ...SOURDOUGH_DEFAULTS, starterHydrationPercent: 50 },
+      });
       const stiffStarter = stiff.starter!.amounts;
 
       expect(stiffStarter.water / stiffStarter.flour).toBeCloseTo(0.5, 10);
@@ -283,7 +286,7 @@ describe('calculateDough', () => {
       const wet = calculateDough({
         ...input,
         hydrationPercent: 5,
-        sourdough: { starterHydrationPercent: 200 },
+        sourdough: { ...SOURDOUGH_DEFAULTS, starterHydrationPercent: 200 },
       });
 
       expect(wet.mainDough.water).toBe(0);
@@ -306,6 +309,48 @@ describe('calculateDough', () => {
 
       expect(none.warnings.map((warning) => warning.code)).toEqual(['no-fermentation']);
       expect(none.starter!.inoculationPercent).toBe(30);
+    });
+
+    describe('manual starter', () => {
+      function manualInput(manualStarterPercent: number, overrides: Partial<DoughInput> = {}) {
+        return {
+          ...input,
+          sourdough: {
+            ...SOURDOUGH_DEFAULTS,
+            starterMode: 'manual' as const,
+            manualStarterPercent,
+          },
+          ...overrides,
+        };
+      }
+
+      it('uses the manual starter percent and keeps the calculated one', () => {
+        const manual = calculateDough(manualInput(5));
+
+        expect(manual.starter!.inoculationPercent).toBe(5);
+        expect(manual.starter!.calculatedInoculationPercent).toBeCloseTo(20, 10);
+        expect(manual.starter!.amounts.total / manual.totals.flour).toBeCloseTo(0.05, 10);
+        expect(manual.totals.water / manual.totals.flour).toBeCloseTo(0.62, 10);
+        expect(manual.totals.total).toBeCloseTo(1020, 10);
+      });
+
+      it('reports the calculated percent in calculated mode', () => {
+        expect(starter.calculatedInoculationPercent).toBe(starter.inoculationPercent);
+      });
+
+      it.each([
+        ['a very long', [{ id: 'a', hours: 200, temperatureC: 22 }]],
+        ['a very short', [{ id: 'a', hours: 2, temperatureC: 22 }]],
+        ['no', []],
+      ])('does not warn about the starter amount for %s schedule', (_label, phases) => {
+        expect(warningCodes(manualInput(10, { phases }))).toEqual([]);
+      });
+
+      it('still warns when the starter holds too much water', () => {
+        const wet = manualInput(30, { hydrationPercent: 5 });
+
+        expect(warningCodes(wet)).toEqual(['starter-water-too-high']);
+      });
     });
 
     it('returns a zero starter for invalid input', () => {

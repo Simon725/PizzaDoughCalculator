@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { MixingType, WaterTemperatureSettings } from '../dough/dough.model';
+import { DoughMethod, MixingType, WaterTemperatureSettings } from '../dough/dough.model';
+import { preFermentTemperatureC, usesPreFerment } from '../dough/water-temperature';
 import { LanguageService } from '../i18n/language.service';
 import { NumberField } from '../shared/number-field';
 import { DOUGH_LIMITS } from '../state/dough-limits';
@@ -49,6 +50,28 @@ const MIXING_TYPES: readonly MixingType[] = ['hand', 'stand-mixer'];
           (valueChange)="settingsChange.emit({ flourC: fields().flour.toMetric($event) })"
         />
       </label>
+      @if (preFermentLabel(); as label) {
+        <label class="water-temperature__field" for="water-temperature-pre-ferment">
+          <span>{{ label }}</span>
+          <app-number-field
+            inputId="water-temperature-pre-ferment"
+            [label]="label"
+            [unit]="fields().preFerment.unit"
+            [value]="fields().preFerment.toDisplay(preFermentC())"
+            [limit]="fields().preFerment.limit"
+            (valueChange)="updatePreFerment($event)"
+          />
+        </label>
+        @if (hasCustomPreFerment()) {
+          <button
+            type="button"
+            class="water-temperature__reset"
+            (click)="preFermentTemperatureReset.emit()"
+          >
+            {{ t().waterTemperature.sameAsRoom }}
+          </button>
+        }
+      }
     </div>
     <fieldset class="water-temperature__mixing">
       <legend class="water-temperature__legend">{{ t().waterTemperature.mixing }}</legend>
@@ -77,9 +100,11 @@ const MIXING_TYPES: readonly MixingType[] = ['hand', 'stand-mixer'];
 })
 export class WaterTemperaturePanel {
   readonly settings = input.required<WaterTemperatureSettings>();
+  readonly method = input.required<DoughMethod>();
   readonly waterTemperatureC = input.required<number | null>();
 
   readonly settingsChange = output<WaterTemperaturePatch>();
+  readonly preFermentTemperatureReset = output<void>();
 
   protected readonly mixingTypes = MIXING_TYPES;
   protected readonly t = inject(LanguageService).t;
@@ -90,8 +115,21 @@ export class WaterTemperaturePanel {
       targetDough: temperatureField(DOUGH_LIMITS.targetDoughTemperatureC, unitSystem),
       room: temperatureField(DOUGH_LIMITS.roomTemperatureC, unitSystem),
       flour: temperatureField(DOUGH_LIMITS.flourTemperatureC, unitSystem),
+      preFerment: temperatureField(DOUGH_LIMITS.preFermentTemperatureC, unitSystem),
     };
   });
+  protected readonly preFermentLabel = computed(() => {
+    const method = this.method();
+    if (!usesPreFerment(method)) {
+      return '';
+    }
+    const texts = this.t().waterTemperature;
+    return method === 'sourdough' ? texts.starter : texts.preFerment;
+  });
+  protected readonly preFermentC = computed(() => preFermentTemperatureC(this.settings()));
+  protected readonly hasCustomPreFerment = computed(
+    () => this.settings().preFermentC !== undefined,
+  );
   protected readonly resultText = computed(() => {
     const temperatureC = this.waterTemperatureC();
     if (temperatureC === null) {
@@ -103,5 +141,9 @@ export class WaterTemperaturePanel {
 
   protected updateTargetDough(displayValue: number): void {
     this.settingsChange.emit({ targetDoughC: this.fields().targetDough.toMetric(displayValue) });
+  }
+
+  protected updatePreFerment(displayValue: number): void {
+    this.settingsChange.emit({ preFermentC: this.fields().preFerment.toMetric(displayValue) });
   }
 }

@@ -28,6 +28,7 @@ export interface WaterTemperatureSettings {
   targetDoughC: number;
   roomC: number;
   flourC: number;
+  preFermentC?: number;
   mixing: MixingType;
 }
 

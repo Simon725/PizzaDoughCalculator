@@ -125,8 +125,13 @@ function isWaterTemperatureSettings(value: unknown): value is WaterTemperatureSe
     isWithinLimit(value['targetDoughC'], DOUGH_LIMITS.targetDoughTemperatureC) &&
     isWithinLimit(value['roomC'], DOUGH_LIMITS.roomTemperatureC) &&
     isWithinLimit(value['flourC'], DOUGH_LIMITS.flourTemperatureC) &&
+    isOptionalPreFermentTemperature(value['preFermentC']) &&
     isOneOf(value['mixing'], MIXING_TYPES)
   );
+}
+
+function isOptionalPreFermentTemperature(value: unknown): value is number | undefined {
+  return value === undefined || isWithinLimit(value, DOUGH_LIMITS.preFermentTemperatureC);
 }
 
 function isBakeScheduleSettings(value: unknown): value is BakeScheduleSettings {

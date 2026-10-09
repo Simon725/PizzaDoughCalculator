@@ -1,14 +1,15 @@
-import { PRE_DOUGH_DEFAULTS } from './pizza-styles';
 import {
   WATER_TEMPERATURE_DEFAULTS,
   WaterTemperatureInput,
+  isValidWaterTemperatureSettings,
+  preFermentTemperatureC,
+  usesPreFerment,
   waterTemperatureFor,
 } from './water-temperature';
 
 function waterInput(overrides: Partial<WaterTemperatureInput> = {}): WaterTemperatureInput {
   return {
     method: 'direct',
-    preDough: PRE_DOUGH_DEFAULTS.poolish,
     waterTemperature: WATER_TEMPERATURE_DEFAULTS,
     ...overrides,
   };
@@ -35,22 +36,28 @@ describe('waterTemperatureFor', () => {
     expect(estimate).toEqual({ temperatureC: 16, clamp: 'none' });
   });
 
-  it('uses the pre-ferment fermentation temperature as a fourth factor', () => {
-    const poolish = waterInput({ method: 'poolish' });
+  it.each(['poolish', 'biga', 'sourdough'] as const)(
+    'uses the room temperature as pre-ferment temperature for %s by default',
+    (method) => {
+      const input = withSettings({ roomC: 20 }, { method });
 
-    expect(waterTemperatureFor(poolish).temperatureC).toBe(4 * 24 - 22 - 22 - 18 - 2);
-  });
+      expect(waterTemperatureFor(input).temperatureC).toBe(4 * 24 - 20 - 22 - 20 - 2);
+    },
+  );
 
-  it('uses the biga fermentation temperature', () => {
-    const biga = waterInput({ method: 'biga', preDough: PRE_DOUGH_DEFAULTS.biga });
+  it.each(['poolish', 'biga', 'sourdough'] as const)(
+    'uses the set pre-ferment temperature for %s',
+    (method) => {
+      const input = withSettings({ preFermentC: 18 }, { method });
 
-    expect(waterTemperatureFor(biga).temperatureC).toBe(4 * 24 - 22 - 22 - 17 - 2);
-  });
+      expect(waterTemperatureFor(input).temperatureC).toBe(4 * 24 - 22 - 22 - 18 - 2);
+    },
+  );
 
-  it('assumes the sourdough starter is at room temperature', () => {
-    const sourdough = withSettings({ roomC: 20 }, { method: 'sourdough' });
+  it('ignores the pre-ferment temperature for the direct method', () => {
+    const direct = withSettings({ preFermentC: 4 });
 
-    expect(waterTemperatureFor(sourdough).temperatureC).toBe(4 * 24 - 20 - 22 - 20 - 2);
+    expect(waterTemperatureFor(direct)).toEqual({ temperatureC: 26, clamp: 'none' });
   });
 
   it('clamps to ice water when the result is below 0 °C', () => {
@@ -74,5 +81,30 @@ describe('waterTemperatureFor', () => {
     const atZero = withSettings({ targetDoughC: 20, roomC: 24, flourC: 24, mixing: 'stand-mixer' });
 
     expect(waterTemperatureFor(atZero)).toEqual({ temperatureC: 0, clamp: 'none' });
+  });
+});
+
+describe('preFermentTemperatureC', () => {
+  it('follows the room temperature until it is set', () => {
+    expect(preFermentTemperatureC({ ...WATER_TEMPERATURE_DEFAULTS, roomC: 19 })).toBe(19);
+    expect(preFermentTemperatureC({ ...WATER_TEMPERATURE_DEFAULTS, preFermentC: 0 })).toBe(0);
+  });
+});
+
+describe('usesPreFerment', () => {
+  it('is true for poolish, biga and sourdough only', () => {
+    expect(usesPreFerment('direct')).toBe(false);
+    expect(usesPreFerment('poolish')).toBe(true);
+    expect(usesPreFerment('biga')).toBe(true);
+    expect(usesPreFerment('sourdough')).toBe(true);
+  });
+});
+
+describe('isValidWaterTemperatureSettings', () => {
+  it('accepts a missing pre-ferment temperature and rejects a non-finite one', () => {
+    expect(isValidWaterTemperatureSettings(WATER_TEMPERATURE_DEFAULTS)).toBe(true);
+    expect(
+      isValidWaterTemperatureSettings({ ...WATER_TEMPERATURE_DEFAULTS, preFermentC: NaN }),
+    ).toBe(false);
   });
 });

@@ -76,6 +76,31 @@ describe('dough storage', () => {
     expect(loadDoughInput()).toEqual(input);
   });
 
+  it('round-trips a set pre-ferment temperature', () => {
+    const input = {
+      ...createDefaultInput(),
+      method: 'poolish' as const,
+      waterTemperature: { ...WATER_TEMPERATURE_DEFAULTS, preFermentC: 12.5 },
+    };
+
+    saveDoughInput(input);
+
+    expect(loadDoughInput()).toEqual(input);
+  });
+
+  it('loads water temperature settings saved before the pre-ferment temperature existed', () => {
+    const saved = {
+      ...createDefaultInput(),
+      waterTemperature: { targetDoughC: 25, roomC: 19, flourC: 18, mixing: 'hand' },
+    };
+    localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify(saved));
+
+    const loaded = loadDoughInput();
+
+    expect(loaded?.waterTemperature).toEqual(saved.waterTemperature);
+    expect(loaded?.waterTemperature.preFermentC).toBeUndefined();
+  });
+
   it('adds water temperature defaults only when they are missing', () => {
     const custom = { waterTemperature: { ...WATER_TEMPERATURE_DEFAULTS, roomC: 30 } };
     const filled = withWaterTemperatureDefaults({}) as { waterTemperature: unknown };
@@ -92,6 +117,8 @@ describe('dough storage', () => {
     ['above the room limit', { ...WATER_TEMPERATURE_DEFAULTS, roomC: 50 }],
     ['not a number', { ...WATER_TEMPERATURE_DEFAULTS, flourC: '22' }],
     ['an unknown mixing type', { ...WATER_TEMPERATURE_DEFAULTS, mixing: 'spoon' }],
+    ['above the pre-ferment limit', { ...WATER_TEMPERATURE_DEFAULTS, preFermentC: 36 }],
+    ['a null pre-ferment', { ...WATER_TEMPERATURE_DEFAULTS, preFermentC: null }],
   ])('rejects water temperature settings that are %s', (_label, waterTemperature) => {
     expect(isDoughInput({ ...createDefaultInput(), waterTemperature })).toBe(false);
   });

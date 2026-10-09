@@ -139,8 +139,10 @@
       <h2 class="panel__title" id="panel-water-temperature">{{ t().panels.waterTemperature }}</h2>
       <app-water-temperature-panel
         [settings]="doughInput().waterTemperature"
+        [method]="doughInput().method"
         [waterTemperatureC]="store.result().waterTemperatureC"
         (settingsChange)="store.updateWaterTemperature($event)"
+        (preFermentTemperatureReset)="store.resetPreFermentTemperature()"
       />
     </section>
   </section>

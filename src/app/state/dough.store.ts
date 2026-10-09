@@ -7,6 +7,7 @@ import {
   FermentationPhase,
   MixingType,
   PizzaStyleId,
+  WaterTemperatureSettings,
   YeastType,
   isPreDoughMethod,
 } from '../dough/dough.model';
@@ -35,6 +36,7 @@ export interface WaterTemperaturePatch {
   targetDoughC?: number;
   roomC?: number;
   flourC?: number;
+  preFermentC?: number;
   mixing?: MixingType;
 }
 
@@ -167,8 +169,14 @@ export class DoughStore {
           STORED_LIMITS.flourTemperatureC,
         ),
         mixing: patch.mixing ?? waterTemperature.mixing,
+        ...preFermentTemperaturePart(patch.preFermentC ?? waterTemperature.preFermentC),
       },
     });
+  }
+
+  resetPreFermentTemperature(): void {
+    const { preFermentC: _preFermentC, ...waterTemperature } = this.state().waterTemperature;
+    this.patch({ waterTemperature });
   }
 
   setBakeScheduleEnabled(enabled: boolean): void {
@@ -237,4 +245,13 @@ function applyPhasePatch(phase: FermentationPhase, patch: PhasePatch): Fermentat
       STORED_LIMITS.temperatureC,
     ),
   };
+}
+
+function preFermentTemperaturePart(
+  preFermentC: number | undefined,
+): Pick<WaterTemperatureSettings, 'preFermentC'> {
+  if (preFermentC === undefined) {
+    return {};
+  }
+  return { preFermentC: clampToLimit(preFermentC, STORED_LIMITS.preFermentTemperatureC) };
 }

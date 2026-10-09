@@ -36,7 +36,7 @@
 }
 
 .pill-option--active {
-  background: linear-gradient(160deg, rgba(255, 106, 43, 0.3), rgba(255, 200, 87, 0.12));
+  background: var(--selected-pill-bg);
   color: var(--color-text);
 }
 

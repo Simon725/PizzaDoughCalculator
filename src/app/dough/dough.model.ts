@@ -43,7 +43,6 @@ export type DoughWarningCode =
 
 export interface DoughWarning {
   code: DoughWarningCode;
-  message: string;
 }
 
 export interface DoughResult {

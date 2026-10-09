@@ -1,6 +1,6 @@
 import { DoughInput, DoughResult, IngredientAmounts, YeastType } from '../dough/dough.model';
+import { Translations } from '../i18n/translations';
 import { formatHours, formatNumber } from '../shared/format';
-import { YEAST_TYPE_LABELS } from '../shared/labels';
 
 export type RecipeSectionId = 'pre-dough' | 'main-dough' | 'total';
 
@@ -19,24 +19,33 @@ export interface RecipeSection {
 
 const YEAST_DECIMALS = 1;
 
-export function buildRecipeSections(input: DoughInput, result: DoughResult): RecipeSection[] {
+export function buildRecipeSections(
+  input: DoughInput,
+  result: DoughResult,
+  t: Translations,
+): RecipeSection[] {
   const sections: RecipeSection[] = [];
   if (result.preDough) {
     const { hours, temperatureC } = input.preDough.fermentation;
     sections.push({
       id: 'pre-dough',
-      title: 'Vorteig',
-      note: `${formatHours(hours)} h bei ${temperatureC} °C`,
-      rows: buildRows(result.preDough, result.yeastType),
+      title: t.recipe.preDough,
+      note: t.timeline.hoursAt(formatHours(hours, t.locale), temperatureC),
+      rows: buildRows(result.preDough, result.yeastType, t),
     });
   }
   sections.push(
-    { id: 'main-dough', title: 'Hauptteig', note: '', rows: buildRows(result.mainDough, result.yeastType) },
+    {
+      id: 'main-dough',
+      title: t.recipe.mainDough,
+      note: '',
+      rows: buildRows(result.mainDough, result.yeastType, t),
+    },
     {
       id: 'total',
-      title: 'Gesamt',
-      note: `${formatNumber(roundGrams(result.totals.total))} g Teig`,
-      rows: buildRows(result.totals, result.yeastType),
+      title: t.recipe.total,
+      note: t.recipe.doughGrams(formatNumber(roundGrams(result.totals.total), t.locale)),
+      rows: buildRows(result.totals, result.yeastType, t),
     },
   );
   return sections;
@@ -50,13 +59,13 @@ export function roundYeastGrams(grams: number): number {
   return Math.round(grams * 10) / 10;
 }
 
-function buildRows(amounts: IngredientAmounts, yeastType: YeastType): RecipeRow[] {
+function buildRows(amounts: IngredientAmounts, yeastType: YeastType, t: Translations): RecipeRow[] {
   return [
-    { label: 'Mehl', grams: roundGrams(amounts.flour), decimals: 0 },
-    { label: 'Wasser', grams: roundGrams(amounts.water), decimals: 0 },
-    { label: 'Salz', grams: roundGrams(amounts.salt), decimals: 0 },
+    { label: t.recipe.flour, grams: roundGrams(amounts.flour), decimals: 0 },
+    { label: t.recipe.water, grams: roundGrams(amounts.water), decimals: 0 },
+    { label: t.recipe.salt, grams: roundGrams(amounts.salt), decimals: 0 },
     {
-      label: `Hefe (${YEAST_TYPE_LABELS[yeastType]})`,
+      label: t.recipe.yeast(t.yeastTypes[yeastType]),
       grams: roundYeastGrams(amounts.yeast),
       decimals: YEAST_DECIMALS,
     },

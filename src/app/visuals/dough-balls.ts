@@ -11,6 +11,7 @@ import {
   untracked,
   viewChildren,
 } from '@angular/core';
+import { LanguageService } from '../i18n/language.service';
 import { AnimatedNumber } from '../shared/animated-number';
 import { ballRow, ballScale } from './dough-ball-math';
 import { prefersReducedMotion } from './motion';
@@ -44,10 +45,10 @@ const WOBBLE_STAGGER_MS = 35;
     </div>
     <p class="summary">
       <span>
-        <strong><app-animated-number [value]="ballWeightGrams()" /> g</strong> pro Teigling
+        <strong><app-animated-number [value]="ballWeightGrams()" /> g</strong> {{ t().balls.perBall }}
       </span>
       <span>
-        gesamt <strong><app-animated-number [value]="totalGrams()" /> g</strong>
+        {{ t().balls.total }} <strong><app-animated-number [value]="totalGrams()" /> g</strong>
       </span>
     </p>
   `,
@@ -58,6 +59,7 @@ export class DoughBalls {
   readonly ballCount = input.required<number>();
   readonly ballWeightGrams = input.required<number>();
 
+  protected readonly t = inject(LanguageService).t;
   private readonly injector = inject(Injector);
   private readonly ballBodies = viewChildren<ElementRef<HTMLElement>>('ballBody');
   private isFirstRun = true;

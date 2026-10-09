@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { DoughMethod, PreDoughSettings } from '../dough/dough.model';
+import { LanguageService } from '../i18n/language.service';
 import { DOUGH_LIMITS } from '../state/dough-limits';
 import { PreDoughPatch } from '../state/dough.store';
-import { METHOD_LABELS } from '../shared/labels';
 import { NumberField } from '../shared/number-field';
 import { RangeField } from '../shared/range-field';
 
@@ -11,17 +11,17 @@ import { RangeField } from '../shared/range-field';
   imports: [NumberField, RangeField],
   template: `
     <p class="pre-dough__intro">
-      {{ methodLabel() }} reift vor dem Hauptteig. Anteil bezogen auf die gesamte Mehlmenge.
+      {{ intro() }}
     </p>
     <app-range-field
-      label="Mehlanteil im Vorteig"
+      [label]="t().preDough.flourShare"
       unit="%"
       [value]="settings().flourPercent"
       [limit]="limits.preDoughFlourPercent"
       (valueChange)="settingsChange.emit({ flourPercent: $event })"
     />
     <app-range-field
-      label="Hydration Vorteig"
+      [label]="t().preDough.hydration"
       unit="%"
       [value]="settings().hydrationPercent"
       [limit]="limits.preDoughHydrationPercent"
@@ -29,10 +29,10 @@ import { RangeField } from '../shared/range-field';
     />
     <div class="pre-dough__fermentation">
       <label class="pre-dough__field" for="pre-dough-hours">
-        <span>Reifezeit</span>
+        <span>{{ t().preDough.time }}</span>
         <app-number-field
           inputId="pre-dough-hours"
-          label="Reifezeit Vorteig in Stunden"
+          [label]="t().preDough.timeLabel"
           unit="h"
           [value]="settings().fermentation.hours"
           [limit]="limits.hours"
@@ -40,10 +40,10 @@ import { RangeField } from '../shared/range-field';
         />
       </label>
       <label class="pre-dough__field" for="pre-dough-temperature">
-        <span>Temperatur</span>
+        <span>{{ t().preDough.temperature }}</span>
         <app-number-field
           inputId="pre-dough-temperature"
-          label="Temperatur Vorteig in Grad Celsius"
+          [label]="t().preDough.temperatureLabel"
           unit="°C"
           [value]="settings().fermentation.temperatureC"
           [limit]="limits.temperatureC"
@@ -62,5 +62,8 @@ export class PreDoughPanel {
   readonly settingsChange = output<PreDoughPatch>();
 
   protected readonly limits = DOUGH_LIMITS;
-  protected readonly methodLabel = computed(() => METHOD_LABELS[this.method()]);
+  protected readonly t = inject(LanguageService).t;
+  protected readonly intro = computed(() =>
+    this.t().preDough.intro(this.t().methods.options[this.method()].label),
+  );
 }

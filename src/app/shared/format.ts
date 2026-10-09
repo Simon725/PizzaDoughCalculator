@@ -1,22 +1,23 @@
-const formatters = new Map<number, Intl.NumberFormat>();
+const formatters = new Map<string, Intl.NumberFormat>();
 
-export function formatNumber(value: number, decimals = 0): string {
-  return getFormatter(decimals).format(value);
+export function formatNumber(value: number, locale: string, decimals = 0): string {
+  return getFormatter(locale, decimals).format(value);
 }
 
-export function formatHours(hours: number): string {
-  return formatNumber(hours, Number.isInteger(hours) ? 0 : 1);
+export function formatHours(hours: number, locale: string): string {
+  return formatNumber(hours, locale, Number.isInteger(hours) ? 0 : 1);
 }
 
-function getFormatter(decimals: number): Intl.NumberFormat {
-  const cached = formatters.get(decimals);
+function getFormatter(locale: string, decimals: number): Intl.NumberFormat {
+  const key = `${locale}:${decimals}`;
+  const cached = formatters.get(key);
   if (cached) {
     return cached;
   }
-  const formatter = new Intl.NumberFormat('de-DE', {
+  const formatter = new Intl.NumberFormat(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
-  formatters.set(decimals, formatter);
+  formatters.set(key, formatter);
   return formatter;
 }

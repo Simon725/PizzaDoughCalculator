@@ -92,11 +92,6 @@ describe('calculateDough', () => {
         warningCodes(neapolitanInput({ phases: [{ id: 'a', hours: 0, temperatureC: 20 }] })),
       ).toEqual(['no-fermentation']);
     });
-
-    it('writes German messages', () => {
-      const [warning] = calculateDough(neapolitanInput({ phases: [] })).warnings;
-      expect(warning.message).toContain('Gärzeit');
-    });
   });
 
   describe.each(['poolish', 'biga'] as const)('%s method', (method) => {
@@ -170,9 +165,6 @@ describe('calculateDough', () => {
       expect(result.totals.water).toBeCloseTo(result.preDough!.water, 10);
       expect(result.totals.total).toBeCloseTo(1020, 10);
       expect(result.warnings.map((warning) => warning.code)).toContain('main-water-negative');
-      expect(result.warnings.find((w) => w.code === 'main-water-negative')!.message).toContain(
-        'Vorteig',
-      );
     });
 
     it('instant yeast in the pre-dough is a third of fresh', () => {

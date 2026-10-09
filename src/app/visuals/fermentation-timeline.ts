@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { DoughInput } from '../dough/dough.model';
+import { LanguageService } from '../i18n/language.service';
+import { Translations } from '../i18n/translations';
 import { formatHours } from '../shared/format';
 import { TimelinePhase, buildTimeline } from './timeline-math';
 
@@ -22,7 +24,7 @@ const COMPACT_SEGMENT_PERCENT = 14;
               @if (segment.isCold) {
                 <span class="segment__cold">❄</span>
               }
-              <span class="segment__hours">{{ formatHours(segment.hours) }} h</span>
+              <span class="segment__hours">{{ formatHours(segment.hours, t().locale) }} h</span>
             </span>
           }
         </div>
@@ -32,24 +34,25 @@ const COMPACT_SEGMENT_PERCENT = 14;
               <span class="legend__dot" aria-hidden="true" [style.background]="segment.color"></span>
               <span class="legend__name">{{ segment.label }}</span>
               <span class="legend__meta">
-                {{ formatHours(segment.hours) }} h bei {{ segment.temperatureC }} °C
+                {{ t().timeline.hoursAt(formatHours(segment.hours, t().locale), segment.temperatureC) }}
                 @if (segment.isCold) {
                   <span class="legend__cold" aria-hidden="true">❄</span>
-                  <span class="visually-hidden">(Kühlschrank)</span>
+                  <span class="visually-hidden">{{ t().timeline.fridge }}</span>
                 }
               </span>
             </li>
           }
         </ol>
       } @else {
-        <p class="empty">Noch keine Gare-Phase geplant.</p>
+        <p class="empty">{{ t().timeline.empty }}</p>
       }
       <figcaption class="total">
         <span>
-          Gesamt <strong>{{ formatHours(totalHours()) }} h</strong>
+          {{ t().timeline.total }} <strong>{{ formatHours(totalHours(), t().locale) }} h</strong>
         </span>
         <span>
-          entspricht <strong>{{ equivalentLabel() }} h</strong> bei 20 °C
+          {{ t().timeline.equivalentPrefix }} <strong>{{ equivalentLabel() }} h</strong>
+          {{ t().timeline.equivalentSuffix }}
         </span>
       </figcaption>
     </figure>
@@ -61,22 +64,23 @@ export class FermentationTimeline {
   readonly doughInput = input.required<DoughInput>();
   readonly equivalentHoursAt20C = input.required<number>();
 
+  protected readonly t = inject(LanguageService).t;
   protected readonly formatHours = formatHours;
   protected readonly compactPercent = COMPACT_SEGMENT_PERCENT;
 
-  protected readonly segments = computed(() => buildTimeline(toTimelinePhases(this.doughInput())));
+  protected readonly segments = computed(() => buildTimeline(toTimelinePhases(this.doughInput(), this.t())));
   protected readonly totalHours = computed(() =>
     this.segments().reduce((total, segment) => total + segment.hours, 0),
   );
   protected readonly equivalentLabel = computed(() =>
-    formatHours(Math.round(this.equivalentHoursAt20C() * 10) / 10),
+    formatHours(Math.round(this.equivalentHoursAt20C() * 10) / 10, this.t().locale),
   );
 }
 
-function toTimelinePhases(doughInput: DoughInput): TimelinePhase[] {
+function toTimelinePhases(doughInput: DoughInput, t: Translations): TimelinePhase[] {
   const mainPhases = doughInput.phases.map((phase, index) => ({
     id: phase.id,
-    label: `Phase ${index + 1}`,
+    label: t.phases.phase(index + 1),
     hours: phase.hours,
     temperatureC: phase.temperatureC,
     isPreDough: false,
@@ -88,7 +92,7 @@ function toTimelinePhases(doughInput: DoughInput): TimelinePhase[] {
   return [
     {
       id: 'pre-dough',
-      label: 'Vorteig',
+      label: t.recipe.preDough,
       hours: preDough.hours,
       temperatureC: preDough.temperatureC,
       isPreDough: true,

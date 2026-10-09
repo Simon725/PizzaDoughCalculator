@@ -1,11 +1,11 @@
 <figure class="stage" [attr.data-style]="styleId()">
   <figcaption class="stage__label">
-    <span class="stage__eyebrow" aria-hidden="true">Ø pro Pizza · {{ styleName() }}</span>
+    <span class="stage__eyebrow" aria-hidden="true">{{ t().pizza.perPizza(styleName()) }}</span>
     <span class="stage__size" aria-hidden="true">
-      <small>ca.</small> <app-animated-number [value]="roundedDiameter()" /> <small>cm</small>
+      <small>{{ t().pizza.approx }}</small> <app-animated-number [value]="roundedDiameter()" /> <small>cm</small>
     </span>
     <span class="visually-hidden">
-      Pizza-Durchmesser ca. {{ roundedDiameter() }} cm, {{ plateComparison() }}.
+      {{ t().pizza.description(roundedDiameter(), plateComparison()) }}
     </span>
   </figcaption>
 
@@ -99,7 +99,7 @@
     </g>
   </svg>
   <p class="stage__legend" aria-hidden="true">
-    <span class="stage__legend-plate"></span> Essteller {{ plateDiameter }} cm
-    <span class="stage__legend-span"></span> Pizza-Durchmesser
+    <span class="stage__legend-plate"></span> {{ t().pizza.plate(plateDiameter) }}
+    <span class="stage__legend-span"></span> {{ t().pizza.diameter }}
   </p>
 </figure>

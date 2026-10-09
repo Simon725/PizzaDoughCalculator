@@ -12,16 +12,6 @@ import { equivalentHoursAt20C, freshYeastPercentFor, totalHours } from './yeast-
 
 export const BOWL_LOSS_FRACTION = 0.02;
 
-const WARNING_MESSAGES: Record<DoughWarningCode, string> = {
-  'main-water-negative':
-    'Der Vorteig enthält mehr Wasser als der Gesamtteig erlaubt. Erhöhe die Hydration oder senke den Vorteig-Anteil.',
-  'yeast-clamped-low':
-    'Die Gärzeit ist sehr lang. Die Hefemenge wurde auf das Minimum begrenzt.',
-  'yeast-clamped-high':
-    'Die Gärzeit ist sehr kurz. Die Hefemenge wurde auf das Maximum begrenzt.',
-  'no-fermentation': 'Keine Gärzeit angegeben. Es wird die maximale Hefemenge verwendet.',
-};
-
 const EMPTY_AMOUNTS: IngredientAmounts = { flour: 0, water: 0, salt: 0, yeast: 0, total: 0 };
 
 interface Fractions {
@@ -160,7 +150,7 @@ function yeastWarnings(mainHours: number, clamp: 'none' | 'low' | 'high'): Dough
 }
 
 function warning(code: DoughWarningCode): DoughWarning {
-  return { code, message: WARNING_MESSAGES[code] };
+  return { code };
 }
 
 function isValidInput(input: DoughInput): boolean {

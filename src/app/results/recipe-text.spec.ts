@@ -1,4 +1,5 @@
 import { DoughResult } from '../dough/dough.model';
+import { TRANSLATIONS } from '../i18n/translations';
 import { createDefaultInput } from '../state/dough-defaults';
 import { formatRecipeText } from './recipe-text';
 
@@ -19,7 +20,7 @@ describe('formatRecipeText', () => {
   it('renders all sections with rounded amounts', () => {
     const input = { ...createDefaultInput(), method: 'poolish' as const };
 
-    const text = formatRecipeText(input, RESULT);
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.de);
 
     expect(text).toContain('Pizzateig – Neapolitanisch');
     expect(text).toContain('Vorteig (16 h bei 18 °C)');
@@ -30,5 +31,20 @@ describe('formatRecipeText', () => {
     expect(text).toContain('inkl. 20 g Schüsselverlust (2 %)');
     expect(text).toContain('ca. 29 cm');
     expect(text).toContain('  2. 24 h bei 4 °C');
+  });
+
+  it('renders English text with English number format', () => {
+    const input = { ...createDefaultInput(), method: 'poolish' as const };
+
+    const text = formatRecipeText(input, RESULT, TRANSLATIONS.en);
+
+    expect(text).toContain('Pizza dough – Neapolitan');
+    expect(text).toContain('Pre-ferment (16 h at 18 °C)');
+    expect(text).toContain('Main dough');
+    expect(text).toContain('Total (1,011 g dough)');
+    expect(text).toContain('  Flour: 612 g');
+    expect(text).toContain('  Yeast (fresh yeast): 1.2 g');
+    expect(text).toContain('incl. 20 g bowl loss (2 %)');
+    expect(text).toContain('  2. 24 h at 4 °C');
   });
 });

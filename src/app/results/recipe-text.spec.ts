@@ -13,6 +13,7 @@ const RESULT: DoughResult = {
     sugar: 0,
     total: 1010.5,
   },
+  starter: null,
   preDough: { flour: 183.7, water: 183.7, salt: 0, yeast: 0.42, oil: 0, sugar: 0, total: 367.8 },
   mainDough: {
     flour: 428.7,
@@ -26,7 +27,8 @@ const RESULT: DoughResult = {
   yeastType: 'fresh',
   freshYeastPercent: 0.2,
   saltPercent: 2.8,
-  equivalentHoursAt20C: 12,
+  equivalentHours: 12,
+  referenceTemperatureC: 20,
   bowlLossGrams: 19.6,
   diameterCm: 29.4,
   warnings: [],
@@ -86,5 +88,56 @@ describe('formatRecipeText', () => {
     expect(text.match(/ {2}Öl: 15 g/g)).toHaveLength(2);
     expect(text.match(/ {2}Zucker: 9 g/g)).toHaveLength(2);
     expect(preDoughText).not.toContain('Öl');
+  });
+
+  describe('sourdough', () => {
+    const starterAmounts = {
+      flour: 61.9,
+      water: 61.9,
+      salt: 0,
+      yeast: 0,
+      oil: 0,
+      sugar: 0,
+      total: 123.8,
+    };
+    const sourdoughResult: DoughResult = {
+      ...RESULT,
+      preDough: null,
+      starter: { amounts: starterAmounts, inoculationPercent: 20, hydrationPercent: 100 },
+      totals: { ...RESULT.totals, yeast: 0 },
+      mainDough: { ...RESULT.mainDough, flour: 557, water: 321.9, yeast: 0 },
+      equivalentHours: 8,
+      referenceTemperatureC: 22,
+    };
+    const input = { ...createDefaultInput(), method: 'sourdough' as const };
+
+    it('shows the starter section and a starter line instead of yeast', () => {
+      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.de);
+      const [starterText, mainText] = text.split('Hauptteig');
+
+      expect(text).toContain('Sauerteig-Starter (20,0 % vom Mehl · 100 % Hydration)');
+      expect(starterText).toContain('  Mehl: 62 g');
+      expect(starterText).toContain('  Wasser: 62 g');
+      expect(mainText).toContain('  Sauerteig-Starter: 124 g');
+      expect(text).not.toContain('Hefe');
+      expect(text).not.toContain('Vorteig');
+    });
+
+    it('renders the starter in English', () => {
+      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.en);
+
+      expect(text).toContain('Sourdough starter (20.0 % of flour · 100 % hydration)');
+      expect(text).toContain('  Sourdough starter: 124 g');
+      expect(text).toContain('Sourdough');
+      expect(text).not.toContain('Yeast');
+    });
+
+    it('does not list the starter again in the totals', () => {
+      const text = formatRecipeText(input, sourdoughResult, TRANSLATIONS.en);
+      const totalText = text.split('Total (')[1];
+
+      expect(totalText).not.toContain('starter');
+      expect(totalText).toContain('  Flour: 612 g');
+    });
   });
 });

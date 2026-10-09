@@ -1,4 +1,6 @@
-export type DoughMethod = 'direct' | 'poolish' | 'biga';
+export type PreDoughMethod = 'poolish' | 'biga';
+
+export type DoughMethod = 'direct' | PreDoughMethod | 'sourdough';
 
 export type PizzaStyleId = 'neapolitan' | 'new-york' | 'roman';
 
@@ -16,6 +18,10 @@ export interface PreDoughSettings {
   fermentation: FermentationPhase;
 }
 
+export interface SourdoughSettings {
+  starterHydrationPercent: number;
+}
+
 export interface DoughInput {
   method: DoughMethod;
   style: PizzaStyleId;
@@ -26,6 +32,7 @@ export interface DoughInput {
   sugarPercent: number;
   yeastType: YeastType;
   preDough: PreDoughSettings;
+  sourdough: SourdoughSettings;
   phases: FermentationPhase[];
 }
 
@@ -43,21 +50,38 @@ export type DoughWarningCode =
   | 'main-water-negative'
   | 'yeast-clamped-low'
   | 'yeast-clamped-high'
+  | 'starter-water-too-high'
+  | 'starter-clamped-low'
+  | 'starter-clamped-high'
   | 'no-fermentation';
 
 export interface DoughWarning {
   code: DoughWarningCode;
 }
 
+export interface StarterResult {
+  amounts: IngredientAmounts;
+  inoculationPercent: number;
+  hydrationPercent: number;
+}
+
 export interface DoughResult {
   totals: IngredientAmounts;
   preDough: IngredientAmounts | null;
+  starter: StarterResult | null;
   mainDough: IngredientAmounts;
   yeastType: YeastType;
   freshYeastPercent: number;
   saltPercent: number;
-  equivalentHoursAt20C: number;
+  equivalentHours: number;
+  referenceTemperatureC: number;
   bowlLossGrams: number;
   diameterCm: number;
   warnings: DoughWarning[];
+}
+
+const PRE_DOUGH_METHODS: readonly DoughMethod[] = ['poolish', 'biga'];
+
+export function isPreDoughMethod(method: DoughMethod): method is PreDoughMethod {
+  return PRE_DOUGH_METHODS.includes(method);
 }

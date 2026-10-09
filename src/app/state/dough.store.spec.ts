@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { PIZZA_STYLES, PRE_DOUGH_DEFAULTS } from '../dough/pizza-styles';
+import { PIZZA_STYLES, PRE_DOUGH_DEFAULTS, SOURDOUGH_DEFAULTS } from '../dough/pizza-styles';
 import { DOUGH_STORAGE_KEY } from './dough-storage';
 import { DoughStore } from './dough.store';
 
@@ -34,6 +34,7 @@ describe('DoughStore', () => {
       expect(input.sugarPercent).toBe(0);
       expect(input.yeastType).toBe('fresh');
       expect(input.preDough).toEqual(PRE_DOUGH_DEFAULTS.poolish);
+      expect(input.sourdough).toEqual(SOURDOUGH_DEFAULTS);
     });
 
     it('starts with three fermentation phases with unique ids', () => {
@@ -121,6 +122,64 @@ describe('DoughStore', () => {
 
       expect(store.input().preDough).not.toBe(PRE_DOUGH_DEFAULTS.poolish);
       expect(store.input().preDough.fermentation).not.toBe(PRE_DOUGH_DEFAULTS.poolish.fermentation);
+    });
+  });
+
+  describe('sourdough', () => {
+    it('switches to sourdough and computes a starter instead of yeast', () => {
+      const store = createStore();
+
+      store.setMethod('sourdough');
+
+      expect(store.input().method).toBe('sourdough');
+      expect(store.result().starter).not.toBeNull();
+      expect(store.result().preDough).toBeNull();
+      expect(store.result().totals.yeast).toBe(0);
+    });
+
+    it('keeps the pre-dough settings when switching to sourdough', () => {
+      const store = createStore();
+      store.setMethod('biga');
+      store.updatePreDough({ flourPercent: 80 });
+
+      store.setMethod('sourdough');
+
+      expect(store.input().preDough.flourPercent).toBe(80);
+    });
+
+    it('updates and clamps the starter hydration', () => {
+      const store = createStore();
+      store.setMethod('sourdough');
+
+      store.updateSourdough({ starterHydrationPercent: 72 });
+      expect(store.input().sourdough.starterHydrationPercent).toBe(70);
+      expect(store.result().starter?.hydrationPercent).toBe(70);
+
+      store.updateSourdough({ starterHydrationPercent: 500 });
+      expect(store.input().sourdough.starterHydrationPercent).toBe(200);
+
+      store.updateSourdough({ starterHydrationPercent: 10 });
+      expect(store.input().sourdough.starterHydrationPercent).toBe(50);
+    });
+
+    it('keeps the starter hydration across method changes', () => {
+      const store = createStore();
+      store.setMethod('sourdough');
+      store.updateSourdough({ starterHydrationPercent: 60 });
+
+      store.setMethod('poolish');
+      store.setMethod('sourdough');
+
+      expect(store.input().sourdough.starterHydrationPercent).toBe(60);
+    });
+
+    it('restores the starter hydration on reset', () => {
+      const store = createStore();
+      store.updateSourdough({ starterHydrationPercent: 60 });
+
+      store.reset();
+
+      expect(store.input().sourdough).toEqual(SOURDOUGH_DEFAULTS);
     });
   });
 
@@ -294,7 +353,7 @@ describe('DoughStore', () => {
     it('falls back to defaults when the stored shape is invalid', () => {
       localStorage.setItem(
         DOUGH_STORAGE_KEY,
-        JSON.stringify({ method: 'sourdough', style: 'neapolitan', ballCount: 4, phases: [] }),
+        JSON.stringify({ method: 'pan', style: 'neapolitan', ballCount: 4, phases: [] }),
       );
 
       expect(createStore().input().method).toBe('direct');
@@ -346,6 +405,47 @@ describe('DoughStore', () => {
       TestBed.tick();
       const stored = JSON.parse(localStorage.getItem(DOUGH_STORAGE_KEY) ?? '{}');
       localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify({ ...stored, oilPercent: 20 }));
+
+      expect(recreateStore().input().ballCount).toBe(4);
+    });
+
+    it('restores a saved sourdough input', () => {
+      const store = createStore();
+      store.setMethod('sourdough');
+      store.updateSourdough({ starterHydrationPercent: 80 });
+      TestBed.tick();
+
+      const restored = recreateStore().input();
+
+      expect(restored.method).toBe('sourdough');
+      expect(restored.sourdough.starterHydrationPercent).toBe(80);
+    });
+
+    it('fills missing sourdough settings of older saved input with the defaults', () => {
+      const store = createStore();
+      store.setMethod('biga');
+      store.setBallCount(5);
+      TestBed.tick();
+      const stored = JSON.parse(localStorage.getItem(DOUGH_STORAGE_KEY) ?? '{}');
+      delete stored.sourdough;
+      localStorage.setItem(DOUGH_STORAGE_KEY, JSON.stringify(stored));
+
+      const restored = recreateStore().input();
+
+      expect(restored.method).toBe('biga');
+      expect(restored.ballCount).toBe(5);
+      expect(restored.sourdough).toEqual(SOURDOUGH_DEFAULTS);
+    });
+
+    it('falls back to defaults when the stored starter hydration is out of range', () => {
+      const store = createStore();
+      store.setBallCount(9);
+      TestBed.tick();
+      const stored = JSON.parse(localStorage.getItem(DOUGH_STORAGE_KEY) ?? '{}');
+      localStorage.setItem(
+        DOUGH_STORAGE_KEY,
+        JSON.stringify({ ...stored, sourdough: { starterHydrationPercent: 400 } }),
+      );
 
       expect(recreateStore().input().ballCount).toBe(4);
     });

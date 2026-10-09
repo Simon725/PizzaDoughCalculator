@@ -35,6 +35,17 @@
       </section>
     }
 
+    @if (isSourdough()) {
+      <section class="panel panel--pre-dough" aria-labelledby="panel-sourdough">
+        <h2 class="panel__title" id="panel-sourdough">{{ t().panels.sourdough }}</h2>
+        <app-sourdough-panel
+          [settings]="doughInput().sourdough"
+          [inoculationPercent]="store.result().starter?.inoculationPercent ?? 0"
+          (settingsChange)="store.updateSourdough($event)"
+        />
+      </section>
+    }
+
     <section class="panel" aria-labelledby="panel-style">
       <h2 class="panel__title" id="panel-style">{{ t().panels.style }}</h2>
       <app-style-picker [styleId]="doughInput().style" (styleIdChange)="store.setStyle($event)" />
@@ -90,10 +101,12 @@
           (valueChange)="store.setSugar($event)"
         />
       }
-      <app-yeast-toggle
-        [yeastType]="doughInput().yeastType"
-        (yeastTypeChange)="store.setYeastType($event)"
-      />
+      @if (!isSourdough()) {
+        <app-yeast-toggle
+          [yeastType]="doughInput().yeastType"
+          (yeastTypeChange)="store.setYeastType($event)"
+        />
+      }
     </section>
 
     <section class="panel" aria-labelledby="panel-phases">
@@ -121,7 +134,8 @@
       <h2 class="panel__title" id="panel-timeline">{{ t().panels.schedule }}</h2>
       <app-fermentation-timeline
         [doughInput]="doughInput()"
-        [equivalentHoursAt20C]="store.result().equivalentHoursAt20C"
+        [equivalentHours]="store.result().equivalentHours"
+        [referenceTemperatureC]="store.result().referenceTemperatureC"
       />
     </section>
     <app-recipe-card

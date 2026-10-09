@@ -32,6 +32,7 @@ export interface Translations {
   panels: {
     method: string;
     preDough: string;
+    sourdough: string;
     style: string;
     balls: string;
     dough: string;
@@ -73,6 +74,11 @@ export interface Translations {
     temperature: string;
     temperatureLabel: string;
   };
+  sourdough: {
+    intro: string;
+    starterHydration: string;
+    inoculation: (percent: string) => string;
+  };
   phases: {
     phase: (number: number) => string;
     cold: string;
@@ -98,7 +104,7 @@ export interface Translations {
     empty: string;
     total: string;
     equivalentPrefix: string;
-    equivalentSuffix: string;
+    equivalentSuffix: (temperatureC: number) => string;
   };
   balls: {
     perBall: string;
@@ -124,6 +130,8 @@ export interface Translations {
     oil: string;
     sugar: string;
     yeast: (yeastType: string) => string;
+    starter: string;
+    starterNote: (inoculationPercent: string, hydrationPercent: number) => string;
     bowlLossPrefix: string;
     bowlLossSuffix: string;
     copy: string;
@@ -156,6 +164,7 @@ const de: Translations = {
   panels: {
     method: 'Methode',
     preDough: 'Vorteig',
+    sourdough: 'Sauerteig',
     style: 'Pizzastil',
     balls: 'Teiglinge',
     dough: 'Teig',
@@ -184,6 +193,10 @@ const de: Translations = {
       direct: { label: 'Direkt', description: 'Alle Zutaten auf einmal – einfach und planbar.' },
       poolish: { label: 'Poolish', description: 'Flüssiger Vorteig für Aroma und offene Krume.' },
       biga: { label: 'Biga', description: 'Fester Vorteig für Struktur und kräftigen Geschmack.' },
+      sourdough: {
+        label: 'Sauerteig',
+        description: 'Aktiver Starter statt Hefe – mild säuerlich und aromatisch.',
+      },
     },
   },
   styles: {
@@ -215,6 +228,12 @@ const de: Translations = {
     temperature: 'Temperatur',
     temperatureLabel: 'Temperatur Vorteig in Grad Celsius',
   },
+  sourdough: {
+    intro:
+      'Ein aktiver Sauerteig-Starter ersetzt die Hefe. Mehl und Wasser im Starter zählen zur Gesamtmenge.',
+    starterHydration: 'Hydration Starter',
+    inoculation: (percent) => `Starter: ${percent} % vom Mehl – aus dem Gärplan berechnet.`,
+  },
   phases: {
     phase: (number) => `Phase ${number}`,
     cold: 'kalt',
@@ -245,7 +264,7 @@ const de: Translations = {
     empty: 'Noch keine Gare-Phase geplant.',
     total: 'Gesamt',
     equivalentPrefix: 'entspricht',
-    equivalentSuffix: 'bei 20 °C',
+    equivalentSuffix: (temperatureC) => `bei ${temperatureC} °C`,
   },
   balls: {
     perBall: 'pro Teigling',
@@ -272,6 +291,9 @@ const de: Translations = {
     oil: 'Öl',
     sugar: 'Zucker',
     yeast: (yeastType) => `Hefe (${yeastType})`,
+    starter: 'Sauerteig-Starter',
+    starterNote: (inoculationPercent, hydrationPercent) =>
+      `${inoculationPercent} % vom Mehl · ${hydrationPercent} % Hydration`,
     bowlLossPrefix: 'inkl.',
     bowlLossSuffix: 'g Schüsselverlust (2 %)',
     copy: 'Rezept kopieren',
@@ -293,7 +315,14 @@ const de: Translations = {
       'Die Gärzeit ist sehr lang. Die Hefemenge wurde auf das Minimum begrenzt.',
     'yeast-clamped-high':
       'Die Gärzeit ist sehr kurz. Die Hefemenge wurde auf das Maximum begrenzt.',
-    'no-fermentation': 'Keine Gärzeit angegeben. Es wird die maximale Hefemenge verwendet.',
+    'starter-water-too-high':
+      'Der Starter enthält mehr Wasser als der Gesamtteig erlaubt. Erhöhe die Teig-Hydration oder senke die Starter-Hydration.',
+    'starter-clamped-low':
+      'Die Gärzeit ist sehr lang. Die Startermenge wurde auf das Minimum begrenzt.',
+    'starter-clamped-high':
+      'Die Gärzeit ist sehr kurz. Die Startermenge wurde auf das Maximum begrenzt.',
+    'no-fermentation':
+      'Keine Gärzeit angegeben. Es wird die maximale Hefe- bzw. Startermenge verwendet.',
   },
 };
 
@@ -312,6 +341,7 @@ const en: Translations = {
   panels: {
     method: 'Method',
     preDough: 'Pre-ferment',
+    sourdough: 'Sourdough',
     style: 'Pizza style',
     balls: 'Dough balls',
     dough: 'Dough',
@@ -340,6 +370,10 @@ const en: Translations = {
       direct: { label: 'Direct', description: 'All ingredients at once – simple and predictable.' },
       poolish: { label: 'Poolish', description: 'Liquid pre-ferment for aroma and an open crumb.' },
       biga: { label: 'Biga', description: 'Stiff pre-ferment for structure and bold flavor.' },
+      sourdough: {
+        label: 'Sourdough',
+        description: 'Active starter instead of yeast – mildly tangy and aromatic.',
+      },
     },
   },
   styles: {
@@ -371,6 +405,12 @@ const en: Translations = {
     temperature: 'Temperature',
     temperatureLabel: 'Pre-ferment temperature in degrees Celsius',
   },
+  sourdough: {
+    intro:
+      'An active sourdough starter replaces the yeast. Flour and water in the starter count toward the totals.',
+    starterHydration: 'Starter hydration',
+    inoculation: (percent) => `Starter: ${percent} % of the flour – derived from the schedule.`,
+  },
   phases: {
     phase: (number) => `Phase ${number}`,
     cold: 'cold',
@@ -401,7 +441,7 @@ const en: Translations = {
     empty: 'No fermentation phase planned yet.',
     total: 'Total',
     equivalentPrefix: 'equals',
-    equivalentSuffix: 'at 20 °C',
+    equivalentSuffix: (temperatureC) => `at ${temperatureC} °C`,
   },
   balls: {
     perBall: 'per dough ball',
@@ -428,6 +468,9 @@ const en: Translations = {
     oil: 'Oil',
     sugar: 'Sugar',
     yeast: (yeastType) => `Yeast (${yeastType.toLowerCase()})`,
+    starter: 'Sourdough starter',
+    starterNote: (inoculationPercent, hydrationPercent) =>
+      `${inoculationPercent} % of flour · ${hydrationPercent} % hydration`,
     bowlLossPrefix: 'incl.',
     bowlLossSuffix: 'g bowl loss (2 %)',
     copy: 'Copy recipe',
@@ -449,7 +492,13 @@ const en: Translations = {
       'The fermentation time is very long. The yeast amount was limited to the minimum.',
     'yeast-clamped-high':
       'The fermentation time is very short. The yeast amount was limited to the maximum.',
-    'no-fermentation': 'No fermentation time given. The maximum yeast amount is used.',
+    'starter-water-too-high':
+      'The starter holds more water than the total dough allows. Raise the dough hydration or lower the starter hydration.',
+    'starter-clamped-low':
+      'The fermentation time is very long. The starter amount was limited to the minimum.',
+    'starter-clamped-high':
+      'The fermentation time is very short. The starter amount was limited to the maximum.',
+    'no-fermentation': 'No fermentation time given. The maximum yeast or starter amount is used.',
   },
 };
 

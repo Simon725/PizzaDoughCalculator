@@ -1,4 +1,4 @@
-import { DoughMethod, PizzaStyleId, PreDoughSettings } from './dough.model';
+import { PizzaStyleId, PreDoughMethod, PreDoughSettings, SourdoughSettings } from './dough.model';
 
 export interface PizzaStyle {
   id: PizzaStyleId;
@@ -40,7 +40,7 @@ export const PIZZA_STYLES: Record<PizzaStyleId, PizzaStyle> = {
   },
 };
 
-export const PRE_DOUGH_DEFAULTS: Record<Exclude<DoughMethod, 'direct'>, PreDoughSettings> = {
+export const PRE_DOUGH_DEFAULTS: Record<PreDoughMethod, PreDoughSettings> = {
   poolish: {
     flourPercent: 30,
     hydrationPercent: 100,
@@ -51,6 +51,10 @@ export const PRE_DOUGH_DEFAULTS: Record<Exclude<DoughMethod, 'direct'>, PreDough
     hydrationPercent: 50,
     fermentation: { id: 'pre-dough', hours: 18, temperatureC: 17 },
   },
+};
+
+export const SOURDOUGH_DEFAULTS: SourdoughSettings = {
+  starterHydrationPercent: 100,
 };
 
 export const YEAST_TYPE_FACTORS = {

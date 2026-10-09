@@ -1,6 +1,6 @@
 import { calculateDough } from './dough-calculator';
 import { DoughInput, IngredientAmounts } from './dough.model';
-import { PRE_DOUGH_DEFAULTS } from './pizza-styles';
+import { PRE_DOUGH_DEFAULTS, SOURDOUGH_DEFAULTS } from './pizza-styles';
 
 function neapolitanInput(overrides: Partial<DoughInput> = {}): DoughInput {
   return {
@@ -13,6 +13,7 @@ function neapolitanInput(overrides: Partial<DoughInput> = {}): DoughInput {
     sugarPercent: 0,
     yeastType: 'fresh',
     preDough: PRE_DOUGH_DEFAULTS.poolish,
+    sourdough: SOURDOUGH_DEFAULTS,
     phases: [{ id: 'bulk', hours: 24, temperatureC: 20 }],
     ...overrides,
   };
@@ -51,7 +52,8 @@ describe('calculateDough', () => {
 
     it('reports style salt, equivalent hours and diameter', () => {
       expect(result.saltPercent).toBe(2.8);
-      expect(result.equivalentHoursAt20C).toBeCloseTo(24, 10);
+      expect(result.equivalentHours).toBeCloseTo(24, 10);
+      expect(result.referenceTemperatureC).toBe(20);
       expect(result.freshYeastPercent).toBeCloseTo(0.1, 2);
       expect(result.diameterCm).toBeCloseTo(30, 0);
       expect(result.warnings).toEqual([]);
@@ -176,6 +178,139 @@ describe('calculateDough', () => {
         fresh.preDough!.yeast / fresh.preDough!.flour / 3,
         10,
       );
+    });
+  });
+
+  describe('sourdough method', () => {
+    const sameDay = [{ id: 'bulk', hours: 8, temperatureC: 22 }];
+    const input = neapolitanInput({ method: 'sourdough', phases: sameDay });
+    const result = calculateDough(input);
+    const starter = result.starter!;
+
+    it('uses the starter instead of yeast and has no pre-dough', () => {
+      expect(result.preDough).toBeNull();
+      expect(result.freshYeastPercent).toBe(0);
+      expect(result.totals.yeast).toBe(0);
+      expect(result.mainDough.yeast).toBe(0);
+      expect(starter.amounts.yeast).toBe(0);
+      expect(result.warnings).toEqual([]);
+    });
+
+    it('derives the inoculation from the schedule at 22 °C', () => {
+      expect(starter.inoculationPercent).toBeCloseTo(20, 10);
+      expect(starter.amounts.total / result.totals.flour).toBeCloseTo(0.2, 10);
+      expect(result.equivalentHours).toBeCloseTo(8, 10);
+      expect(result.referenceTemperatureC).toBe(22);
+    });
+
+    it('splits the starter by its hydration', () => {
+      expect(starter.hydrationPercent).toBe(100);
+      expect(starter.amounts.flour).toBeCloseTo(starter.amounts.water, 10);
+      expect(starter.amounts.salt).toBe(0);
+    });
+
+    it('counts starter flour and water toward the totals', () => {
+      expect(starter.amounts.flour + result.mainDough.flour).toBeCloseTo(result.totals.flour, 10);
+      expect(starter.amounts.water + result.mainDough.water).toBeCloseTo(result.totals.water, 10);
+      expect(result.totals.water / result.totals.flour).toBeCloseTo(0.62, 10);
+      expect(result.totals.salt / result.totals.flour).toBeCloseTo(0.028, 10);
+    });
+
+    it('keeps all parts summing to the dough weight', () => {
+      expect(partSum(starter.amounts)).toBeCloseTo(starter.amounts.total, 10);
+      expect(partSum(result.mainDough)).toBeCloseTo(result.mainDough.total, 10);
+      expect(starter.amounts.total + result.mainDough.total).toBeCloseTo(result.totals.total, 10);
+      expect(result.totals.total).toBeCloseTo(1020, 10);
+    });
+
+    it('computes 4 × 250 g Neapolitan with a 100 % starter', () => {
+      expect(result.totals.flour).toBeCloseTo(1020 / 1.648, 10);
+      expect(starter.amounts.total).toBeCloseTo(123.8, 1);
+      expect(result.mainDough.flour).toBeCloseTo(557.0, 1);
+      expect(result.mainDough.water).toBeCloseTo(322, 0);
+    });
+
+    it('uses less starter for a longer cold fermentation', () => {
+      const cold = calculateDough(
+        neapolitanInput({
+          method: 'sourdough',
+          phases: [
+            { id: 'bulk', hours: 2, temperatureC: 22 },
+            { id: 'fridge', hours: 24, temperatureC: 4 },
+            { id: 'balls', hours: 4, temperatureC: 22 },
+          ],
+        }),
+      );
+
+      expect(cold.starter!.inoculationPercent).toBeGreaterThan(5);
+      expect(cold.starter!.inoculationPercent).toBeLessThan(10);
+    });
+
+    it('uses the starter hydration for the flour and water split', () => {
+      const stiff = calculateDough({ ...input, sourdough: { starterHydrationPercent: 50 } });
+      const stiffStarter = stiff.starter!.amounts;
+
+      expect(stiffStarter.water / stiffStarter.flour).toBeCloseTo(0.5, 10);
+      expect(stiffStarter.total / stiff.totals.flour).toBeCloseTo(0.2, 10);
+      expect(stiff.totals.water / stiff.totals.flour).toBeCloseTo(0.62, 10);
+    });
+
+    it('ignores the yeast type', () => {
+      const instant = calculateDough({ ...input, yeastType: 'instant' });
+
+      expect(instant.totals).toEqual(result.totals);
+      expect(instant.starter).toEqual(result.starter);
+    });
+
+    it('puts oil and sugar into the main dough', () => {
+      const enriched = calculateDough({
+        ...input,
+        style: 'new-york',
+        oilPercent: 2.5,
+        sugarPercent: 1.5,
+      });
+
+      expect(enriched.starter!.amounts.oil).toBe(0);
+      expect(enriched.mainDough.oil).toBeCloseTo(enriched.totals.flour * 0.025, 10);
+      expect(enriched.mainDough.sugar).toBeCloseTo(enriched.totals.flour * 0.015, 10);
+      expect(enriched.totals.total).toBeCloseTo(1020, 10);
+    });
+
+    it('clamps negative main water to 0 and warns', () => {
+      const wet = calculateDough({
+        ...input,
+        hydrationPercent: 5,
+        sourdough: { starterHydrationPercent: 200 },
+      });
+
+      expect(wet.mainDough.water).toBe(0);
+      expect(wet.totals.water).toBeCloseTo(wet.starter!.amounts.water, 10);
+      expect(wet.totals.total).toBeCloseTo(1020, 10);
+      expect(wet.warnings.map((warning) => warning.code)).toContain('starter-water-too-high');
+    });
+
+    it.each([
+      ['low', 200, 'starter-clamped-low'],
+      ['high', 2, 'starter-clamped-high'],
+    ])('warns when the starter is clamped %s', (_label, hours, code) => {
+      expect(warningCodes({ ...input, phases: [{ id: 'a', hours, temperatureC: 22 }] })).toEqual([
+        code,
+      ]);
+    });
+
+    it('warns without fermentation and uses the maximum starter', () => {
+      const none = calculateDough({ ...input, phases: [] });
+
+      expect(none.warnings.map((warning) => warning.code)).toEqual(['no-fermentation']);
+      expect(none.starter!.inoculationPercent).toBe(30);
+    });
+
+    it('returns a zero starter for invalid input', () => {
+      const invalid = calculateDough({ ...input, ballCount: 0 });
+
+      expect(invalid.preDough).toBeNull();
+      expect(invalid.starter!.amounts.total).toBe(0);
+      expect(invalid.totals.total).toBe(0);
     });
   });
 

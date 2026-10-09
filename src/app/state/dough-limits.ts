@@ -8,6 +8,8 @@ export const DOUGH_LIMITS = {
   ballCount: { min: 1, max: 50, step: 1 },
   ballWeightGrams: { min: 120, max: 600, step: 5 },
   hydrationPercent: { min: 50, max: 85, step: 1 },
+  oilPercent: { min: 0, max: 6, step: 0.5 },
+  sugarPercent: { min: 0, max: 5, step: 0.5 },
   preDoughFlourPercent: { min: 10, max: 100, step: 1 },
   preDoughHydrationPercent: { min: 40, max: 120, step: 1 },
   hours: { min: 0, max: 120, step: 0.5 },

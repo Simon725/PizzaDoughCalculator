@@ -25,6 +25,8 @@ export function createDefaultInput(): DoughInput {
     ballCount: 4,
     ballWeightGrams: style.defaultBallWeightGrams,
     hydrationPercent: style.defaultHydrationPercent,
+    oilPercent: style.defaultOilPercent,
+    sugarPercent: style.defaultSugarPercent,
     yeastType: 'fresh',
     preDough: createPreDoughDefaults('poolish'),
     phases: [createPhase(2, 22), createPhase(24, 4), createPhase(4, 22)],

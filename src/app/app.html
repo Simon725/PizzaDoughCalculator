@@ -74,6 +74,22 @@
         [limit]="limits.hydrationPercent"
         (valueChange)="store.setHydration($event)"
       />
+      @if (showsOilAndSugar()) {
+        <app-range-field
+          [label]="t().fields.oil"
+          unit="%"
+          [value]="doughInput().oilPercent"
+          [limit]="limits.oilPercent"
+          (valueChange)="store.setOil($event)"
+        />
+        <app-range-field
+          [label]="t().fields.sugar"
+          unit="%"
+          [value]="doughInput().sugarPercent"
+          [limit]="limits.sugarPercent"
+          (valueChange)="store.setSugar($event)"
+        />
+      }
       <app-yeast-toggle
         [yeastType]="doughInput().yeastType"
         (yeastTypeChange)="store.setYeastType($event)"

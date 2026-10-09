@@ -22,6 +22,8 @@ export interface DoughInput {
   ballCount: number;
   ballWeightGrams: number;
   hydrationPercent: number;
+  oilPercent: number;
+  sugarPercent: number;
   yeastType: YeastType;
   preDough: PreDoughSettings;
   phases: FermentationPhase[];
@@ -32,6 +34,8 @@ export interface IngredientAmounts {
   water: number;
   salt: number;
   yeast: number;
+  oil: number;
+  sugar: number;
   total: number;
 }
 

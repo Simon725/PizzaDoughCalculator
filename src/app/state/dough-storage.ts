@@ -1,4 +1,9 @@
-import { DoughInput, FermentationPhase, PreDoughSettings } from '../dough/dough.model';
+import {
+  DoughInput,
+  FermentationPhase,
+  PizzaStyleId,
+  PreDoughSettings,
+} from '../dough/dough.model';
 import { PIZZA_STYLES } from '../dough/pizza-styles';
 import { DOUGH_LIMITS, isWithinLimit } from './dough-limits';
 
@@ -13,7 +18,7 @@ export function loadDoughInput(): DoughInput | null {
     if (raw === null) {
       return null;
     }
-    const parsed: unknown = JSON.parse(raw);
+    const parsed = withStyleIngredientDefaults(JSON.parse(raw));
     return isDoughInput(parsed) ? parsed : null;
   } catch {
     return null;
@@ -28,18 +33,32 @@ export function saveDoughInput(input: DoughInput): void {
   }
 }
 
+export function withStyleIngredientDefaults(value: unknown): unknown {
+  if (!isRecord(value) || !isStyleId(value['style'])) {
+    return value;
+  }
+  const style = PIZZA_STYLES[value['style']];
+  return {
+    oilPercent: style.defaultOilPercent,
+    sugarPercent: style.defaultSugarPercent,
+    ...value,
+  };
+}
+
 export function isDoughInput(value: unknown): value is DoughInput {
   if (!isRecord(value)) {
     return false;
   }
   return (
     isOneOf(value['method'], METHODS) &&
-    isOneOf(value['style'], Object.keys(PIZZA_STYLES)) &&
+    isStyleId(value['style']) &&
     isOneOf(value['yeastType'], YEAST_TYPES) &&
     Number.isInteger(value['ballCount']) &&
     isWithinLimit(value['ballCount'], DOUGH_LIMITS.ballCount) &&
     isWithinLimit(value['ballWeightGrams'], DOUGH_LIMITS.ballWeightGrams) &&
     isWithinLimit(value['hydrationPercent'], DOUGH_LIMITS.hydrationPercent) &&
+    isWithinLimit(value['oilPercent'], DOUGH_LIMITS.oilPercent) &&
+    isWithinLimit(value['sugarPercent'], DOUGH_LIMITS.sugarPercent) &&
     isPreDoughSettings(value['preDough']) &&
     Array.isArray(value['phases']) &&
     value['phases'].every(isFermentationPhase)
@@ -67,6 +86,10 @@ function isFermentationPhase(value: unknown): value is FermentationPhase {
     isWithinLimit(value['hours'], DOUGH_LIMITS.hours) &&
     isWithinLimit(value['temperatureC'], DOUGH_LIMITS.temperatureC)
   );
+}
+
+function isStyleId(value: unknown): value is PizzaStyleId {
+  return isOneOf(value, Object.keys(PIZZA_STYLES));
 }
 
 function isOneOf(value: unknown, allowed: readonly string[]): value is string {

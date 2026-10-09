@@ -59,6 +59,8 @@ export class DoughStore {
     this.patch({
       style: styleId,
       hydrationPercent: style.defaultHydrationPercent,
+      oilPercent: style.defaultOilPercent,
+      sugarPercent: style.defaultSugarPercent,
       ballWeightGrams: style.defaultBallWeightGrams,
     });
   }
@@ -75,6 +77,14 @@ export class DoughStore {
     this.patch({
       hydrationPercent: clampToLimit(hydrationPercent, DOUGH_LIMITS.hydrationPercent),
     });
+  }
+
+  setOil(oilPercent: number): void {
+    this.patch({ oilPercent: clampToLimit(oilPercent, DOUGH_LIMITS.oilPercent) });
+  }
+
+  setSugar(sugarPercent: number): void {
+    this.patch({ sugarPercent: clampToLimit(sugarPercent, DOUGH_LIMITS.sugarPercent) });
   }
 
   setYeastType(yeastType: YeastType): void {

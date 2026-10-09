@@ -60,6 +60,10 @@ export function roundYeastGrams(grams: number): number {
 }
 
 function buildRows(amounts: IngredientAmounts, yeastType: YeastType, t: Translations): RecipeRow[] {
+  return [...baseRows(amounts, yeastType, t), ...enrichmentRows(amounts, t)];
+}
+
+function baseRows(amounts: IngredientAmounts, yeastType: YeastType, t: Translations): RecipeRow[] {
   return [
     { label: t.recipe.flour, grams: roundGrams(amounts.flour), decimals: 0 },
     { label: t.recipe.water, grams: roundGrams(amounts.water), decimals: 0 },
@@ -70,4 +74,12 @@ function buildRows(amounts: IngredientAmounts, yeastType: YeastType, t: Translat
       decimals: YEAST_DECIMALS,
     },
   ];
+}
+
+function enrichmentRows(amounts: IngredientAmounts, t: Translations): RecipeRow[] {
+  const rows: RecipeRow[] = [
+    { label: t.recipe.oil, grams: roundGrams(amounts.oil), decimals: 0 },
+    { label: t.recipe.sugar, grams: roundGrams(amounts.sugar), decimals: 0 },
+  ];
+  return rows.filter((row) => row.grams > 0);
 }

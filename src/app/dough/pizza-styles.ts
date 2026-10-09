@@ -4,6 +4,8 @@ export interface PizzaStyle {
   id: PizzaStyleId;
   saltPercent: number;
   defaultHydrationPercent: number;
+  defaultOilPercent: number;
+  defaultSugarPercent: number;
   defaultBallWeightGrams: number;
   thicknessFactorGramsPerCm2: number;
 }
@@ -13,6 +15,8 @@ export const PIZZA_STYLES: Record<PizzaStyleId, PizzaStyle> = {
     id: 'neapolitan',
     saltPercent: 2.8,
     defaultHydrationPercent: 62,
+    defaultOilPercent: 0,
+    defaultSugarPercent: 0,
     defaultBallWeightGrams: 250,
     thicknessFactorGramsPerCm2: 0.354,
   },
@@ -20,6 +24,8 @@ export const PIZZA_STYLES: Record<PizzaStyleId, PizzaStyle> = {
     id: 'new-york',
     saltPercent: 2.5,
     defaultHydrationPercent: 63,
+    defaultOilPercent: 2.5,
+    defaultSugarPercent: 1.5,
     defaultBallWeightGrams: 450,
     thicknessFactorGramsPerCm2: 0.32,
   },
@@ -27,6 +33,8 @@ export const PIZZA_STYLES: Record<PizzaStyleId, PizzaStyle> = {
     id: 'roman',
     saltPercent: 2.5,
     defaultHydrationPercent: 60,
+    defaultOilPercent: 0,
+    defaultSugarPercent: 0,
     defaultBallWeightGrams: 180,
     thicknessFactorGramsPerCm2: 0.22,
   },

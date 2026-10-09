@@ -171,10 +171,10 @@ describe('formatRecipeText', () => {
     const expectedSteps = [
       '',
       'Steps',
-      '  Fri 13:00 – Mix dough',
-      '  Fri 15:00 – Start phase 2 (24 h at 4 °C)',
-      '  Sat 15:00 – Start phase 3 (4 h at 22 °C)',
-      '  Sat 19:00 – Bake',
+      '  Fri 10/09 13:00 – Mix dough',
+      '  Fri 10/09 15:00 – Start phase 2 (24 h at 4 °C)',
+      '  Sat 10/10 15:00 – Start phase 3 (4 h at 22 °C)',
+      '  Sat 10/10 19:00 – Bake',
     ].join('\n');
 
     const text = formatRecipeText(input, RESULT, TRANSLATIONS.en, 'metric', plan);

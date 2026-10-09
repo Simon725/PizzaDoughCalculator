@@ -3,7 +3,7 @@ import { BakePlan } from '../dough/bake-schedule';
 import { DoughInput, isPreDoughMethod } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { Translations } from '../i18n/translations';
-import { formatHours, formatWeekdayTime } from '../shared/format';
+import { formatHours, formatWeekdayDateTime } from '../shared/format';
 import { formatTemperature } from '../units/unit-format';
 import { UnitSystemService } from '../units/unit-system.service';
 import { TimelinePhase, buildTimeline } from './timeline-math';
@@ -91,7 +91,7 @@ export class FermentationTimeline {
   protected readonly bakeLabel = computed(() => {
     const plan = this.bakePlan();
     const t = this.t();
-    return plan ? t.bakeSchedule.bakesAt(formatWeekdayTime(plan.bakeAt, t.locale)) : '';
+    return plan ? t.bakeSchedule.bakesAt(formatWeekdayDateTime(plan.bakeAt, t.locale)) : '';
   });
   protected readonly equivalentLabel = computed(() =>
     formatHours(Math.round(this.equivalentHours() * 10) / 10, this.t().locale),
@@ -118,10 +118,10 @@ function startLabelsFor(plan: BakePlan | null, locale: string): Map<string, stri
     return labels;
   }
   if (plan.preDoughStartsAt) {
-    labels.set(PRE_DOUGH_SEGMENT_ID, formatWeekdayTime(plan.preDoughStartsAt, locale));
+    labels.set(PRE_DOUGH_SEGMENT_ID, formatWeekdayDateTime(plan.preDoughStartsAt, locale));
   }
   for (const phase of plan.phases) {
-    labels.set(phase.id, formatWeekdayTime(phase.startsAt, locale));
+    labels.set(phase.id, formatWeekdayDateTime(phase.startsAt, locale));
   }
   return labels;
 }

@@ -1,0 +1,180 @@
+:host {
+  display: block;
+}
+
+.stage {
+  --crust-inner: #f4d9a6;
+  --crust-mid: #ebb46a;
+  --crust-edge: #b06c34;
+  --crust-stroke: transparent;
+
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: clamp(16px, 4vw, 24px) clamp(12px, 3vw, 24px) 12px;
+}
+
+.stage[data-style='new-york'] {
+  --crust-inner: #ecc68a;
+  --crust-mid: #d9a25a;
+  --crust-edge: #a8682e;
+}
+
+.stage[data-style='roman'] {
+  --crust-inner: #e2b274;
+  --crust-mid: #c4823f;
+  --crust-edge: #6e3514;
+  --crust-stroke: #4d230c;
+}
+
+.stage__label {
+  display: grid;
+  gap: 2px;
+}
+
+.stage__eyebrow {
+  color: var(--color-ember-soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.stage__size {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 9vw, 4rem);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--color-text);
+
+  small {
+    color: var(--color-text-muted);
+    font-size: 0.45em;
+    font-weight: 700;
+  }
+}
+
+.stage__svg {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.crust-stop-inner {
+  stop-color: var(--crust-inner);
+}
+
+.crust-stop-mid {
+  stop-color: var(--crust-mid);
+}
+
+.crust-stop-edge {
+  stop-color: var(--crust-edge);
+}
+
+.plate {
+  fill: var(--color-surface-strong);
+}
+
+.plate-halo {
+  fill: none;
+  stroke: rgba(20, 10, 4, 0.35);
+  stroke-width: 0.5;
+}
+
+.plate-outline {
+  fill: none;
+  stroke: #fff4e2;
+  stroke-width: 0.22;
+  stroke-dasharray: 1 0.8;
+  opacity: 0.85;
+}
+
+.stage__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 8px;
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.stage__legend-plate,
+.stage__legend-span {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+}
+
+.stage__legend-plate {
+  border-top: 2px dashed var(--color-text-muted);
+}
+
+.stage__legend-span {
+  margin-left: 8px;
+  border-top: 4px solid var(--color-ember);
+  border-radius: 2px;
+}
+
+.pizza {
+  transition: transform 700ms var(--ease-spring);
+  will-change: transform;
+}
+
+.pizza__shadow {
+  fill: rgba(0, 0, 0, 0.35);
+}
+
+.pizza__crust {
+  stroke: var(--crust-stroke);
+  stroke-width: 0.3;
+}
+
+.pizza__char {
+  fill: #2e1608;
+}
+
+.pizza__mozzarella {
+  fill: #fff6e2;
+  stroke: #fff6e2;
+  stroke-width: 0.5;
+  stroke-linejoin: round;
+}
+
+.pizza__grease {
+  fill: rgba(255, 210, 160, 0.35);
+}
+
+.pizza__basil {
+  fill: #3f8f3a;
+}
+
+.pizza__basil-rib {
+  fill: none;
+  stroke: #2a6527;
+  stroke-width: 0.1;
+}
+
+.ruler__base,
+.ruler__tick {
+  stroke: var(--color-text-muted);
+  stroke-width: 0.12;
+}
+
+.ruler__label {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 1.8px;
+  text-anchor: middle;
+}
+
+.ruler__span {
+  fill: var(--color-ember);
+  opacity: 0.85;
+  transition: transform 700ms var(--ease-spring);
+}

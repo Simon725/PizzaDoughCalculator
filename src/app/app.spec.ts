@@ -20,11 +20,24 @@ describe('App', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Pizzateig-Rechner');
   });
 
-  it('renders the recipe card and the visual slot', async () => {
+  it('renders the recipe card and the visuals', async () => {
     const compiled = await render();
-    expect(compiled.querySelector('.visual-slot[aria-hidden="true"]')).not.toBeNull();
+    expect(compiled.querySelector('.visual-slot svg[aria-hidden="true"]')).not.toBeNull();
+    expect(compiled.querySelector('app-fermentation-timeline')).not.toBeNull();
+    expect(compiled.querySelectorAll('app-dough-balls .ball').length).toBe(4);
+    expect(compiled.querySelector('app-oven-ambience')?.getAttribute('aria-hidden')).toBe('true');
     expect(compiled.querySelector('app-recipe-card h2')?.textContent).toContain('Neapolitanisch');
     expect(compiled.textContent).toContain('Hauptteig');
+  });
+
+  it('describes the pizza size and the timeline as text', async () => {
+    const compiled = await render();
+    expect(compiled.querySelector('app-pizza-visual figcaption')?.textContent).toContain(
+      'Pizza-Durchmesser ca. 30 cm',
+    );
+    expect(compiled.querySelector('app-fermentation-timeline .legend')?.textContent).toContain(
+      '24 h bei 4 °C',
+    );
   });
 
   it('shows the pre-dough panel only for poolish and biga', async () => {

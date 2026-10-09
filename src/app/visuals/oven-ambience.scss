@@ -1,0 +1,93 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--ambience-opacity, 1);
+  contain: strict;
+}
+
+:host(.is-paused) * {
+  animation-play-state: paused;
+}
+
+.glow {
+  position: absolute;
+  right: -10%;
+  bottom: -18vh;
+  left: -10%;
+  height: 40vh;
+  background: radial-gradient(
+    50% 60% at 50% 100%,
+    rgba(255, 106, 43, 0.32),
+    rgba(255, 200, 87, 0.08) 55%,
+    transparent 75%
+  );
+  transform-origin: 50% 100%;
+  animation: flicker 3.2s ease-in-out infinite alternate;
+}
+
+.spark {
+  position: absolute;
+  bottom: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff3c4 0%, var(--color-flame) 45%, rgba(255, 106, 43, 0) 75%);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: rise linear infinite;
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  10% {
+    opacity: 0.9;
+  }
+
+  60% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift, 0), -105vh, 0) scale(0.4);
+  }
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.75;
+    transform: scale(1, 1);
+  }
+
+  35% {
+    opacity: 1;
+    transform: scale(1.03, 1.08);
+  }
+
+  70% {
+    opacity: 0.85;
+    transform: scale(0.99, 0.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.02, 1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    display: none;
+  }
+}
+
+@media print {
+  :host {
+    display: none;
+  }
+}

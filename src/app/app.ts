@@ -9,17 +9,27 @@ import { NumberStepper } from './shared/number-stepper';
 import { RangeField } from './shared/range-field';
 import { DOUGH_LIMITS } from './state/dough-limits';
 import { DoughStore } from './state/dough.store';
+import { ThemeToggle } from './theme/theme-toggle';
+import { DoughBalls } from './visuals/dough-balls';
+import { FermentationTimeline } from './visuals/fermentation-timeline';
+import { OvenAmbience } from './visuals/oven-ambience';
+import { PizzaVisual } from './visuals/pizza-visual';
 
 @Component({
   selector: 'app-root',
   imports: [
+    DoughBalls,
+    FermentationTimeline,
     MethodSwitch,
     NumberStepper,
+    OvenAmbience,
     PhaseEditor,
+    PizzaVisual,
     PreDoughPanel,
     RangeField,
     RecipeCard,
     StylePicker,
+    ThemeToggle,
     YeastToggle,
   ],
   templateUrl: './app.html',

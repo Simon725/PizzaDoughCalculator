@@ -110,6 +110,11 @@
   margin: 0 auto;
   display: grid;
   gap: 24px;
+}
+
+.layout__row {
+  display: grid;
+  gap: 24px;
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -196,7 +201,16 @@
 
 @media (min-width: 960px) {
   .layout {
+    gap: 48px;
+  }
+
+  .layout__row {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: start;
+  }
+
+  .layout__results--sticky {
+    position: sticky;
+    top: 24px;
   }
 }

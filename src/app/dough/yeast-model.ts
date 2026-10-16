@@ -4,6 +4,7 @@ import { equivalentHours } from './fermentation-time';
 export const YEAST_MODEL = {
   referenceTemperatureC: 20,
   temperatureDoublingStepC: 9,
+  cold: { thresholdC: 12, doublingStepC: 3.5 },
   coefficient: 6.03,
   exponent: -1.29,
   minFreshYeastPercent: 0.02,

@@ -35,18 +35,34 @@ describe('sourdough model', () => {
   });
 
   it.each([
-    [24, 9.7],
-    [48, 4.15],
-    [72, 2.2],
+    [24, 19.6],
+    [48, 11.7],
+    [72, 7.7],
   ])('uses less starter for %i h in the fridge', (fridgeHours, expectedPercent) => {
     expect(starterPercentForSchedule(coldSchedule(fridgeHours))).toBeCloseTo(expectedPercent, 1);
   });
 
-  it('keeps 24 h cold fermentation within 5–10 % starter', () => {
+  it('keeps 24 h cold fermentation within 15–20 % starter', () => {
     const percent = starterPercentForSchedule(coldSchedule(24));
 
-    expect(percent).toBeGreaterThan(5);
-    expect(percent).toBeLessThan(10);
+    expect(percent).toBeGreaterThan(15);
+    expect(percent).toBeLessThan(20);
+  });
+
+  it('halves the speed every 3.5 °C below 12 °C', () => {
+    const at12 = equivalentHoursAt22C([{ id: 'a', hours: 10, temperatureC: 12 }]);
+    const at8 = equivalentHoursAt22C([{ id: 'b', hours: 10, temperatureC: 8.5 }]);
+
+    expect(at12).toBeCloseTo(10 * Math.pow(2, -10 / 8), 10);
+    expect(at8).toBeCloseTo(at12 / 2, 10);
+  });
+
+  it('counts a 4 °C fridge at about a twelfth of 22 °C', () => {
+    const fridgeHours = equivalentHoursAt22C([{ id: 'fridge', hours: 24, temperatureC: 4 }]);
+
+    expect(fridgeHours).toBeCloseTo(24 * Math.pow(2, -10 / 8) * Math.pow(2, -8 / 3.5), 10);
+    expect(fridgeHours).toBeGreaterThan(1.8);
+    expect(fridgeHours).toBeLessThan(2.2);
   });
 
   it('counts hours at 22 °C one to one', () => {
@@ -66,6 +82,16 @@ describe('sourdough model', () => {
     const yeastRatio = equivalentHoursAt20C(cool) / equivalentHoursAt20C(room);
 
     expect(sourdoughRatio).toBeLessThan(yeastRatio);
+  });
+
+  it('slows down at least as much as yeast in the fridge', () => {
+    const fridge = [{ id: 'fridge', hours: 24, temperatureC: 4 }];
+    const room = [{ id: 'room', hours: 24, temperatureC: 22 }];
+
+    const sourdoughRatio = equivalentHoursAt22C(fridge) / equivalentHoursAt22C(room);
+    const yeastRatio = equivalentHoursAt20C(fridge) / equivalentHoursAt20C(room);
+
+    expect(sourdoughRatio).toBeLessThanOrEqual(yeastRatio);
   });
 
   it('needs far more starter than fresh yeast for the same schedule', () => {

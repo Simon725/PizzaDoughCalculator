@@ -243,8 +243,8 @@ describe('calculateDough', () => {
         }),
       );
 
-      expect(cold.starter!.inoculationPercent).toBeGreaterThan(5);
-      expect(cold.starter!.inoculationPercent).toBeLessThan(10);
+      expect(cold.starter!.inoculationPercent).toBeGreaterThan(15);
+      expect(cold.starter!.inoculationPercent).toBeLessThan(20);
     });
 
     it('uses the starter hydration for the flour and water split', () => {

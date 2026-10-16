@@ -12,9 +12,9 @@ Live: https://simon725.github.io/PizzaDoughCalculator/
 ## Sourdough model
 With sourdough, a starter replaces the yeast. The starter amount (% of total flour) comes from the schedule:
 
-- Each phase counts as equivalent hours at 22 °C; activity doubles every 8 °C.
+- Each phase counts as equivalent hours at 22 °C; activity doubles every 8 °C down to 12 °C and halves every 3.5 °C below that, so a 4 °C fridge counts about 1/12 of 22 °C.
 - Starter % = 20 × (equivalent hours / 8)^-2.25, clamped to 2–30 %.
-- Examples: 8 h at 22 °C → 20 %, 12 h at 22 °C → 8 %, 2 h + 24 h at 4 °C + 4 h → 9.7 %, same with 48 h → 4.2 %, 72 h → 2.2 %.
+- Examples: 8 h at 22 °C → 20 %, 12 h at 22 °C → 8 %, 2 h + 24 h at 4 °C + 4 h → 19.6 %, same with 48 h → 11.7 %, 72 h → 7.7 %.
 - Starter flour and water count toward total flour and hydration (starter hydration 50–200 %, default 100 %).
 - Manual override: the switch "Calculated / Manual" in the sourdough panel lets you set the starter % yourself (2–30 %, step 0.5). Switching to manual starts from the calculated value, snapped to the step; the calculated value stays visible as a hint.
 - In manual mode the schedule warnings for the starter amount (clamped, no fermentation time) are not shown. Mode and manual % are stored with the settings (`starterMode`, `manualStarterPercent`); older saved settings load in calculated mode.

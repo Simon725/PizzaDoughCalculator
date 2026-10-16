@@ -169,10 +169,10 @@ describe('DoughStore', () => {
 
       store.updateSourdough({ starterMode: 'manual' });
 
-      expect(calculated).toBeCloseTo(9.7, 1);
+      expect(calculated).toBeCloseTo(19.6, 1);
       expect(store.input().sourdough.starterMode).toBe('manual');
-      expect(store.input().sourdough.manualStarterPercent).toBe(9.5);
-      expect(store.result().starter?.inoculationPercent).toBe(9.5);
+      expect(store.input().sourdough.manualStarterPercent).toBe(19.5);
+      expect(store.result().starter?.inoculationPercent).toBe(19.5);
       expect(store.result().starter?.calculatedInoculationPercent).toBe(calculated);
     });
 
@@ -204,7 +204,7 @@ describe('DoughStore', () => {
       expect(store.input().sourdough.manualStarterPercent).toBe(15);
 
       store.updateSourdough({ starterMode: 'manual' });
-      expect(store.input().sourdough.manualStarterPercent).toBe(9.5);
+      expect(store.input().sourdough.manualStarterPercent).toBe(19.5);
     });
 
     it('keeps the starter hydration across method changes', () => {

@@ -5,6 +5,7 @@ import { LeaveningClamp } from './yeast-model';
 export const SOURDOUGH_MODEL = {
   referenceTemperatureC: 22,
   temperatureDoublingStepC: 8,
+  cold: { thresholdC: 12, doublingStepC: 3.5 },
   calibrationHours: 8,
   calibrationStarterPercent: 20,
   exponent: -2.25,

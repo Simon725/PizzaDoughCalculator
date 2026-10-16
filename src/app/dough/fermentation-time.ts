@@ -3,6 +3,12 @@ import { FermentationPhase } from './dough.model';
 export interface TemperatureModel {
   referenceTemperatureC: number;
   temperatureDoublingStepC: number;
+  cold?: ColdTemperatureModel;
+}
+
+export interface ColdTemperatureModel {
+  thresholdC: number;
+  doublingStepC: number;
 }
 
 export function equivalentHours(
@@ -21,9 +27,26 @@ function phaseEquivalentHours(phase: FermentationPhase, model: TemperatureModel)
   if (hours === 0 || !Number.isFinite(phase.temperatureC)) {
     return 0;
   }
-  const exponent =
-    (phase.temperatureC - model.referenceTemperatureC) / model.temperatureDoublingStepC;
-  return hours * Math.pow(2, exponent);
+  return hours * activityFactor(phase.temperatureC, model);
+}
+
+function activityFactor(temperatureC: number, model: TemperatureModel): number {
+  const { cold } = model;
+  if (!cold || temperatureC >= cold.thresholdC) {
+    return doublingFactor(
+      temperatureC,
+      model.referenceTemperatureC,
+      model.temperatureDoublingStepC,
+    );
+  }
+  return (
+    doublingFactor(cold.thresholdC, model.referenceTemperatureC, model.temperatureDoublingStepC) *
+    doublingFactor(temperatureC, cold.thresholdC, cold.doublingStepC)
+  );
+}
+
+function doublingFactor(temperatureC: number, baseC: number, doublingStepC: number): number {
+  return Math.pow(2, (temperatureC - baseC) / doublingStepC);
 }
 
 function validHours(hours: number): number {

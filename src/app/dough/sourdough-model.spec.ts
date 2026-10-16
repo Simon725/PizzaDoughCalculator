@@ -58,12 +58,12 @@ describe('sourdough model', () => {
     expect(equivalentHoursAt22C([{ id: 'a', hours: 10, temperatureC: 14 }])).toBeCloseTo(5, 10);
   });
 
-  it('slows down in the fridge more than yeast does', () => {
-    const fridge = [{ id: 'fridge', hours: 24, temperatureC: 4 }];
+  it('slows down more than yeast does above 12 °C', () => {
+    const cool = [{ id: 'cool', hours: 24, temperatureC: 14 }];
     const room = [{ id: 'room', hours: 24, temperatureC: 22 }];
 
-    const sourdoughRatio = equivalentHoursAt22C(fridge) / equivalentHoursAt22C(room);
-    const yeastRatio = equivalentHoursAt20C(fridge) / equivalentHoursAt20C(room);
+    const sourdoughRatio = equivalentHoursAt22C(cool) / equivalentHoursAt22C(room);
+    const yeastRatio = equivalentHoursAt20C(cool) / equivalentHoursAt20C(room);
 
     expect(sourdoughRatio).toBeLessThan(yeastRatio);
   });

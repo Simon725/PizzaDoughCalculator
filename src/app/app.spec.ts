@@ -81,8 +81,8 @@ describe('App', () => {
     expect(slider?.min).toBe('2');
     expect(slider?.max).toBe('30');
     expect(slider?.step).toBe('0.5');
-    expect(slider?.value).toBe('9.5');
-    expect(panel().querySelector('.sourdough__hint')?.textContent).toContain('Berechnet: 9,7 %');
+    expect(slider?.value).toBe('19.5');
+    expect(panel().querySelector('.sourdough__hint')?.textContent).toContain('Berechnet: 19,6 %');
 
     slider!.value = '15';
     slider!.dispatchEvent(new Event('input'));

@@ -1,4 +1,5 @@
 import { DOCUMENT, Injectable, inject, signal } from '@angular/core';
+import { prefersReducedMotion } from '../visuals/motion';
 
 export type ThemePreference = 'system' | 'dark' | 'light';
 
@@ -19,8 +20,16 @@ export class ThemeService {
 
   setPreference(preference: ThemePreference): void {
     this.state.set(preference);
-    this.applyTheme(preference);
+    this.crossfade(() => this.applyTheme(preference));
     saveThemePreference(preference);
+  }
+
+  private crossfade(update: () => void): void {
+    if (!this.document.startViewTransition || prefersReducedMotion()) {
+      update();
+      return;
+    }
+    this.document.startViewTransition(update);
   }
 
   private applyTheme(preference: ThemePreference): void {

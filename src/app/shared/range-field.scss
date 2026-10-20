@@ -20,6 +20,7 @@
   color: var(--color-text-muted);
   font-family: var(--font-mono);
   font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
 }
 
 @mixin thumb {
@@ -31,7 +32,7 @@
   box-shadow:
     0 0 0 1px var(--color-ember),
     0 4px 14px rgba(255, 106, 43, 0.45);
-  transition: transform 220ms var(--ease-spring);
+  transition: transform var(--duration-press) var(--ease-out);
 }
 
 .range-field__slider {
@@ -77,12 +78,20 @@
     @include thumb;
   }
 
-  &:hover::-webkit-slider-thumb,
+  @media (hover: hover) and (pointer: fine) {
+    &:hover::-webkit-slider-thumb {
+      transform: scale(1.08);
+    }
+
+    &:hover::-moz-range-thumb {
+      transform: scale(1.08);
+    }
+  }
+
   &:active::-webkit-slider-thumb {
     transform: scale(1.15);
   }
 
-  &:hover::-moz-range-thumb,
   &:active::-moz-range-thumb {
     transform: scale(1.15);
   }

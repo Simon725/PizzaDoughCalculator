@@ -36,7 +36,9 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  transition: flex-basis 320ms var(--ease-out);
 
   &:first-child {
     border-radius: 14px 8px 8px 14px;
@@ -66,8 +68,7 @@
 }
 
 .segment__cold {
-  font-size: 0.9rem;
-  line-height: 1;
+  font-size: 13px;
 }
 
 .legend {
@@ -114,7 +115,9 @@
 }
 
 .legend__cold {
+  vertical-align: -2px;
   color: #4a9be0;
+  font-size: 12px;
 }
 
 .total .total__bake {

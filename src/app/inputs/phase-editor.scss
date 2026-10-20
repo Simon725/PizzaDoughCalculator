@@ -17,10 +17,9 @@
   gap: 10px;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
-  border-left: 3px solid var(--phase-accent);
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  animation: phase-in 360ms var(--ease-spring);
+  animation: phase-in 280ms var(--ease-out);
 }
 
 .phase--cold {
@@ -30,7 +29,7 @@
 @keyframes phase-in {
   from {
     opacity: 0;
-    transform: translateY(-6px) scale(0.98);
+    transform: translateY(-6px);
   }
 }
 
@@ -52,6 +51,7 @@
   font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .phase__title {
@@ -82,17 +82,25 @@
   border: 1px solid transparent;
   border-radius: 50%;
   background: transparent;
-  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  font-size: 18px;
   cursor: pointer;
   transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    transform 220ms var(--ease-spring);
+    background var(--duration-state) ease,
+    border-color var(--duration-state) ease,
+    color var(--duration-state) ease,
+    transform var(--duration-press) var(--ease-out);
 
-  &:hover:not(:disabled) {
-    border-color: var(--color-border);
-    background: var(--color-surface-strong);
-    transform: scale(1.1);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      border-color: var(--color-border);
+      background: var(--color-surface-strong);
+      color: var(--color-text);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.92);
   }
 
   &:disabled {
@@ -101,9 +109,11 @@
   }
 }
 
-.icon-button--danger:hover:not(:disabled) {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
+@media (hover: hover) and (pointer: fine) {
+  .icon-button--danger:hover:not(:disabled) {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+  }
 }
 
 .phase__fields {
@@ -143,7 +153,10 @@
 }
 
 .phase-add__button {
-  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px 8px 10px;
   border: 1px dashed var(--color-ember-soft);
   border-radius: 999px;
   background: transparent;
@@ -151,22 +164,28 @@
   font-weight: 500;
   cursor: pointer;
   transition:
-    background 160ms ease,
-    transform 220ms var(--ease-spring);
+    background var(--duration-state) ease,
+    transform var(--duration-press) var(--ease-out);
 
   small {
     color: var(--color-text-muted);
     font-family: var(--font-mono);
   }
 
-  &:hover {
-    background: rgba(255, 106, 43, 0.14);
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: rgba(255, 106, 43, 0.14);
+    }
   }
 
   &:active {
-    transform: scale(0.96);
+    transform: scale(0.97);
   }
+}
+
+.phase-add__icon {
+  color: var(--color-ember-soft);
+  font-size: 14px;
 }
 
 .phase-total {
@@ -179,5 +198,6 @@
     color: var(--color-text);
     font-family: var(--font-mono);
     font-size: 1.1rem;
+    font-variant-numeric: tabular-nums;
   }
 }

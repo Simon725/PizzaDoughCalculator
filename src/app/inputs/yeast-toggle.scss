@@ -25,9 +25,29 @@
   grid-template-columns: 1fr 1fr;
   gap: 4px;
   padding: 4px;
+  position: relative;
+  isolation: isolate;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   background: var(--color-surface);
+
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 6px);
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--color-ember), #ff8a3d);
+    box-shadow: 0 4px 14px -4px rgba(255, 106, 43, 0.55);
+    transition: transform 280ms var(--ease-out);
+  }
+
+  &:has(.yeast-toggle__option:last-child input:checked)::before {
+    transform: translateX(calc(100% + 4px));
+  }
 }
 
 .yeast-toggle__option {
@@ -39,16 +59,17 @@
   text-align: center;
   cursor: pointer;
   transition:
-    background 220ms ease,
-    color 220ms ease,
-    transform 260ms var(--ease-spring);
+    color var(--duration-state) ease,
+    transform var(--duration-press) var(--ease-out);
 
-  &:hover {
-    color: var(--color-text);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--color-text);
+    }
   }
 
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
 
   &:has(input:focus-visible) {
@@ -57,12 +78,7 @@
   }
 }
 
-.yeast-toggle__option--active {
-  background: linear-gradient(135deg, var(--color-ember), #ff8a3d);
+.yeast-toggle__option--active,
+.yeast-toggle__option--active:hover {
   color: #1a0d06;
-  box-shadow: 0 4px 16px rgba(255, 106, 43, 0.35);
-
-  &:hover {
-    color: #1a0d06;
-  }
 }

@@ -22,11 +22,18 @@
   font-size: 0.85rem;
   cursor: pointer;
   transition:
-    color 160ms ease,
-    background 160ms ease;
+    color var(--duration-state) ease,
+    background var(--duration-state) ease,
+    transform var(--duration-press) var(--ease-out);
 
-  &:hover {
-    color: var(--color-text);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 
   &:has(input:focus-visible) {
@@ -41,8 +48,7 @@
 }
 
 .pill-option__icon {
-  font-size: 0.9rem;
-  line-height: 1;
+  font-size: 14px;
 }
 
 @media (max-width: 420px) {

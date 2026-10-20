@@ -23,19 +23,20 @@
   font-weight: 500;
   cursor: pointer;
   transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    transform 220ms var(--ease-spring);
+    background var(--duration-state) ease,
+    border-color var(--duration-state) ease,
+    color var(--duration-state) ease,
+    transform var(--duration-press) var(--ease-out);
 
-  &:hover {
-    border-color: var(--color-ember-soft);
-    color: var(--color-text);
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: var(--color-ember-soft);
+      color: var(--color-text);
+    }
   }
 
   &:active {
-    transform: scale(0.96);
+    transform: scale(0.97);
   }
 }
 

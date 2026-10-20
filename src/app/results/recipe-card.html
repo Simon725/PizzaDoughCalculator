@@ -14,7 +14,7 @@
 
   @if (warningMessages().length) {
     <div class="recipe__warnings" role="alert">
-      <span class="recipe__warnings-icon" aria-hidden="true">!</span>
+      <span class="recipe__warnings-icon" aria-hidden="true"><app-icon name="alert" /></span>
       <ul>
         @for (message of warningMessages(); track $index) {
           <li>{{ message }}</li>

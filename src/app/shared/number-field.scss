@@ -7,12 +7,12 @@
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease;
+    border-color var(--duration-state) ease,
+    box-shadow var(--duration-state) ease;
 
   &:focus-within {
     border-color: var(--color-ember-soft);
-    box-shadow: 0 0 0 3px rgba(255, 106, 43, 0.2);
+    box-shadow: var(--focus-ring);
   }
 }
 

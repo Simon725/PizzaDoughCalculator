@@ -4,6 +4,7 @@ import { DoughInput, isPreDoughMethod } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { Translations } from '../i18n/translations';
 import { formatHours, formatWeekdayDateTime } from '../shared/format';
+import { Icon } from '../shared/icon';
 import { formatTemperature } from '../units/unit-format';
 import { UnitSystemService } from '../units/unit-system.service';
 import { TimelinePhase, buildTimeline } from './timeline-math';
@@ -13,6 +14,7 @@ const PRE_DOUGH_SEGMENT_ID = 'pre-dough';
 
 @Component({
   selector: 'app-fermentation-timeline',
+  imports: [Icon],
   template: `
     <figure class="timeline">
       @if (segments().length) {
@@ -26,7 +28,7 @@ const PRE_DOUGH_SEGMENT_ID = 'pre-dough';
               [style.--segment-color]="segment.color"
             >
               @if (segment.isCold) {
-                <span class="segment__cold">❄</span>
+                <app-icon class="segment__cold" name="snowflake" />
               }
               <span class="segment__hours">{{ formatHours(segment.hours, t().locale) }} h</span>
             </span>
@@ -47,7 +49,7 @@ const PRE_DOUGH_SEGMENT_ID = 'pre-dough';
               <span class="legend__meta">
                 {{ segmentDetails(segment.hours, segment.temperatureC) }}
                 @if (segment.isCold) {
-                  <span class="legend__cold" aria-hidden="true">❄</span>
+                  <app-icon class="legend__cold" name="snowflake" />
                   <span class="visually-hidden">{{ t().timeline.fridge }}</span>
                 }
               </span>

@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { LanguageService } from '../i18n/language.service';
 import { NumberLimit, clampToLimit } from '../state/dough-limits';
+import { Icon } from './icon';
 import { NumberField } from './number-field';
 
 @Component({
   selector: 'app-number-stepper',
-  imports: [NumberField],
+  imports: [Icon, NumberField],
   template: `
     <button
       type="button"
@@ -14,7 +15,7 @@ import { NumberField } from './number-field';
       [disabled]="value() <= limit().min"
       (click)="stepBy(-1)"
     >
-      −
+      <app-icon name="minus" />
     </button>
     <app-number-field
       [value]="value()"
@@ -31,7 +32,7 @@ import { NumberField } from './number-field';
       [disabled]="value() >= limit().max"
       (click)="stepBy(1)"
     >
-      +
+      <app-icon name="plus" />
     </button>
   `,
   styleUrl: './number-stepper.scss',

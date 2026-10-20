@@ -12,22 +12,23 @@
   border: 1px solid var(--color-border);
   border-radius: 50%;
   background: var(--color-surface-strong);
-  font-size: 1.4rem;
+  font-size: 18px;
   line-height: 1;
   cursor: pointer;
   transition:
-    transform 220ms var(--ease-spring),
-    background 160ms ease,
-    border-color 160ms ease;
+    transform var(--duration-press) var(--ease-out),
+    background var(--duration-state) ease,
+    border-color var(--duration-state) ease;
 
-  &:hover:not(:disabled) {
-    border-color: var(--color-ember-soft);
-    background: rgba(255, 106, 43, 0.18);
-    transform: scale(1.08);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      border-color: var(--color-ember-soft);
+      background: rgba(255, 106, 43, 0.18);
+    }
   }
 
   &:active:not(:disabled) {
-    transform: scale(0.92);
+    transform: scale(0.94);
   }
 
   &:disabled {

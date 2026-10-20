@@ -15,6 +15,7 @@ import { DOUGH_LIMITS } from '../state/dough-limits';
 import { MoveDirection, PhasePatch } from '../state/dough.store';
 import { PHASE_PRESETS, PhasePresetId } from '../state/phase-presets';
 import { formatHours } from '../shared/format';
+import { Icon } from '../shared/icon';
 import { NumberField } from '../shared/number-field';
 import { formatTemperature } from '../units/unit-format';
 import { temperatureField } from '../units/unit-fields';
@@ -34,7 +35,7 @@ const COLD_THRESHOLD_C = 10;
 
 @Component({
   selector: 'app-phase-editor',
-  imports: [NumberField],
+  imports: [Icon, NumberField],
   template: `
     @if (phases().length) {
       <ol class="phase-list">
@@ -55,7 +56,7 @@ const COLD_THRESHOLD_C = 10;
                   [disabled]="first"
                   (click)="move(phase.id, -1)"
                 >
-                  ↑
+                  <app-icon name="arrow-up" />
                 </button>
                 <button
                   type="button"
@@ -65,7 +66,7 @@ const COLD_THRESHOLD_C = 10;
                   [disabled]="last"
                   (click)="move(phase.id, 1)"
                 >
-                  ↓
+                  <app-icon name="arrow-down" />
                 </button>
                 <button
                   type="button"
@@ -73,7 +74,7 @@ const COLD_THRESHOLD_C = 10;
                   [attr.aria-label]="t().phases.remove(index + 1)"
                   (click)="removePhase.emit(phase.id)"
                 >
-                  ×
+                  <app-icon name="close" />
                 </button>
               </span>
             </div>
@@ -105,7 +106,8 @@ const COLD_THRESHOLD_C = 10;
       <div class="phase-add" role="group" [attr.aria-label]="t().phases.add">
         @for (preset of presets; track preset.id) {
           <button type="button" class="phase-add__button" (click)="addPhase.emit(preset.id)">
-            + {{ t().phases.presets[preset.id] }}
+            <app-icon class="phase-add__icon" name="plus" />
+            {{ t().phases.presets[preset.id] }}
             <small>{{ presetTemperature(preset.temperatureC) }}</small>
           </button>
         }

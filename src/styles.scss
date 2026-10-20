@@ -21,8 +21,14 @@
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 28px;
-  --shadow-glow: 0 0 40px rgba(255, 106, 43, 0.25);
+  --shadow-glow: 0 10px 30px -12px rgba(255, 106, 43, 0.45);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-press: 140ms;
+  --duration-state: 200ms;
+  --focus-ring: 0 0 0 3px rgba(255, 106, 43, 0.28);
+  --selection-bg: rgba(255, 106, 43, 0.35);
   --ambience-opacity: 1;
   --page-glow:
     radial-gradient(80% 50% at 85% -10%, rgba(255, 106, 43, 0.18), transparent 70%),
@@ -61,7 +67,9 @@
   --color-text: #2a160b;
   --color-text-muted: #6e5240;
   --color-ember-soft: #d4531a;
-  --shadow-glow: 0 0 0 1px var(--color-ember);
+  --shadow-glow: 0 0 0 1px var(--color-ember), 0 8px 20px -12px rgba(194, 65, 12, 0.45);
+  --focus-ring: 0 0 0 3px rgba(212, 83, 26, 0.22);
+  --selection-bg: rgba(255, 106, 43, 0.22);
   --ambience-opacity: 0.3;
   --page-glow: none;
   --title-fill: linear-gradient(180deg, var(--color-text) 45%, #c2410c 100%);
@@ -99,20 +107,43 @@ body {
   min-height: 100%;
 }
 
+html {
+  scrollbar-color: var(--color-border) transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
   line-height: 1.5;
+  caret-color: var(--color-ember);
+  accent-color: var(--color-ember);
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--color-text);
 }
 
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
-  line-height: 1.1;
   margin: 0;
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+p,
+li,
+dd {
+  text-wrap: pretty;
 }
 
 button,
@@ -122,9 +153,41 @@ select {
   color: inherit;
 }
 
+button,
+label,
+input[type='range'] {
+  touch-action: manipulation;
+}
+
+button,
+label:has(> input.visually-hidden) {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-flame);
   outline-offset: 2px;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+  animation-timing-function: var(--ease-out);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --color-surface: var(--color-bg-elevated);
+    --panel-bg: var(--color-bg-elevated);
+    --recipe-bg: var(--color-bg-elevated);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --color-border: var(--color-text-muted);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

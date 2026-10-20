@@ -44,6 +44,8 @@
   isolation: isolate;
   font-size: clamp(2.5rem, 7vw, 5rem);
   font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.025em;
 
   &::before {
     content: '';
@@ -52,8 +54,7 @@
     z-index: -1;
     background: var(--title-glow);
     filter: blur(20px);
-    transform-origin: 50% 100%;
-    animation: heat 2.6s ease-in-out infinite alternate;
+    opacity: 0.85;
   }
 }
 
@@ -62,23 +63,6 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-@keyframes heat {
-  0% {
-    opacity: 0.6;
-    transform: scale(1, 0.92);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.04, 1.06);
-  }
-
-  100% {
-    opacity: 0.75;
-    transform: scale(0.98, 1);
-  }
 }
 
 .reset-button {
@@ -90,18 +74,19 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    transform 240ms var(--ease-spring);
+    color var(--duration-state) ease,
+    border-color var(--duration-state) ease,
+    transform var(--duration-press) var(--ease-out);
 
-  &:hover {
-    border-color: var(--color-ember-soft);
-    color: var(--color-text);
-    transform: rotate(-2deg) scale(1.03);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: var(--color-ember-soft);
+      color: var(--color-text);
+    }
   }
 
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.97);
   }
 }
 
@@ -126,8 +111,8 @@
 }
 
 :where(.layout__inputs, .layout__results) > * {
-  animation: rise-in 640ms var(--ease-spring) backwards;
-  animation-delay: calc(var(--stagger, 0) * 70ms);
+  animation: rise-in 560ms var(--ease-out) backwards;
+  animation-delay: calc(var(--stagger, 0) * 50ms);
 }
 
 @for $index from 1 through 8 {
@@ -143,7 +128,7 @@
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(18px) scale(0.98);
+    transform: translateY(12px);
   }
 }
 
@@ -160,19 +145,20 @@
 
 .panel--pre-dough {
   border-color: rgba(255, 200, 87, 0.4);
-  animation: panel-in 480ms var(--ease-spring);
+  animation: panel-in 320ms var(--ease-out);
 }
 
 @keyframes panel-in {
   from {
     opacity: 0;
-    transform: translateY(-12px) scale(0.98);
+    transform: translateY(-8px);
   }
 }
 
 .panel__title {
   font-size: 1.4rem;
   font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .panel__row {

@@ -23,8 +23,16 @@
   appearance: none;
   cursor: pointer;
   transition:
-    background 160ms ease,
-    border-color 160ms ease;
+    background var(--duration-state) ease,
+    border-color var(--duration-state) ease;
+
+  &:active::after {
+    width: 19px;
+  }
+
+  &:checked:active::after {
+    transform: translateX(17px);
+  }
 
   &::after {
     content: '';
@@ -35,9 +43,11 @@
     height: 16px;
     border-radius: 50%;
     background: var(--color-text-muted);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     transition:
-      transform 240ms var(--ease-spring),
-      background 160ms ease;
+      width 220ms var(--ease-out),
+      transform 220ms var(--ease-out),
+      background var(--duration-state) ease;
   }
 
   &:checked {
@@ -85,13 +95,19 @@
   font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease;
+    border-color var(--duration-state) ease,
+    box-shadow var(--duration-state) ease;
 
   &:focus-visible {
     border-color: var(--color-ember-soft);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 106, 43, 0.2);
+    box-shadow: var(--focus-ring);
+  }
+
+  &::-webkit-calendar-picker-indicator {
+    opacity: 0.6;
+    cursor: pointer;
   }
 }

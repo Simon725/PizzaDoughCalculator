@@ -14,6 +14,7 @@ import { DoughInput, DoughResult } from '../dough/dough.model';
 import { LanguageService } from '../i18n/language.service';
 import { AnimatedNumber } from '../shared/animated-number';
 import { formatHours, formatWeekdayDateTime } from '../shared/format';
+import { Icon } from '../shared/icon';
 import { lengthAmount, weightAmount } from '../units/unit-format';
 import { UnitSystemService } from '../units/unit-system.service';
 import { buildRecipeSections } from './recipe-sections';
@@ -26,7 +27,7 @@ const COPY_FEEDBACK_MS = 2500;
 
 @Component({
   selector: 'app-recipe-card',
-  imports: [AnimatedNumber],
+  imports: [AnimatedNumber, Icon],
   templateUrl: './recipe-card.html',
   styleUrl: './recipe-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
